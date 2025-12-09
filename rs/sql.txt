@@ -1,0 +1,11 @@
+Hãy tạo cơ sở dữ liệu
+
+CREATE DATABASE quanLyUser;
+USE quanLyUser;
+
+CREATE TABLE user(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name varchar(20),
+    password varchar(255)
+);
+SELECT * FROM user;
