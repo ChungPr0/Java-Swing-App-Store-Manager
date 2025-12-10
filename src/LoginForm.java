@@ -37,6 +37,7 @@ public class LoginForm extends  JFrame{
                         textField1.setText("");
                         passwordField1.setText("");
 
+
                     }
                     else{
                         JOptionPane.showMessageDialog(null, "Sai tên hoặc mật khẩu", null, JOptionPane.WARNING_MESSAGE);
