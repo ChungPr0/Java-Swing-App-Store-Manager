@@ -21,3 +21,4 @@ Học thêm về git -> https://youtu.be/1JuYQgpbrW0?si=SJMmRFQjPelL4pT9
 
 File "mysql-connector-java-8.0.28.jar" không được để cùng với thư mục Java-Project.. mà phải nể ở một nơi khác vd D:/media
 thì mới kết nối được với sql
+
