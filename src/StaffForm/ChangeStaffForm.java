@@ -13,6 +13,7 @@ public class ChangeStaffForm extends JDialog {
     private JComboBox<String> comboBox3;
     private JTextField phone;
     private JButton changeButton;
+    private JTextField address;
     private String originalName;
 
     private boolean isChanged = false;
@@ -20,7 +21,7 @@ public class ChangeStaffForm extends JDialog {
     public ChangeStaffForm(java.awt.Frame parent, String staffName) {
         super(parent, true);
         this.setContentPane(changeStaffTime);
-        this.setSize(300, 250);
+        this.setSize(550, 250);
         this.setTitle("Sửa Nhân Viên: " + staffName);
         this.setLocationRelativeTo(parent);
         this.originalName = staffName;
@@ -47,6 +48,7 @@ public class ChangeStaffForm extends JDialog {
             if (rs.next()) {
                 name.setText(rs.getString("sta_name"));
                 phone.setText(rs.getString("sta_phone"));
+                address.setText(rs.getString("sta_address"));
 
                 Date sqlDate = rs.getDate("sta_date_of_birth");
                 if (sqlDate != null) {
@@ -75,13 +77,14 @@ public class ChangeStaffForm extends JDialog {
                             comboBox2.getSelectedItem() + "-" +
                             comboBox1.getSelectedItem();
 
-                    String sql = "UPDATE Staffs SET sta_name=?, sta_date_of_birth=?, sta_phone=? WHERE sta_name=?";
+                    String sql = "UPDATE Staffs SET sta_name=?, sta_date_of_birth=?, sta_phone=?, sta_address=? WHERE sta_name=?";
 
                     PreparedStatement ps = con.prepareStatement(sql);
                     ps.setString(1, name.getText());
                     ps.setString(2, strDate);
                     ps.setString(3, phone.getText());
-                    ps.setString(4, originalName);
+                    ps.setString(4, address.getText());
+                    ps.setString(5, originalName);
 
                     int rows = ps.executeUpdate();
                     if (rows > 0) {

@@ -23,7 +23,8 @@ CREATE TABLE Staffs (
     sta_ID INT PRIMARY KEY AUTO_INCREMENT,
     sta_name NVARCHAR(100) NOT NULL,
     sta_date_of_birth DATE,
-    sta_phone VARCHAR(20)
+    sta_phone VARCHAR(20),
+    sta_address NVARCHAR(255)
 );
 
 -- 5. Tạo bảng SẢN PHẨM (Products) - Tham chiếu đến Suppliers
@@ -32,6 +33,7 @@ CREATE TABLE Products (
     pro_name NVARCHAR(100) NOT NULL,
     pro_price DECIMAL(18, 2) NOT NULL, -- Dùng Decimal cho tiền tệ
     pro_count INT DEFAULT 0,
+    pro_type INT NOT NULL,
     sup_ID INT,
     FOREIGN KEY (sup_ID) REFERENCES Suppliers(sup_ID)
 );
@@ -66,15 +68,6 @@ CREATE TABLE Accounts (
 INSERT INTO Accounts (acc_name, acc_pass) 
 VALUES ('admin', '12345678');
 
-INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone) 
+INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone, sta_address)
 VALUES 
-(N'Nguyễn Văn An', '1990-05-15', '0901234567'),
-(N'Trần Thị Bích', '1995-08-20', '0912345678'),
-(N'Lê Hoàng Nam', '1988-12-10', '0988776655'),
-(N'Phạm Minh Tuấn', '2000-01-25', '0977112233'),
-(N'Hoàng Thu Thủy', '1992-03-30', '0965432109'),
-(N'Vũ Đức Mạnh', '1998-07-14', '0933998877'),
-(N'Đặng Văn Hùng', '1985-09-02', '0944556677'),
-(N'Bùi Thị Lan', '1999-11-11', '0922334455'),
-(N'Đỗ Quang Huy', '1993-06-18', '0919283746'),
-(N'Ngô Phương Thảo', '1996-04-22', '0955667788');
+(N'Nguyễn Văn An', '1990-05-15', '0901234567', 'hanoi')

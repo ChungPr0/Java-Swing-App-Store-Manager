@@ -13,13 +13,14 @@ public class AddStaffForm extends JDialog {
     private JComboBox<String> comboBox1;
     private JComboBox<String> comboBox2;
     private JComboBox<String> comboBox3;
+    private JTextField address;
 
     private boolean isAdded = false;
 
     public AddStaffForm(java.awt.Frame parent) {
         super(parent, true);
         this.setContentPane(addStaffTime);
-        this.setSize(300, 250);
+        this.setSize(550, 250);
         this.setTitle("Thêm Nhân Viên Mới");
         this.setLocationRelativeTo(parent);
 
@@ -51,13 +52,14 @@ public class AddStaffForm extends JDialog {
                     String thang = comboBox2.getSelectedItem().toString();
                     String nam = comboBox3.getSelectedItem().toString();
                     String strDate = nam + "-" + thang + "-" + ngay;
-                    String sql = "INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone) VALUES (?, ?, ?)";
+                    String sql = "INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone, sta_address) VALUES (?, ?, ?, ?)";
 
                     ps = con.prepareStatement(sql);
 
                     ps.setString(1, name.getText());
                     ps.setString(2, strDate);
                     ps.setString(3, phone.getText());
+                    ps.setString(4, address.getText());
 
                     int rows = ps.executeUpdate();
 
