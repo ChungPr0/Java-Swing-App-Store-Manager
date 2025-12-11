@@ -1,3 +1,4 @@
+import JDBCUntils.DBConnection;
 import StaffForm.AddStaffForm;
 import StaffForm.ChangeStaffForm;
 
@@ -22,15 +23,9 @@ public class DashBoard extends JFrame {
         read();
     }
 
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/quanlybanhang", "root", "123456");
-        return con;
-    }
-
     void read() {
         DefaultListModel<String> model = new DefaultListModel<>();
-        try (Connection con = getConnection()) {
+        try (Connection con = DBConnection.getConnection();) {
             String sql = "SELECT sta_name FROM staffs";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -92,7 +87,7 @@ public class DashBoard extends JFrame {
     private void delStaff(String staffName) {
         String sql = "DELETE FROM Staffs WHERE sta_name = ?";
 
-        try (Connection con = getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, staffName);
 

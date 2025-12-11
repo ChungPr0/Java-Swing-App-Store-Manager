@@ -1,5 +1,7 @@
 package StaffForm;
 
+import JDBCUntils.DBConnection;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,15 +33,10 @@ public class ChangeStaffForm extends JDialog {
         addEvents();
     }
 
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/quanlybanhang?useUnicode=true&characterEncoding=UTF-8", "root", "123456");
-    }
-
     private void loadData(String staffName) {
         String sql = "SELECT * FROM Staffs WHERE sta_name = ?";
 
-        try (Connection con = getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, staffName);
@@ -72,7 +69,7 @@ public class ChangeStaffForm extends JDialog {
         changeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try (Connection con = getConnection()) {
+                try (Connection con = DBConnection.getConnection()) {
                     String strDate = comboBox3.getSelectedItem() + "-" +
                             comboBox2.getSelectedItem() + "-" +
                             comboBox1.getSelectedItem();

@@ -1,5 +1,7 @@
 package StaffForm;
 
+import JDBCUntils.DBConnection;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,11 +30,6 @@ public class AddStaffForm extends JDialog {
         addEvents();
     }
 
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/quanlybanhang?useUnicode=true&characterEncoding=UTF-8", "root", "123456");
-    }
-
     public void addEvents() {
         addButton.addActionListener(new ActionListener() {
             @Override
@@ -46,7 +43,7 @@ public class AddStaffForm extends JDialog {
                 PreparedStatement ps = null;
 
                 try {
-                    con = getConnection();
+                    con = DBConnection.getConnection();
 
                     String ngay = comboBox1.getSelectedItem().toString();
                     String thang = comboBox2.getSelectedItem().toString();

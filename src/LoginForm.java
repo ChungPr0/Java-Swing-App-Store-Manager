@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import JDBCUntils.DBConnection;
 
 public class LoginForm extends  JDialog {
     private JPanel loginTime;
@@ -24,12 +25,6 @@ public class LoginForm extends  JDialog {
 
     public boolean isLoginSuccess() {
         return isSuccess;
-    }
-
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/quanlybanhang", "root", "123456");
-        return con;
     }
 
 
@@ -59,7 +54,7 @@ public class LoginForm extends  JDialog {
     }
 
     public boolean checkLogin(String name, String password) throws Exception{
-        Connection con = getConnection();
+        Connection con = DBConnection.getConnection();
 
         PreparedStatement ps = con.prepareStatement("SELECT * FROM accounts WHERE acc_name = ? AND acc_pass = ?");
         ps.setString(1, name);
