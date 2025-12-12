@@ -1,4 +1,4 @@
-package StaffForm;
+package JDBCUntils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -8,7 +8,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class StaffFunctions {
+public class Functions {
     public static void createMenuButton(JLabel label) {
 
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));

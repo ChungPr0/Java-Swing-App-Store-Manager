@@ -1,6 +1,6 @@
 import JDBCUntils.DBConnection;
 import StaffForm.AddStaffForm;
-import StaffForm.StaffFunctions;
+import JDBCUntils.Functions;
 import SupplierForm.AddSupplierForm;
 
 import javax.swing.*;
@@ -26,10 +26,10 @@ public class DashBoard extends JFrame {
     private JPanel menuPanel;
     private JTextField staffName;
     private JTextField staffAddress;
-    private JComboBox staffDay;
     private JTextField staffPhone;
-    private JComboBox staffMonth;
-    private JComboBox staffYear;
+    private JComboBox<String> staffDay;
+    private JComboBox<String> staffMonth;
+    private JComboBox<String> staffYear;
     private JButton saveStaffButton;
     private JButton deleteStaffButton;
     private JTextField supplierName;
@@ -251,20 +251,25 @@ public class DashBoard extends JFrame {
             }
         });
 
-        supplierButtonAdd.addActionListener(e -> {
-            AddSupplierForm form = new AddSupplierForm(this);
-            form.setVisible(true);
-            if (form.isAddedSuccess()) {
-                loadSupplierListData();
+        supplierButtonAdd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AddSupplierForm form = new AddSupplierForm(DashBoard.this);
+                form.setVisible(true);
+                if (form.isAddedSuccess()) {
+                    loadSupplierListData();
+                }
             }
         });
 
-
-        staffButtonAdd.addActionListener(e -> {
-            AddStaffForm addStaffForm = new AddStaffForm(this);
-            addStaffForm.setVisible(true);
-            if (addStaffForm.isAddedSuccess()) {
-                loadStaffListData();
+        staffButtonAdd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AddStaffForm addStaffForm = new AddStaffForm(DashBoard.this);
+                addStaffForm.setVisible(true);
+                if (addStaffForm.isAddedSuccess()) {
+                    loadStaffListData();
+                }
             }
         });
 
@@ -422,10 +427,10 @@ public class DashBoard extends JFrame {
         menuPanel.setBackground(Color.decode("#2c3e50"));
 //        menuPanel.setPreferredSize(new Dimension(1000, 50));
 
-        StaffFunctions.createMenuButton(staffLabel);
-        StaffFunctions.createMenuButton(supplierLabel);
-        StaffFunctions.addPlaceholderStyle(staffSearchBox);
-        StaffFunctions.addPlaceholderStyle(supplierSearchBox);
+        Functions.createMenuButton(staffLabel);
+        Functions.createMenuButton(supplierLabel);
+        Functions.addPlaceholderStyle(staffSearchBox);
+        Functions.addPlaceholderStyle(supplierSearchBox);
 
 
 //        this.getContentPane().add(menuPanel, BorderLayout.NORTH);
