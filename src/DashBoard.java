@@ -12,17 +12,17 @@ import java.sql.*;
 
 public class DashBoard extends JFrame {
     private JPanel dashBoardTime;
-    private JList<String> listStaff;
-    private JButton staffButtonAdd;
-    private JTextField staffSearchBox;
     private JPanel StaffPanel;
     private JLabel staffLabel;
-    private JTextField supplierSearchBox;
-    private JList<String> listSupplier;
-    private JButton saveSupplierButton;
-    private JButton supplierButtonAdd;
     private JPanel SupplierPanel;
     private JLabel supplierLabel;
+    private JList<String> listStaff;
+    private JList<String> listSupplier;
+    private JButton staffButtonAdd;
+    private JTextField staffSearchBox;
+    private JTextField supplierSearchBox;
+    private JButton saveSupplierButton;
+    private JButton supplierButtonAdd;
     private JPanel menuPanel;
     private JTextField staffName;
     private JTextField staffAddress;
