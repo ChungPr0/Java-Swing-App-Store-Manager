@@ -1,6 +1,8 @@
-package StaffForm;
+package CustomerForm;
 
 import JDBCUntils.DBConnection;
+//import CustomerForm.AddCustomerForm;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -10,19 +12,17 @@ import java.sql.*;
 
 import static JDBCUntils.Style.*;
 
-public class StaffManagerPanel extends JPanel {
+public class CustomerManagerPanel extends JPanel {
     // --- KHAI BÁO BIẾN ---
-    private JList<String> listStaff;
+    private JList<String> listCustomer;
     private JTextField txtSearch, txtName, txtPhone, txtAddress;
-    private JComboBox<String> cbDay, cbMonth, cbYear;
     private JButton btnAdd, btnSave, btnDelete;
 
     private String originalName;
     private boolean isDataLoading = false;
 
-    public StaffManagerPanel() {
+    public CustomerManagerPanel() {
         initUI();           // Vẽ giao diện
-        initComboBoxData(); // Nạp ngày tháng
         loadListData();     // Tải danh sách
         addEvents();        // Gán sự kiện
         addChangeListeners(); // Gán sự kiện hiện nút Lưu
@@ -43,12 +43,12 @@ public class StaffManagerPanel extends JPanel {
         searchPanel.add(txtSearch, BorderLayout.CENTER);
         searchPanel.add(btnAdd, BorderLayout.EAST);
 
-        listStaff = new JList<>();
-        listStaff.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        listStaff.setFixedCellHeight(30);
+        listCustomer = new JList<>();
+        listCustomer.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        listCustomer.setFixedCellHeight(30);
 
         leftPanel.add(searchPanel, BorderLayout.NORTH);
-        leftPanel.add(new JScrollPane(listStaff), BorderLayout.CENTER);
+        leftPanel.add(new JScrollPane(listCustomer), BorderLayout.CENTER);
 
         // 2. Panel Phải: Form thông tin
         JPanel rightPanel = new JPanel();
@@ -57,20 +57,12 @@ public class StaffManagerPanel extends JPanel {
         rightPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         // Tiêu đề
-        rightPanel.add(createHeaderLabel("THÔNG TIN NHÂN VIÊN"));
+        rightPanel.add(createHeaderLabel("THÔNG TIN KHÁCH HÀNG"));
         rightPanel.add(Box.createVerticalStrut(20));
 
         txtName = new JTextField();
-        JPanel pName = createTextFieldWithLabel(txtName, "Tên Nhân Viên:");
+        JPanel pName = createTextFieldWithLabel(txtName, "Tên Khách Hàng:");
         rightPanel.add(pName);
-        rightPanel.add(Box.createVerticalStrut(15));
-
-        // --- PHẦN NGÀY SINH---
-        cbDay = new JComboBox<>();
-        cbMonth = new JComboBox<>();
-        cbYear = new JComboBox<>();
-        JPanel datePanel = createDatePanel("Ngày sinh:", cbDay, cbMonth, cbYear);
-        rightPanel.add(datePanel);
         rightPanel.add(Box.createVerticalStrut(15));
 
         txtPhone = new JTextField();
@@ -87,7 +79,7 @@ public class StaffManagerPanel extends JPanel {
         // Panel Nút bấm (Lưu / Xóa)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnSave = createButton("Lưu thay đổi", Color.GREEN);
-        btnDelete = createButton("Xóa nhân viên", Color.RED);
+        btnDelete = createButton("Xóa khách hàng", Color.RED);
 
         // Mặc định ẩn
         btnSave.setVisible(false);
@@ -108,13 +100,13 @@ public class StaffManagerPanel extends JPanel {
     private void loadListData() {
         DefaultListModel<String> model = new DefaultListModel<>();
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "SELECT sta_name FROM staffs";
+            String sql = "SELECT cus_name FROM Customers";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                model.addElement(rs.getString("sta_name"));
+                model.addElement(rs.getString("cus_name"));
             }
-            listStaff.setModel(model);
+            listCustomer.setModel(model);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
         }
@@ -123,23 +115,15 @@ public class StaffManagerPanel extends JPanel {
     private void loadDetail(String name) {
         isDataLoading = true;
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "SELECT * FROM Staffs WHERE sta_name = ?";
+            String sql = "SELECT * FROM Customers WHERE cus_name = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                txtName.setText(rs.getString("sta_name"));
-                txtPhone.setText(rs.getString("sta_phone"));
-                txtAddress.setText(rs.getString("sta_address"));
-
-                Date sqlDate = rs.getDate("sta_date_of_birth");
-                if (sqlDate != null) {
-                    String[] parts = sqlDate.toString().split("-");
-                    cbYear.setSelectedItem(parts[0]);
-                    cbMonth.setSelectedItem(parts[1]);
-                    cbDay.setSelectedItem(parts[2]);
-                }
+                txtName.setText(rs.getString("cus_name"));
+                txtPhone.setText(rs.getString("cus_phone"));
+                txtAddress.setText(rs.getString("cus_address"));
 
                 enableForm(true);
                 btnDelete.setVisible(true);
@@ -155,10 +139,9 @@ public class StaffManagerPanel extends JPanel {
 
     // --- PHẦN SỰ KIỆN ---
     private void addEvents() {
-        // 1. load nhân viên khi chọn
-        listStaff.addListSelectionListener(e -> {
+        listCustomer.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                String selected = listStaff.getSelectedValue();
+                String selected = listCustomer.getSelectedValue();
                 if (selected != null) {
                     originalName = selected;
                     loadDetail(selected);
@@ -184,26 +167,24 @@ public class StaffManagerPanel extends JPanel {
 
         // 3. Nút Thêm
         btnAdd.addActionListener(e -> {
-            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            AddStaffForm addStaffForm = new AddStaffForm(parentFrame);
-            addStaffForm.setVisible(true);
-
-            if (addStaffForm.isAddedSuccess()) {
-                loadListData();
-            }
+//            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+//            AddCustomerForm addCustomerForm = new AddCustomerForm(parentFrame);
+//            addCustomerForm.setVisible(true);
+//
+//            if (addCustomerForm.isAddedSuccess()) {
+//                loadListData();
+//            }
         });
 
         // 4. Nút Lưu
         btnSave.addActionListener(e -> {
             try (Connection con = DBConnection.getConnection()) {
-                String strDate = cbYear.getSelectedItem() + "-" + cbMonth.getSelectedItem() + "-" + cbDay.getSelectedItem();
-                String sql = "UPDATE Staffs SET sta_name=?, sta_date_of_birth=?, sta_phone=?, sta_address=? WHERE sta_name=?";
+                String sql = "UPDATE Customers SET cus_name=?, cus_phone=?, cus_address=? WHERE cus_name=?";
                 PreparedStatement ps = con.prepareStatement(sql);
                 ps.setString(1, txtName.getText());
-                ps.setString(2, strDate);
-                ps.setString(3, txtPhone.getText());
-                ps.setString(4, txtAddress.getText());
-                ps.setString(5, originalName);
+                ps.setString(2, txtPhone.getText());
+                ps.setString(3, txtAddress.getText());
+                ps.setString(4, originalName);
 
                 if (ps.executeUpdate() > 0) {
                     JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
@@ -220,7 +201,7 @@ public class StaffManagerPanel extends JPanel {
         btnDelete.addActionListener(e -> {
             if(JOptionPane.showConfirmDialog(this, "Xóa " + originalName + "?") == JOptionPane.YES_OPTION){
                 try (Connection con = DBConnection.getConnection()) {
-                    PreparedStatement ps = con.prepareStatement("DELETE FROM Staffs WHERE sta_name=?");
+                    PreparedStatement ps = con.prepareStatement("DELETE FROM Customers WHERE cus_name=?");
                     ps.setString(1, originalName);
                     if (ps.executeUpdate() > 0) {
                         loadListData();
@@ -236,34 +217,27 @@ public class StaffManagerPanel extends JPanel {
     private void search(String keyword) {
         DefaultListModel<String> model = new DefaultListModel<>();
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "SELECT sta_name FROM Staffs WHERE sta_name LIKE ?";
+            String sql = "SELECT cus_name FROM Customers WHERE cus_name LIKE ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, "%" + keyword + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                model.addElement(rs.getString("sta_name"));
+                model.addElement(rs.getString("cus_name"));
             }
-            listStaff.setModel(model);
+            listCustomer.setModel(model);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
         }
     }
 
     private void addChangeListeners() {
-        SimpleDocumentListener docListener = new SimpleDocumentListener(e -> {
+        CustomerForm.CustomerManagerPanel.SimpleDocumentListener docListener = new CustomerForm.CustomerManagerPanel.SimpleDocumentListener(e -> {
             if (!isDataLoading) btnSave.setVisible(true);
         });
 
         txtName.getDocument().addDocumentListener(docListener);
         txtPhone.getDocument().addDocumentListener(docListener);
         txtAddress.getDocument().addDocumentListener(docListener);
-
-        java.awt.event.ActionListener actionListener = e -> {
-            if (!isDataLoading) btnSave.setVisible(true);
-        };
-        cbDay.addActionListener(actionListener);
-        cbMonth.addActionListener(actionListener);
-        cbYear.addActionListener(actionListener);
     }
 
     private void clearForm() {
@@ -278,15 +252,6 @@ public class StaffManagerPanel extends JPanel {
         txtName.setEnabled(enable);
         txtPhone.setEnabled(enable);
         txtAddress.setEnabled(enable);
-        cbDay.setEnabled(enable);
-        cbMonth.setEnabled(enable);
-        cbYear.setEnabled(enable);
-    }
-
-    private void initComboBoxData() {
-        for (int i = 1; i <= 31; i++) cbDay.addItem(String.format("%02d", i));
-        for (int i = 1; i <= 12; i++) cbMonth.addItem(String.format("%02d", i));
-        for (int i = 2025; i >= 1960; i--) cbYear.addItem(String.valueOf(i));
     }
 
 
@@ -294,8 +259,8 @@ public class StaffManagerPanel extends JPanel {
     interface DocumentUpdateListener { void update(DocumentEvent e); }
 
     static class SimpleDocumentListener implements DocumentListener {
-        private final DocumentUpdateListener listener;
-        public SimpleDocumentListener(DocumentUpdateListener listener) { this.listener = listener; }
+        private final CustomerForm.CustomerManagerPanel.DocumentUpdateListener listener;
+        public SimpleDocumentListener(CustomerForm.CustomerManagerPanel.DocumentUpdateListener listener) { this.listener = listener; }
         public void insertUpdate(DocumentEvent e) { listener.update(e); }
         public void removeUpdate(DocumentEvent e) { listener.update(e); }
         public void changedUpdate(DocumentEvent e) { listener.update(e); }

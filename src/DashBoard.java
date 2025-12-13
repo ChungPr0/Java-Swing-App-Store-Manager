@@ -1,5 +1,8 @@
+import CustomerForm.CustomerManagerPanel;
+import HomeForm.HomeManagerPanel;
+import ProductForm.ProductManagerPanel;
 import StaffForm.StaffManagerPanel;
-import SupplierForm.SupplierManagerPanel; // Nhớ import file vừa tạo
+import SupplierForm.SupplierManagerPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +13,7 @@ public class DashBoard extends JFrame {
     private JPanel mainContainer;
     private JPanel menuPanel;
     private JPanel contentPanel;
-    private JLabel btnHome, btnStaff, btnSupplier;
+    private JLabel btnHome, btnStaff, btnSupplier, btnCustomer, btnProduct;
     private CardLayout cardLayout;
 
     public DashBoard() {
@@ -24,30 +27,32 @@ public class DashBoard extends JFrame {
     }
 
     private void initUI() {
-        // Panel chính
         mainContainer = new JPanel(new BorderLayout());
 
-        // 1. THANH MENU
         menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         menuPanel.setBackground(Color.decode("#2c3e50"));
 
         btnHome = createMenuLabel("TRANG CHỦ");
         btnStaff = createMenuLabel("NHÂN VIÊN");
         btnSupplier = createMenuLabel("NHÀ CUNG CẤP");
+        btnCustomer = createMenuLabel("KHÁCH HÀNG");
+        btnProduct = createMenuLabel("SẢN PHẨM");
 
         menuPanel.add(btnHome);
         menuPanel.add(btnStaff);
         menuPanel.add(btnSupplier);
+        menuPanel.add(btnCustomer);
+        menuPanel.add(btnProduct);
 
-        // 2. PHẦN NỘI DUNG
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
-        contentPanel.add(new JPanel(), "HOME"); // Trang chủ để trống hoặc thêm ảnh
-        contentPanel.add(new StaffManagerPanel(), "STAFF"); // Gọi Panel Nhân viên
-        contentPanel.add(new SupplierManagerPanel(), "SUPPLIER"); // Gọi Panel NCC
+        contentPanel.add(new HomeManagerPanel(), "HOME");
+        contentPanel.add(new StaffManagerPanel(), "STAFF");
+        contentPanel.add(new SupplierManagerPanel(), "SUPPLIER");
+        contentPanel.add(new CustomerManagerPanel(), "CUSTOMER");
+        contentPanel.add(new ProductManagerPanel(), "PRODUCT");
 
-        // 3. Lắp ráp
         mainContainer.add(menuPanel, BorderLayout.NORTH);
         mainContainer.add(contentPanel, BorderLayout.CENTER);
 
@@ -55,8 +60,6 @@ public class DashBoard extends JFrame {
     }
 
     private JLabel createMenuLabel(String text) {
-        // Bạn có thể dùng hàm Functions.createMenuButton() của bạn
-        // Ở đây mình viết nhanh để code chạy được ngay
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
         label.setForeground(Color.WHITE);
@@ -88,6 +91,18 @@ public class DashBoard extends JFrame {
         btnSupplier.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
                 cardLayout.show(contentPanel, "SUPPLIER");
+            }
+        });
+
+        btnCustomer.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                cardLayout.show(contentPanel, "CUSTOMER");
+            }
+        });
+
+        btnProduct.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                cardLayout.show(contentPanel, "PRODUCT");
             }
         });
     }

@@ -1,8 +1,7 @@
--- 1. Tạo cơ sở dữ liệu
+DROP DATABASE QuanLyBanHang;
 CREATE DATABASE QuanLyBanHang;
 USE QuanLyBanHang;
 
--- 2. Tạo bảng NHÀ CUNG CẤP (Suppliers) trước vì Product tham chiếu đến nó
 CREATE TABLE Suppliers (
     sup_ID INT PRIMARY KEY AUTO_INCREMENT,
     sup_name NVARCHAR(100) NOT NULL,
@@ -10,7 +9,6 @@ CREATE TABLE Suppliers (
     sup_phone VARCHAR(20)
 );
 
--- 3. Tạo bảng KHÁCH HÀNG (Customers)
 CREATE TABLE Customers (
     cus_ID INT PRIMARY KEY AUTO_INCREMENT,
     cus_name NVARCHAR(100) NOT NULL,
@@ -18,7 +16,6 @@ CREATE TABLE Customers (
     cus_phone VARCHAR(20)
 );
 
--- 4. Tạo bảng NHÂN VIÊN (Staffs)
 CREATE TABLE Staffs (
     sta_ID INT PRIMARY KEY AUTO_INCREMENT,
     sta_name NVARCHAR(100) NOT NULL,
@@ -27,18 +24,22 @@ CREATE TABLE Staffs (
     sta_address NVARCHAR(255)
 );
 
--- 5. Tạo bảng SẢN PHẨM (Products) - Tham chiếu đến Suppliers
+CREATE TABLE ProductTypes (
+    type_ID INT PRIMARY KEY AUTO_INCREMENT,
+    type_name NVARCHAR(100) NOT NULL
+);
+
 CREATE TABLE Products (
     pro_ID INT PRIMARY KEY AUTO_INCREMENT,
     pro_name NVARCHAR(100) NOT NULL,
     pro_price DECIMAL(18, 2) NOT NULL, -- Dùng Decimal cho tiền tệ
     pro_count INT DEFAULT 0,
-    pro_type INT NOT NULL,
+    type_ID INT NOT NULL,
     sup_ID INT,
-    FOREIGN KEY (sup_ID) REFERENCES Suppliers(sup_ID)
+    FOREIGN KEY (sup_ID) REFERENCES Suppliers(sup_ID),
+    FOREIGN KEY (type_ID) REFERENCES ProductTypes(type_ID)
 );
 
--- 6. Tạo bảng HÓA ĐƠN (Invoices) - Tham chiếu Staffs và Customers
 CREATE TABLE Invoices (
     inv_ID INT PRIMARY KEY AUTO_INCREMENT,
     sta_ID INT,
@@ -48,7 +49,6 @@ CREATE TABLE Invoices (
     FOREIGN KEY (cus_ID) REFERENCES Customers(cus_ID)
 );
 
--- 7. Tạo bảng CHI TIẾT HÓA ĐƠN (Invoice_details) - Tham chiếu Invoices và Products
 CREATE TABLE Invoice_details (
     ind_ID INT PRIMARY KEY AUTO_INCREMENT,
     inv_ID INT,
@@ -58,14 +58,13 @@ CREATE TABLE Invoice_details (
     FOREIGN KEY (pro_ID) REFERENCES Products(pro_ID)
 );
 
--- 8. Tạo bảng Accounts
 CREATE TABLE Accounts (
     acc_ID INT PRIMARY KEY AUTO_INCREMENT,
     acc_name varchar(20),
     acc_pass varchar(255)
 );
 
-INSERT INTO Accounts (acc_name, acc_pass) 
+INSERT INTO Accounts (acc_name, acc_pass)
 VALUES ('admin', '12345678');
 
 INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone, sta_address) VALUES
@@ -99,13 +98,110 @@ INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone, sta_address) VALUES
 (N'Trần Minh Quân', '1991-03-27', '0903344556', N'Yên Bái'),
 (N'Lã Thị Hương', '1996-10-08', '0914455667', N'Bắc Giang');
 
--- Thêm Nhà cung cấp
 INSERT INTO Suppliers (sup_name, sup_address, sup_phone) VALUES
-('Công ty ABC', 'Hà Nội', '0901234567'),
-('Kho Hàng XYZ', 'TP.HCM', '0987654321');
+(N'Công ty Công Nghệ Việt', N'Hà Nội', '0901111111'),
+(N'Đại Lý Phân Phối Á Châu', N'TP.HCM', '0902222222'),
+(N'Linh Kiện PC Giá Rẻ', N'Đà Nẵng', '0903333333'),
+(N'Thế Giới Di Động Xanh', N'Hà Nội', '0904444444'),
+(N'Công ty TNHH Tuấn Minh', N'Hải Phòng', '0905555555'),
+(N'Kho Hàng Tổng Hợp', N'Cần Thơ', '0906666666'),
+(N'Nhà Phân Phối Bảo An', N'TP.HCM', '0907777777'),
+(N'Công Nghệ Số Hùng Cường', N'Hà Nội', '0908888888'),
+(N'Vi tính Ngôi Sao Mới', N'TP.HCM', '0909999999'),
+(N'Phụ Kiện Chính Hãng', N'Đà Nẵng', '0910000000'),
+(N'GearVN Chi Nhánh 2', N'Hà Nội', '0911111111'),
+(N'Hanoicomputer Sài Gòn', N'TP.HCM', '0912222222'),
+(N'An Phát PC', N'Hà Nội', '0913333333'),
+(N'Phúc Anh Smart World', N'Hà Nội', '0914444444'),
+(N'MemoryZone', N'TP.HCM', '0915555555'),
+(N'Laptop88', N'Hà Nội', '0916666666'),
+(N'ThinkPro Việt Nam', N'TP.HCM', '0917777777'),
+(N'Xgear Gaming', N'Hà Nội', '0918888888'),
+(N'Phong Vũ Computer', N'TP.HCM', '0919999999'),
+(N'Nguyễn Kim Tech', N'Đà Nẵng', '0920000000'),
+(N'CellphoneS Phụ Kiện', N'Hà Nội', '0921111111'),
+(N'Hoàng Hà Mobile', N'TP.HCM', '0922222222'),
+(N'Didongviet', N'Hà Nội', '0923333333'),
+(N'Shop Dunk', N'TP.HCM', '0924444444'),
+(N'FPT Shop Linh Kiện', N'Đà Nẵng', '0925555555'),
+(N'Viettel Store', N'Hà Nội', '0926666666'),
+(N'Thế Giới Số 360', N'TP.HCM', '0927777777'),
+(N'TechOne', N'Hà Nội', '0928888888'),
+(N'ClickBuy', N'TP.HCM', '0929999999'),
+(N'Bạch Long Mobile', N'TP.HCM', '0930000000');
 
--- Thêm Sản phẩm (Liên kết với NCC qua sup_ID)
-INSERT INTO Products (pro_name, pro_price, pro_count, pro_type, sup_ID) VALUES
-(N'Laptop Dell', 15000000, 10, 1, 1), -- ID 1 là Cty ABC
-(N'Chuột Logitech', 250000, 50, 2, 1),
-(N'Bàn phím cơ', 800000, 20, 2, 2); -- ID 2 là Kho XYZ
+INSERT INTO ProductTypes (type_name) VALUES
+(N'Laptop / Máy tính xách tay'),
+(N'Linh kiện máy tính'),
+(N'Phụ kiện (Chuột, Phím, Tai nghe)'),
+(N'Màn hình'),
+(N'Thiết bị mạng');
+
+
+INSERT INTO Products (pro_name, pro_price, pro_count, type_ID, sup_ID) VALUES
+-- Laptop (Loại 1)
+(N'MacBook Air M1', 18500000, 15, 1, 1),
+(N'MacBook Pro M2', 30000000, 10, 1, 2),
+(N'Laptop Dell XPS 13', 25000000, 5, 1, 3),
+(N'Laptop HP Envy 13', 21000000, 8, 1, 4),
+(N'Laptop Asus ROG Strix', 28000000, 12, 1, 5),
+(N'Laptop Lenovo Legion 5', 26500000, 20, 1, 6),
+(N'Laptop Acer Nitro 5', 19000000, 25, 1, 7),
+(N'Laptop MSI Gaming', 22000000, 10, 1, 8),
+(N'Surface Pro 9', 24000000, 7, 1, 9),
+(N'Laptop LG Gram', 27000000, 5, 1, 10),
+
+-- Linh kiện & Phụ kiện (Loại 2)
+(N'Chuột Razer DeathAdder', 1200000, 50, 2, 1),
+(N'Bàn phím cơ Keychron K2', 1800000, 30, 2, 2),
+(N'Tai nghe Sony WH-1000XM5', 6500000, 15, 2, 3),
+(N'Màn hình LG 27 inch 4K', 8000000, 10, 2, 4),
+(N'Màn hình Dell Ultrasharp', 9500000, 8, 2, 5),
+(N'RAM Kingston Fury 16GB', 1100000, 100, 2, 6),
+(N'SSD Samsung 980 Pro 1TB', 2500000, 60, 2, 7),
+(N'VGA RTX 3060 Ti', 9000000, 5, 2, 8),
+(N'CPU Intel Core i5 13600K', 7500000, 10, 2, 9),
+(N'CPU AMD Ryzen 7 7800X3D', 10500000, 8, 2, 10),
+
+-- Phụ kiện khác (Loại 3)
+(N'Webcam Logitech C920', 1500000, 40, 2, 1),
+(N'Loa Bluetooth JBL Flip 6', 2300000, 25, 2, 2),
+(N'Bàn di chuột SteelSeries', 450000, 80, 2, 3),
+(N'Giá đỡ Laptop nhôm', 350000, 60, 2, 4),
+(N'Hub chuyển đổi Type-C', 550000, 45, 2, 5),
+(N'Dây cáp HDMI 2.1', 200000, 100, 2, 6),
+(N'Sạc dự phòng Anker 20000', 1200000, 35, 2, 7),
+(N'Bàn phím Akko 3098B', 1600000, 20, 2, 8),
+(N'Chuột Logitech MX Master 3S', 2200000, 18, 2, 9),
+(N'Tai nghe Gaming HyperX', 1800000, 22, 2, 10);
+
+INSERT INTO Customers (cus_name, cus_phone, cus_address) VALUES
+(N'Phạm Minh Tuấn', '0988777666', N'Hà Nội'),
+(N'Lê Thu Thảo', '0977666555', N'TP.HCM'),
+(N'Đặng Hùng Dũng', '0966555444', N'Đà Nẵng'),
+(N'Hoàng Mai Anh', '0955444333', N'Cần Thơ'),
+(N'Vũ Đức Thắng', '0944333222', N'Hải Phòng');
+
+INSERT INTO Invoices (sta_ID, cus_ID, inv_price) VALUES
+(1, 1, 18500000),
+(2, 2, 250000),
+(1, 3, 30000000),
+(2, 4, 15000000),
+(1, 5, 800000),
+(2, 1, 45000000),
+(1, 2, 1200000),
+(2, 3, 21000000),
+(1, 4, 5500000),
+(2, 5, 28000000);
+
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count) VALUES
+(1, 1, 1),
+(2, 2, 1),
+(3, 2, 1),
+(4, 3, 1),
+(5, 3, 1),
+(6, 3, 1),
+(7, 1, 1),
+(8, 4, 1),
+(9, 4, 2),
+(10, 5, 1);

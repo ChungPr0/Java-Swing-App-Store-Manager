@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-import static JDBCUntils.Functions.*;
+import static JDBCUntils.Style.*;
 
 public class AddStaffForm extends JDialog {
     private JTextField txtName, txtPhone, txtAddress;
@@ -39,42 +39,33 @@ public class AddStaffForm extends JDialog {
         mainPanel.setBackground(Color.WHITE);
 
         // 1. Tiêu đề
-        JLabel lblTitle = new JLabel("NHẬP THÔNG TIN");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblTitle.setForeground(Color.decode("#2c3e50"));
-        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel lblTitle = createHeaderLabel("NHẬP THÔNG TIN");
 
         mainPanel.add(lblTitle);
-        mainPanel.add(Box.createVerticalStrut(20)); // Khoảng cách
+        mainPanel.add(Box.createVerticalStrut(20));
 
-        txtName = createPrettyField(mainPanel, "Họ và Tên:");
-
-        // --- PHẦN NGÀY SINH---
-        JPanel dobContainer = new JPanel(new BorderLayout(5, 5));
-        dobContainer.setBackground(Color.WHITE);
-        dobContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 65));
-        JLabel lblDob = createTitleLabel("Ngày sinh:");
-        JPanel pickerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        pickerPanel.setBackground(Color.WHITE);
-        cbDay = createStyleComboBox();
-        cbMonth = createStyleComboBox();
-        cbYear = createStyleComboBox();
-        pickerPanel.add(cbDay);
-        pickerPanel.add(createSeparator());
-        pickerPanel.add(cbMonth);
-        pickerPanel.add(createSeparator());
-        pickerPanel.add(cbYear);
-
-        // 6. Ghép lại
-        dobContainer.add(lblDob, BorderLayout.NORTH);
-        dobContainer.add(pickerPanel, BorderLayout.CENTER);
-
-        // 7. Thêm vào Panel chính
-        mainPanel.add(dobContainer);
+        txtName = new JTextField();
+        JPanel pName = createTextFieldWithLabel(txtName, "Tên Nhân Viên:");
+        mainPanel.add(pName);
         mainPanel.add(Box.createVerticalStrut(15));
 
-        txtPhone = createPrettyField(mainPanel, "Số điện thoại:");
-        txtAddress = createPrettyField(mainPanel, "Địa chỉ:");
+        // --- PHẦN NGÀY SINH---
+        cbDay = new JComboBox<>();
+        cbMonth = new JComboBox<>();
+        cbYear = new JComboBox<>();
+        JPanel datePanel = createDatePanel("Ngày sinh:", cbDay, cbMonth, cbYear);
+        mainPanel.add(datePanel);
+        mainPanel.add(Box.createVerticalStrut(15));
+
+        txtPhone = new JTextField();
+        JPanel pPhone = createTextFieldWithLabel(txtPhone, "Số điện thoại:");
+        mainPanel.add(pPhone);
+        mainPanel.add(Box.createVerticalStrut(15));
+
+        txtAddress = new JTextField();
+        JPanel pAddress = createTextFieldWithLabel(txtAddress, "Địa chỉ:");
+        mainPanel.add(pAddress);
+        mainPanel.add(Box.createVerticalStrut(15));
 
         // 3. Các nút bấm (Lưu / Hủy)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));

@@ -3,12 +3,13 @@ package SupplierForm;
 import JDBCUntils.DBConnection;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.sql.*;
 
-import static JDBCUntils.Functions.*;
+import static JDBCUntils.Style.*;
 
 public class SupplierManagerPanel extends JPanel {
     private JList<String> listSupplier;
@@ -28,19 +29,23 @@ public class SupplierManagerPanel extends JPanel {
     // --- PHẦN GIAO DIỆN (UI) ---
     private void initUI() {
         this.setLayout(new BorderLayout(10, 10));
-        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        this.setBorder(new EmptyBorder(10, 10, 10, 10));
+        this.setBackground(Color.decode("#ecf0f1"));
 
         // 1. Panel Trái: Tìm kiếm + Danh sách
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
         leftPanel.setPreferredSize(new Dimension(250, 0));
+        leftPanel.setOpaque(false);
 
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        txtSearch = new JTextField(); addPlaceholder(txtSearch);
-        btnAdd = createButton("+", Color.ORANGE);
+        txtSearch = new JTextField();
+        JPanel searchPanel = createTextFieldWithPlaceholder(txtSearch,"Tìm kiếm");
+        btnAdd = createButton("Thêm", Color.GRAY);
         searchPanel.add(txtSearch, BorderLayout.CENTER);
         searchPanel.add(btnAdd, BorderLayout.EAST);
 
         listSupplier = new JList<>();
+        listSupplier.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        listSupplier.setFixedCellHeight(30);
 
         leftPanel.add(searchPanel, BorderLayout.NORTH);
         leftPanel.add(new JScrollPane(listSupplier), BorderLayout.CENTER);
@@ -48,11 +53,27 @@ public class SupplierManagerPanel extends JPanel {
         // 2. Panel Phải: Form thông tin
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-        rightPanel.setBorder(BorderFactory.createTitledBorder("Thông tin chi tiết"));
+        rightPanel.setBackground(Color.WHITE);
+        rightPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        txtName = createPrettyField(rightPanel, "Họ và Tên:");
-        txtPhone = createPrettyField(rightPanel, "Số điện thoại:");
-        txtAddress = createPrettyField(rightPanel, "Địa chỉ:");
+        // Tiêu đề
+        rightPanel.add(createHeaderLabel("THÔNG TIN NHÀ CUNG CẤP"));
+        rightPanel.add(Box.createVerticalStrut(20));
+
+        txtName = new JTextField();
+        JPanel pName = createTextFieldWithLabel(txtName, "Tên Nhà Cung Cấp:");
+        rightPanel.add(pName);
+        rightPanel.add(Box.createVerticalStrut(15));
+
+        txtPhone = new JTextField();
+        JPanel pPhone = createTextFieldWithLabel(txtPhone, "Số điện thoại:");
+        rightPanel.add(pPhone);
+        rightPanel.add(Box.createVerticalStrut(15));
+
+        txtAddress = new JTextField();
+        JPanel pAddress = createTextFieldWithLabel(txtAddress, "Địa chỉ:");
+        rightPanel.add(pAddress);
+        rightPanel.add(Box.createVerticalStrut(15));
 
         // Panel Nút bấm (Lưu / Xóa)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -70,6 +91,8 @@ public class SupplierManagerPanel extends JPanel {
         // Ghép vào Panel chính
         this.add(leftPanel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
+
+        enableForm(false);
     }
 
     // --- PHẦN LOGIC DỮ LIỆU ---
@@ -101,6 +124,7 @@ public class SupplierManagerPanel extends JPanel {
                 txtPhone.setText(rs.getString("sup_phone"));
                 txtAddress.setText(rs.getString("sup_address"));
 
+                enableForm(true);
                 btnDelete.setVisible(true);
             }
         } catch (Exception e) {
@@ -220,9 +244,15 @@ public class SupplierManagerPanel extends JPanel {
         isDataLoading = true;
         txtName.setText(""); txtPhone.setText(""); txtAddress.setText("");
         btnSave.setVisible(false); btnDelete.setVisible(false);
+        enableForm(false);
         isDataLoading = false;
     }
 
+    private void enableForm(boolean enable) {
+        txtName.setEnabled(enable);
+        txtPhone.setEnabled(enable);
+        txtAddress.setEnabled(enable);
+    }
 
     @FunctionalInterface
     interface DocumentUpdateListener { void update(DocumentEvent e); }

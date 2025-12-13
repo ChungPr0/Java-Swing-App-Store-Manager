@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-import static JDBCUntils.Functions.*;
+import static JDBCUntils.Style.*;
 
 public class AddSupplierForm extends JDialog {
     private JTextField txtName, txtPhone, txtAddress;
@@ -37,17 +37,24 @@ public class AddSupplierForm extends JDialog {
         mainPanel.setBackground(Color.WHITE);
 
         // 1. Tiêu đề
-        JLabel lblTitle = new JLabel("NHẬP THÔNG TIN");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblTitle.setForeground(Color.decode("#2c3e50"));
-        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        JLabel lblTitle = createHeaderLabel("NHẬP THÔNG TIN");
         mainPanel.add(lblTitle);
-        mainPanel.add(Box.createVerticalStrut(20)); // Khoảng cách
+        mainPanel.add(Box.createVerticalStrut(20));
 
-        txtName = createPrettyField(mainPanel, "Họ và Tên:");
-        txtPhone = createPrettyField(mainPanel, "Số điện thoại:");
-        txtAddress = createPrettyField(mainPanel, "Địa chỉ:");
+        txtName = new JTextField();
+        JPanel pName = createTextFieldWithLabel(txtName, "Tên Nhà Cung Cấp:");
+        mainPanel.add(pName);
+        mainPanel.add(Box.createVerticalStrut(15));
+
+        txtPhone = new JTextField();
+        JPanel pPhone = createTextFieldWithLabel(txtPhone, "Số điện thoại:");
+        mainPanel.add(pPhone);
+        mainPanel.add(Box.createVerticalStrut(15));
+
+        txtAddress = new JTextField();
+        JPanel pAddress = createTextFieldWithLabel(txtAddress, "Địa chỉ:");
+        mainPanel.add(pAddress);
+        mainPanel.add(Box.createVerticalStrut(15));
 
         // 3. Các nút bấm (Lưu / Hủy)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
