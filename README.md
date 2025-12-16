@@ -321,7 +321,7 @@ Phần mềm hoạt động dựa trên file cấu hình bên ngoài. Điều n�
 ```properties
 # --- CẤU HÌNH KẾT NỐI MYSQL ---
 # Đường dẫn kết nối (bao gồm fix lỗi font tiếng Việt)
-db.url=jdbc:mysql://localhost:3306/quanlybanhang?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+db.url=jdbc:mysql://localhost:3306/QuanLyBanHang?useSSL=false&useUnicode=true&characterEncoding=UTF-8
 
 # Tài khoản đăng nhập MySQL
 db.username=root
@@ -361,10 +361,10 @@ Bạn có thể chọn 1 trong 2 cách sau:
 ### 🔐 1. Đăng Nhập Hệ Thống
 Khởi động phần mềm và sử dụng các tài khoản mặc định sau (hoặc tài khoản trong Database của bạn):
 
-| Vai trò   | Tên đăng nhập        | Mật khẩu | Quyền hạn                             |
-|:----------|:---------------------|:---------|:--------------------------------------|
-| **Admin** | `Quản Trị Viên`      | `123456` | Toàn quyền (Xóa hóa đơn, Sửa dữ liệu) |
-| **Staff** | `Nhân Viên Bán Hàng` | `123456` | Bán hàng, Tra cứu (Không được xóa)    |
+| Vai trò   | Tên đăng nhập | Mật khẩu | Quyền hạn                             |
+|:----------|:--------------|:---------|:--------------------------------------|
+| **Admin** | `admin`       | `123`    | Toàn quyền (Xóa hóa đơn, Sửa dữ liệu) |
+| **Staff** | `user1`       | `123`    | Bán hàng, Tra cứu (Không được xóa)    |
 
 ### 🛒 2. Quy Trình Bán Hàng (Tạo Hóa Đơn)
 Để thực hiện một giao dịch bán hàng, hãy làm theo các bước:
