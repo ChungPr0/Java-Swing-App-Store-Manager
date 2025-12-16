@@ -41,7 +41,7 @@ CREATE TABLE Staffs (
 -- 2.4. Bảng LOẠI SẢN PHẨM
 CREATE TABLE ProductTypes (
     type_ID INT PRIMARY KEY AUTO_INCREMENT,
-    type_name VARCHAR(100) NOT NULL
+    type_name VARCHAR(100) NOT NULL UNIQUE
 );
 
 -- 2.5. Bảng SẢN PHẨM

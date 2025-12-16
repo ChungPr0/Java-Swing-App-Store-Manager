@@ -92,7 +92,7 @@ CREATE TABLE Staffs (
 -- 2.4. Bảng LOẠI SẢN PHẨM
 CREATE TABLE ProductTypes (
     type_ID INT PRIMARY KEY AUTO_INCREMENT,
-    type_name VARCHAR(100) NOT NULL
+    type_name VARCHAR(100) NOT NULL UNIQUE
 );
 
 -- 2.5. Bảng SẢN PHẨM
@@ -100,7 +100,7 @@ CREATE TABLE Products (
     pro_ID INT PRIMARY KEY AUTO_INCREMENT,
     pro_name VARCHAR(100) NOT NULL,
     pro_price DECIMAL(18, 0) NOT NULL,
-    pro_count INT DEFAULT 0,
+    pro_count INT DEFAULT 0, 
     type_ID INT,
     sup_ID INT,
     FOREIGN KEY (type_ID) REFERENCES ProductTypes(type_ID),
@@ -133,28 +133,28 @@ CREATE TABLE Invoice_details (
 -- =============================================
 
 -- 3.1. LOẠI SẢN PHẨM (ProductTypes)
-INSERT INTO ProductTypes (type_name) VALUES
-('Laptop Văn Phòng'), ('Laptop Gaming'), ('Macbook'), ('Điện thoại iPhone'),
-('Điện thoại Android'), ('Máy tính bảng'), ('Đồng hồ thông minh'), ('Tai nghe'),
-('Loa Bluetooth'), ('Bàn phím'), ('Chuột máy tính'), ('Màn hình'),
+INSERT INTO ProductTypes (type_name) VALUES 
+('Laptop Văn Phòng'), ('Laptop Gaming'), ('Macbook'), ('Điện thoại iPhone'), 
+('Điện thoại Android'), ('Máy tính bảng'), ('Đồng hồ thông minh'), ('Tai nghe'), 
+('Loa Bluetooth'), ('Bàn phím'), ('Chuột máy tính'), ('Màn hình'), 
 ('Ram - Bộ nhớ'), ('Ổ cứng SSD'), ('VGA - Card màn hình'), ('Mainboard'),
 ('Case - Vỏ máy'), ('Nguồn máy tính'), ('Phần mềm'), ('Camera an ninh');
 
 -- 3.2. NHÀ CUNG CẤP (Suppliers)
-INSERT INTO Suppliers (sup_name, sup_address, sup_phone) VALUES
-('Dell Việt Nam', 'Hà Nội', '1800545455'), ('Asus Corp', 'TP.HCM', '1900555581'),
-('Samsung Vina', 'Bắc Ninh', '0988777666'), ('Apple Distributor', 'TP.HCM', '02833334444'),
-('HP Việt Nam', 'Hà Nội', '18006688'), ('Lenovo Group', 'Đà Nẵng', '0236123456'),
-('Sony Electronics', 'TP.HCM', '1800588885'), ('LG Việt Nam', 'Hà Nội', '18001503'),
-('MSI Gaming', 'TP.HCM', '02877778888'), ('Gigabyte VN', 'Hà Nội', '02433332222'),
-('Kingston Tech', 'TP.HCM', '02899990000'), ('Logitech VN', 'TP.HCM', '02811112222'),
-('Intel VN', 'TP.HCM', '02855556666'), ('AMD VN', 'Hà Nội', '02488889999'),
-('Western Digital', 'TP.HCM', '1800555555'), ('Seagate VN', 'Hà Nội', '1800888888'),
-('TP-Link VN', 'TP.HCM', '02866667777'), ('Canon Marketing', 'TP.HCM', '02838200466'),
+INSERT INTO Suppliers (sup_name, sup_address, sup_phone) VALUES 
+('Dell Việt Nam', 'Hà Nội', '1800545455'), ('Asus Corp', 'TP.HCM', '1900555581'), 
+('Samsung Vina', 'Bắc Ninh', '0988777666'), ('Apple Distributor', 'TP.HCM', '02833334444'), 
+('HP Việt Nam', 'Hà Nội', '18006688'), ('Lenovo Group', 'Đà Nẵng', '0236123456'), 
+('Sony Electronics', 'TP.HCM', '1800588885'), ('LG Việt Nam', 'Hà Nội', '18001503'), 
+('MSI Gaming', 'TP.HCM', '02877778888'), ('Gigabyte VN', 'Hà Nội', '02433332222'), 
+('Kingston Tech', 'TP.HCM', '02899990000'), ('Logitech VN', 'TP.HCM', '02811112222'), 
+('Intel VN', 'TP.HCM', '02855556666'), ('AMD VN', 'Hà Nội', '02488889999'), 
+('Western Digital', 'TP.HCM', '1800555555'), ('Seagate VN', 'Hà Nội', '1800888888'), 
+('TP-Link VN', 'TP.HCM', '02866667777'), ('Canon Marketing', 'TP.HCM', '02838200466'), 
 ('FPT Trading', 'Hà Nội', '02473008888'), ('Digiworld', 'TP.HCM', '02839290059');
 
 -- 3.3. NHÂN VIÊN (Staffs)
-INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone, sta_address, sta_username, sta_password, sta_role) VALUES
+INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone, sta_address, sta_username, sta_password, sta_role) VALUES 
 ('Nguyễn Quản Lý', '1990-01-01', '0901000000', 'Hà Nội', 'admin', '123', 'Admin'),
 ('Trần Văn A', '1995-02-15', '0901000001', 'Hà Nội', 'user1', '123', 'Staff'),
 ('Lê Thị B', '1996-03-20', '0901000002', 'TP.HCM', 'user2', '123', 'Staff'),
@@ -197,7 +197,7 @@ INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone, sta_address, sta_use
 ('Cù Văn Vũ', '1993-04-25', '0901000039', 'Tuyên Quang', 'user39', '123', 'Staff');
 
 -- 3.4. KHÁCH HÀNG (Customers)
-INSERT INTO Customers (cus_name, cus_address, cus_phone) VALUES
+INSERT INTO Customers (cus_name, cus_address, cus_phone) VALUES 
 ('Nguyễn Văn Khách 1', 'Ba Đình, Hà Nội', '0988111001'),
 ('Trần Thị Khách 2', 'Hoàn Kiếm, Hà Nội', '0988111002'),
 ('Lê Văn Khách 3', 'Đống Đa, Hà Nội', '0988111003'),
@@ -240,7 +240,7 @@ INSERT INTO Customers (cus_name, cus_address, cus_phone) VALUES
 ('Cù Thị Khách 40', 'Việt Trì, Phú Tho', '0988111040');
 
 -- 3.5. SẢN PHẨM (Products)
-INSERT INTO Products (pro_name, pro_price, pro_count, type_ID, sup_ID) VALUES
+INSERT INTO Products (pro_name, pro_price, pro_count, type_ID, sup_ID) VALUES 
 ('Laptop Dell XPS 13 Plus', 45000000, 10, 1, 1),
 ('Laptop Dell Inspiron 15', 15000000, 20, 1, 1),
 ('Laptop Asus Zenbook 14', 25000000, 15, 1, 2),
@@ -283,7 +283,7 @@ INSERT INTO Products (pro_name, pro_price, pro_count, type_ID, sup_ID) VALUES
 ('Camera Wifi Imou Ranger 2', 600000, 60, 20, 20);
 
 -- 3.6. HÓA ĐƠN (Invoices)
-INSERT INTO Invoices (sta_ID, cus_ID, inv_price) VALUES
+INSERT INTO Invoices (sta_ID, cus_ID, inv_price) VALUES 
 (1, 1, 45000000), (2, 2, 15000000), (3, 3, 25000000), (4, 4, 22000000),
 (5, 5, 18000000), (6, 6, 35000000), (7, 7, 55000000), (8, 8, 28000000),
 (9, 9, 60000000), (10, 10, 33000000), (11, 11, 20000000), (12, 12, 30000000),
@@ -296,7 +296,7 @@ INSERT INTO Invoices (sta_ID, cus_ID, inv_price) VALUES
 (37, 37, 14000000), (38, 38, 3000000), (39, 39, 4000000), (40, 40, 600000);
 
 -- 3.7. CHI TIẾT HÓA ĐƠN (Khớp với hóa đơn ở trên)
-INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count) VALUES
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count) VALUES 
 (1, 1, 1), (2, 2, 1), (3, 3, 1), (4, 4, 1),
 (5, 5, 1), (6, 6, 1), (7, 7, 1), (8, 8, 1),
 (9, 9, 1), (10, 10, 1), (11, 11, 1), (12, 12, 1),
@@ -307,86 +307,101 @@ INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count) VALUES
 (29, 29, 1), (30, 30, 1), (31, 31, 1), (32, 32, 1),
 (33, 33, 1), (34, 34, 1), (35, 35, 1), (36, 36, 1),
 (37, 37, 1), (38, 38, 1), (39, 39, 1), (40, 40, 1);
+```
 
-⚙️ CẤU HÌNH HỆ THỐNG (QUAN TRỌNG)
-Phần mềm sử dụng file cấu hình bên ngoài để kết nối Database. Bạn cần tạo file này để phần mềm hoạt động.
+---
 
-Tạo một file mới tên là: config.properties
+## ⚙️ CẤU HÌNH HỆ THỐNG (QUAN TRỌNG)
 
-Mở bằng Notepad và dán nội dung sau:
+Phần mềm hoạt động dựa trên file cấu hình bên ngoài. Điều này giúp bạn dễ dàng thay đổi thông tin kết nối mà không cần can thiệp vào mã nguồn.
 
-Properties
+**Bước 1:** Tạo một file mới tên là `config.properties`.
+**Bước 2:** Mở bằng Notepad (hoặc trình soạn thảo bất kỳ) và dán nội dung sau:
 
-# Cấu hình kết nối MySQL
+```properties
+# --- CẤU HÌNH KẾT NỐI MYSQL ---
+# Đường dẫn kết nối (bao gồm fix lỗi font tiếng Việt)
 db.url=jdbc:mysql://localhost:3306/quanlybanhang?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+
+# Tài khoản đăng nhập MySQL
 db.username=root
+
+# Mật khẩu MySQL (Điền ngay sau dấu bằng nếu có)
 db.password=
-# Lưu ý: Nếu MySQL của bạn có mật khẩu, hãy điền ngay sau dấu = của dòng db.password
-🚀 HƯỚNG DẪN CHẠY PHẦN MỀM
-Sau khi Build dự án ra file .jar (ví dụ QuanLyBanHang.jar), bạn cần đặt file config.properties nằm cùng thư mục với file .jar.
+```
 
-Cấu trúc thư mục chuẩn:
+---
 
-Plaintext
+## 🚀 HƯỚNG DẪN CHẠY PHẦN MỀM
 
+Sau khi Build dự án ra file `.jar` (ví dụ `QuanLyBanHang.jar`), bạn cần đảm bảo cấu trúc thư mục đúng như sau:
+
+### 1. Cấu trúc thư mục chuẩn
+```text
 D:\PhanMemBanHang\
-   ├── ☕ QuanLyBanHang.jar   (File chạy)
-   └── 📄 config.properties   (File cấu hình ở bước trên)
-Cách chạy:
+   ├── ☕ QuanLyBanHang.jar   (File phần mềm chính)
+   └── 📄 config.properties   (File cấu hình đã tạo ở trên)
+```
 
-Cách 1: Double click vào file QuanLyBanHang.jar.
+### 2. Cách chạy phần mềm
+Bạn có thể chọn 1 trong 2 cách sau:
 
-Cách 2 (Khuyên dùng để xem thông báo lỗi):
+* **Cách 1 (Nhanh):** Double click trực tiếp vào file `QuanLyBanHang.jar`.
+* **Cách 2 (Khuyên dùng):** Chạy bằng dòng lệnh để xem thông báo lỗi (nếu có).
+    1.  Tại thư mục chứa file, gõ `cmd` vào thanh địa chỉ -> Nhấn **Enter**.
+    2.  Gõ lệnh sau:
+    ```bash
+    java -jar QuanLyBanHang.jar
+    ```
 
-Gõ cmd vào thanh địa chỉ thư mục đó và Enter.
+---
 
-Gõ lệnh: java -jar QuanLyBanHang.jar
+## 📘 HƯỚNG DẪN SỬ DỤNG CHI TIẾT
 
-📘 HƯỚNG DẪN SỬ DỤNG CHI TIẾT
-1. Đăng Nhập
-Mở phần mềm, nhập tài khoản.
+### 🔐 1. Đăng Nhập Hệ Thống
+Khởi động phần mềm và sử dụng các tài khoản mặc định sau (hoặc tài khoản trong Database của bạn):
 
-Tài khoản Admin: Quản Trị Viên / Pass: 123456
+| Vai trò | Tên đăng nhập | Mật khẩu | Quyền hạn |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `Quản Trị Viên` | `123456` | Toàn quyền (Xóa hóa đơn, Sửa dữ liệu) |
+| **Staff** | `Nhân Viên Bán Hàng` | `123456` | Bán hàng, Tra cứu (Không được xóa) |
 
-Tài khoản NV: Nhân Viên Bán Hàng / Pass: 123456
+### 🛒 2. Quy Trình Bán Hàng (Tạo Hóa Đơn)
+Để thực hiện một giao dịch bán hàng, hãy làm theo các bước:
 
-2. Quy Trình Bán Hàng (Tạo Hóa Đơn)
-Vào tab Hóa Đơn -> Bấm nút "Tạo mới".
+1.  **Vào tab Hóa Đơn** → Bấm nút <kbd>Tạo mới</kbd>.
+2.  **Chọn Khách hàng:**
+    * Chọn từ danh sách xổ xuống.
+    * *Mẹo:* Nếu là khách mới, bấm nút **"Thêm"** nhỏ bên cạnh để tạo nhanh hồ sơ.
+3.  **Thêm Sản phẩm vào giỏ:**
+    * Bấm nút <kbd>THÊM</kbd> (nằm dưới bảng danh sách sản phẩm).
+    * Một cửa sổ hiện ra: Chọn sản phẩm (Hệ thống sẽ hiển thị **Tồn kho hiện tại**).
+    * Nhập số lượng mua → Bấm **"Xác nhận"**.
+    * *Lưu ý:* Hệ thống sẽ chặn nếu bạn nhập quá số lượng tồn kho.
+4.  **Chỉnh sửa giỏ hàng (Nếu cần):**
+    * Chọn dòng sản phẩm trong bảng.
+    * Bấm <kbd>SỬA</kbd> để đổi số lượng hoặc <kbd>XÓA</kbd> để bỏ món.
+5.  **Thanh toán:**
+    * Kiểm tra lại **Tổng tiền**.
+    * Bấm nút <kbd>Lưu hóa đơn</kbd> để hoàn tất.
+    * 👉 *Lúc này số lượng hàng trong kho mới chính thức bị trừ.*
 
-Chọn Khách hàng: Chọn từ danh sách. Nếu khách mới, bấm nút "Thêm" nhỏ bên cạnh để tạo nhanh.
+### 🧾 3. Quản lý Hóa đơn & Hoàn trả
+* **Xem chi tiết:** Chọn một hóa đơn trong danh sách bên trái, thông tin chi tiết sẽ hiện bên phải.
+* **Xóa hóa đơn (Chỉ Admin):**
+    * Bấm nút <kbd>Xóa Hóa Đơn</kbd>.
+    * Hệ thống sẽ hỏi xác nhận và **tự động hoàn trả (cộng lại)** số lượng sản phẩm về kho.
+* **In ấn:** Bấm nút <kbd>In Hóa Đơn</kbd> để xem trước phiếu in (View).
 
-Thêm Sản phẩm:
+### 👥 4. Quản lý Khách hàng
+* Truy cập tab **Khách hàng**.
+* **Tìm kiếm:** Nhập Tên hoặc Số điện thoại vào ô tìm kiếm → Nhấn Enter.
+* **Sắp xếp:** Bấm nút **Sắp xếp** để đổi kiểu xem (Tên A-Z, Khách mới/cũ).
+* **Kiểm soát lỗi:** Ô nhập Số điện thoại được tích hợp bộ lọc, chỉ cho phép nhập số.
 
-Bấm nút "THÊM" (dưới danh sách sản phẩm).
+---
 
-Một cửa sổ hiện ra, chọn Sản phẩm (sẽ thấy số lượng tồn kho hiện tại).
-
-Nhập số lượng muốn mua -> Bấm "Xác nhận".
-
-Lưu ý: Nếu nhập quá số lượng tồn, phần mềm sẽ báo lỗi.
-
-Chỉnh sửa giỏ hàng: Chọn dòng sản phẩm trong bảng -> Bấm "SỬA" (để đổi số lượng) hoặc "XÓA".
-
-Thanh toán: Kiểm tra tổng tiền -> Bấm "Lưu hóa đơn".
-
-Lúc này kho hàng mới chính thức bị trừ.
-
-3. Quản lý Hóa đơn & Hoàn trả
-Chọn một hóa đơn trong danh sách bên trái để xem chi tiết.
-
-Xóa hóa đơn: Bấm nút "Xóa Hóa Đơn".
-
-Hệ thống sẽ hỏi xác nhận và tự động cộng lại số lượng sản phẩm vào kho (Hoàn kho).
-
-In hóa đơn: Bấm nút "In Hóa Đơn" để xem dạng phiếu in.
-
-4. Quản lý Khách hàng
-Vào tab Khách hàng.
-
-Tìm kiếm: Gõ tên hoặc SĐT vào ô tìm kiếm -> Enter.
-
-Sắp xếp: Bấm nút Sắp xếp để lọc theo Tên A-Z hoặc Khách mới/cũ.
-
-Chặn nhập liệu: Ô số điện thoại chỉ cho phép nhập số.
-
-© 2025 Copyright by Chung. All rights reserved.
+<p align="center">
+  <b>© 2025 Copyright by Chung. All rights reserved.</b><br>
+  <i>Designed with ❤️ using Java Swing & MySQL.</i>
+</p>
