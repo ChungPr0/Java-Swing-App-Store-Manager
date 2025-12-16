@@ -28,13 +28,13 @@ Phần mềm hoạt động tốt trên Windows, macOS và Linux (yêu cầu cà
 
 ## 🌟 TÍNH NĂNG NỔI BẬT
 
-| Chức năng | Mô tả chi tiết |
-| :--- | :--- |
-| **📦 Quản lý Kho Hàng** | Tự động trừ kho khi bán. **Chặn bán quá số lượng tồn**. Hiển thị tồn kho thực tế ngay khi chọn sản phẩm. |
+| Chức năng                 | Mô tả chi tiết                                                                                                        |
+|:--------------------------|:----------------------------------------------------------------------------------------------------------------------|
+| **📦 Quản lý Kho Hàng**   | Tự động trừ kho khi bán. **Chặn bán quá số lượng tồn**. Hiển thị tồn kho thực tế ngay khi chọn sản phẩm.              |
 | **🧾 Hóa đơn thông minh** | Tạo hóa đơn nhanh, hỗ trợ tìm kiếm khách hàng/sản phẩm. Tự động tính tổng tiền. **Hoàn kho tự động** khi xóa hóa đơn. |
-| **⚙️ Cấu hình động** | Sử dụng file `config.properties` bên ngoài. Dễ dàng đổi mật khẩu/địa chỉ Database mà không cần sửa code. |
-| **🛡️ Bảo mật & An toàn** | Cơ chế **Transaction** (Rollback) đảm bảo dữ liệu không bị lỗi nửa vời. Ngăn chặn SQL Injection. |
-| **👥 Quản lý Đối tượng** | Quản lý thông tin Khách hàng, Nhân viên. Phân quyền **Admin** (Toàn quyền) và **Staff** (Hạn chế). |
+| **⚙️ Cấu hình động**      | Sử dụng file `config.properties` bên ngoài. Dễ dàng đổi mật khẩu/địa chỉ Database mà không cần sửa code.              |
+| **🛡️ Bảo mật & An toàn** | Cơ chế **Transaction** (Rollback) đảm bảo dữ liệu không bị lỗi nửa vời. Ngăn chặn SQL Injection.                      |
+| **👥 Quản lý Đối tượng**  | Quản lý thông tin Khách hàng, Nhân viên. Phân quyền **Admin** (Toàn quyền) và **Staff** (Hạn chế).                    |
 
 ---
 
@@ -361,10 +361,10 @@ Bạn có thể chọn 1 trong 2 cách sau:
 ### 🔐 1. Đăng Nhập Hệ Thống
 Khởi động phần mềm và sử dụng các tài khoản mặc định sau (hoặc tài khoản trong Database của bạn):
 
-| Vai trò | Tên đăng nhập | Mật khẩu | Quyền hạn |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `Quản Trị Viên` | `123456` | Toàn quyền (Xóa hóa đơn, Sửa dữ liệu) |
-| **Staff** | `Nhân Viên Bán Hàng` | `123456` | Bán hàng, Tra cứu (Không được xóa) |
+| Vai trò   | Tên đăng nhập        | Mật khẩu | Quyền hạn                             |
+|:----------|:---------------------|:---------|:--------------------------------------|
+| **Admin** | `Quản Trị Viên`      | `123456` | Toàn quyền (Xóa hóa đơn, Sửa dữ liệu) |
+| **Staff** | `Nhân Viên Bán Hàng` | `123456` | Bán hàng, Tra cứu (Không được xóa)    |
 
 ### 🛒 2. Quy Trình Bán Hàng (Tạo Hóa Đơn)
 Để thực hiện một giao dịch bán hàng, hãy làm theo các bước:
@@ -401,7 +401,7 @@ Khởi động phần mềm và sử dụng các tài khoản mặc định sau 
 
 ---
 
-<p align="center">
+<p>
   <b>© 2025 Copyright by Chung. All rights reserved.</b><br>
   <i>Designed with ❤️ using Java Swing & MySQL.</i>
 </p>
