@@ -3,7 +3,7 @@ package Main;
 import CustomerForm.CustomerManagerPanel;
 import HomeForm.HomeManagerPanel;
 import InvoiceForm.InvoiceManagerPanel;
-import JDBCUntils.Session;
+import JDBCUtils.Session;
 import Login.ChangePasswordDialog;
 import Login.LoginForm;
 import ProductForm.ProductManagerPanel;
@@ -17,13 +17,19 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Objects;
 
-import static JDBCUntils.Style.*;
+import static JDBCUtils.Style.*;
 
 public class DashBoard extends JFrame {
+
+    // --- 1. KHAI BÁO BIẾN ---
     private JPanel contentPanel;
-    private JLabel btnHome, btnStaff, btnSupplier, btnCustomer, btnProduct, btnInvoice;
     private CardLayout cardLayout;
 
+    // Các nút Menu
+    private JButton btnHome, btnStaff, btnSupplier, btnCustomer, btnProduct, btnInvoice;
+    private JButton currentActiveButton; // Biến theo dõi nút đang được chọn
+
+    // Các Panel chức năng (Cache để tránh new lại nhiều lần gây chậm)
     private HomeManagerPanel homePanel;
     private StaffManagerPanel staffPanel;
     private SupplierManagerPanel supplierPanel;
@@ -33,7 +39,7 @@ public class DashBoard extends JFrame {
 
     public DashBoard() {
         super("Quản Lý Cửa Hàng");
-        this.setSize(900, 600);
+        this.setSize(950, 650);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
 
@@ -41,24 +47,25 @@ public class DashBoard extends JFrame {
         addEvents();
     }
 
+    // --- 2. KHỞI TẠO GIAO DIỆN ---
     private void initUI() {
         JPanel mainContainer = new JPanel(new BorderLayout());
 
+        // A. MENU BAR (Thanh menu trên cùng)
         JPanel menuPanel = new JPanel(new BorderLayout());
         menuPanel.setBackground(Color.decode("#2c3e50"));
+        menuPanel.setPreferredSize(new Dimension(0, 50));
 
+        // A.1 Menu Trái (Các nút chuyển Tab)
         JPanel leftMenuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         leftMenuPanel.setBackground(Color.decode("#2c3e50"));
 
-        btnHome = createMenuLabel("TRANG CHỦ");
-        btnStaff = createMenuLabel("NHÂN VIÊN");
-        btnSupplier = createMenuLabel("NHÀ CUNG CẤP");
-        btnCustomer = createMenuLabel("KHÁCH HÀNG");
-        btnProduct = createMenuLabel("SẢN PHẨM");
-        btnInvoice = createMenuLabel("HÓA ĐƠN");
-
-        JLabel btnInfo = createMenuLabel("TÀI KHOẢN");
-        setupUserPopup(btnInfo);
+        btnHome = createMenuButton("TRANG CHỦ");
+        btnStaff = createMenuButton("NHÂN VIÊN");
+        btnSupplier = createMenuButton("NHÀ CUNG CẤP");
+        btnCustomer = createMenuButton("KHÁCH HÀNG");
+        btnProduct = createMenuButton("SẢN PHẨM");
+        btnInvoice = createMenuButton("HÓA ĐƠN");
 
         leftMenuPanel.add(btnHome);
         leftMenuPanel.add(btnStaff);
@@ -67,16 +74,22 @@ public class DashBoard extends JFrame {
         leftMenuPanel.add(btnProduct);
         leftMenuPanel.add(btnInvoice);
 
+        // A.2 Menu Phải (Nút Tài khoản)
         JPanel rightMenuPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         rightMenuPanel.setBackground(Color.decode("#2c3e50"));
+
+        JButton btnInfo = createMenuButton("TÀI KHOẢN");
+        setupUserPopup(btnInfo); // Cài đặt logic Popup cho nút này
         rightMenuPanel.add(btnInfo);
 
         menuPanel.add(leftMenuPanel, BorderLayout.WEST);
         menuPanel.add(rightMenuPanel, BorderLayout.EAST);
 
+        // B. CONTENT AREA (Khu vực nội dung chính)
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
+        // Khởi tạo các màn hình con
         homePanel = new HomeManagerPanel();
         staffPanel = new StaffManagerPanel();
         supplierPanel = new SupplierManagerPanel();
@@ -84,6 +97,7 @@ public class DashBoard extends JFrame {
         productPanel = new ProductManagerPanel();
         invoicePanel = new InvoiceManagerPanel();
 
+        // Thêm vào CardLayout với tên định danh
         contentPanel.add(homePanel, "HOME");
         contentPanel.add(staffPanel, "STAFF");
         contentPanel.add(supplierPanel, "SUPPLIER");
@@ -96,64 +110,110 @@ public class DashBoard extends JFrame {
 
         this.setContentPane(mainContainer);
 
-        if (!JDBCUntils.Session.isAdmin()) {
+        // C. PHÂN QUYỀN (Ẩn nút nếu không phải Admin)
+        if (!JDBCUtils.Session.isAdmin()) {
             btnStaff.setVisible(false);
             btnSupplier.setVisible(false);
         }
     }
 
+    // --- 3. XỬ LÝ SỰ KIỆN ---
     private void addEvents() {
-        btnHome.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                cardLayout.show(contentPanel, "HOME");
-                homePanel.refreshData();
-            }
-        });
+        // Gán sự kiện chuyển Tab cho từng nút
+        btnHome.addActionListener(_ -> switchTab("HOME", homePanel, btnHome));
+        btnStaff.addActionListener(_ -> switchTab("STAFF", staffPanel, btnStaff));
+        btnSupplier.addActionListener(_ -> switchTab("SUPPLIER", supplierPanel, btnSupplier));
+        btnCustomer.addActionListener(_ -> switchTab("CUSTOMER", customerPanel, btnCustomer));
+        btnProduct.addActionListener(_ -> switchTab("PRODUCT", productPanel, btnProduct));
+        btnInvoice.addActionListener(_ -> switchTab("INVOICE", invoicePanel, btnInvoice));
 
-        btnStaff.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                cardLayout.show(contentPanel, "STAFF");
-                staffPanel.refreshData();
-            }
-        });
-
-        btnSupplier.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                cardLayout.show(contentPanel, "SUPPLIER");
-                supplierPanel.refreshData();
-            }
-        });
-
-        btnCustomer.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                cardLayout.show(contentPanel, "CUSTOMER");
-                customerPanel.refreshData();
-            }
-        });
-
-        btnProduct.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                cardLayout.show(contentPanel, "PRODUCT");
-                productPanel.refreshData();
-            }
-        });
-
-        btnInvoice.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
-                cardLayout.show(contentPanel, "INVOICE");
-                invoicePanel.refreshData();
-            }
-        });
+        // Mặc định chọn Trang chủ khi mở lên
+        updateActiveButton(btnHome);
     }
 
+    /**
+     * Hàm hỗ trợ chuyển Tab và làm mới dữ liệu
+     */
+    private void switchTab(String cardName, Object panel, JButton btn) {
+        cardLayout.show(contentPanel, cardName);
+
+        // Gọi hàm refreshData tương ứng với từng loại Panel
+        if (panel instanceof HomeManagerPanel) ((HomeManagerPanel) panel).refreshData();
+        else if (panel instanceof StaffManagerPanel) ((StaffManagerPanel) panel).refreshData();
+        else if (panel instanceof SupplierManagerPanel) ((SupplierManagerPanel) panel).refreshData();
+        else if (panel instanceof CustomerManagerPanel) ((CustomerManagerPanel) panel).refreshData();
+        else if (panel instanceof ProductManagerPanel) ((ProductManagerPanel) panel).refreshData();
+        else if (panel instanceof InvoiceManagerPanel) ((InvoiceManagerPanel) panel).refreshData();
+
+        updateActiveButton(btn);
+    }
+
+    /**
+     * Hàm đổi màu nút đang được chọn (Active)
+     */
+    private void updateActiveButton(JButton activeBtn) {
+        currentActiveButton = activeBtn;
+
+        JButton[] btns = {btnHome, btnStaff, btnSupplier, btnCustomer, btnProduct, btnInvoice};
+        for (JButton btn : btns) {
+            if (btn == activeBtn) {
+                btn.setBackground(Color.decode("#3498db")); // Màu Xanh (Active)
+            } else {
+                btn.setBackground(Color.decode("#2c3e50")); // Màu Đen (Inactive)
+            }
+        }
+    }
+
+    /**
+     * Hàm tạo nút Menu với style chuẩn
+     */
+    private JButton createMenuButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setForeground(Color.WHITE);
+        btn.setBackground(Color.decode("#2c3e50"));
+
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(true);
+        btn.setOpaque(true);
+
+        btn.setPreferredSize(new Dimension(130, 50));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                // Hover vào luôn hiện màu xanh
+                btn.setBackground(Color.decode("#3498db"));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                // Chỉ trả về màu đen nếu nút này KHÔNG phải là nút đang chọn
+                if (btn != currentActiveButton) {
+                    btn.setBackground(Color.decode("#2c3e50"));
+                }
+            }
+        });
+
+        return btn;
+    }
+
+    /**
+     * Hàm Public để gọi từ các form con (ví dụ: Mở hóa đơn từ trang chủ)
+     */
     public void showInvoiceAndLoad(int invID) {
         cardLayout.show(contentPanel, "INVOICE");
+        updateActiveButton(btnInvoice);
         if (invoicePanel != null) {
             invoicePanel.loadDetail(invID);
         }
     }
 
-    private void setupUserPopup(JComponent targetComponent) {
+    /**
+     * CẤU HÌNH POPUP TÀI KHOẢN
+     */
+    private void setupUserPopup(JButton btnTarget) {
+        // --- Phần 1: Tạo giao diện Popup ---
         JPopupMenu popupProfile = new JPopupMenu();
         popupProfile.setBackground(Color.WHITE);
         popupProfile.setBorder(BorderFactory.createLineBorder(Color.decode("#bdc3c7"), 1));
@@ -169,12 +229,12 @@ public class DashBoard extends JFrame {
         lblTitle.setForeground(Color.decode("#2c3e50"));
         lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel lblUser = new JLabel("Người dùng: " + JDBCUntils.Session.loggedInStaffName);
+        JLabel lblUser = new JLabel("Tài khoản: " + JDBCUtils.Session.loggedInStaffName);
         lblUser.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         lblUser.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         String role = "Nhân viên";
-        if (Objects.equals(JDBCUntils.Session.userRole, "Admin")) {
+        if (Objects.equals(JDBCUtils.Session.userRole, "Admin")) {
             role = "Quản lý";
         }
 
@@ -220,28 +280,14 @@ public class DashBoard extends JFrame {
 
         popupProfile.add(pContent);
 
-        final long[] lastCloseTime = {0};
-
-        popupProfile.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
-            @Override public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent e) {}
-            @Override public void popupMenuCanceled(javax.swing.event.PopupMenuEvent e) {}
-
-            @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {
-                lastCloseTime[0] = System.currentTimeMillis();
-            }
-        });
-
-        targetComponent.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        targetComponent.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (System.currentTimeMillis() - lastCloseTime[0] < 200) {
-                    return;
-                }
-                int x = targetComponent.getWidth() - popupProfile.getPreferredSize().width;
-                int y = targetComponent.getHeight();
-                popupProfile.show(targetComponent, x, y);
+        //--- Phần 12: Sự kiện Click: Hiện Popup --
+        btnTarget.addActionListener(_ -> {
+            if (!popupProfile.isVisible()) {
+                popupProfile.show(btnTarget,
+                        btnTarget.getWidth() - popupProfile.getPreferredSize().width,
+                        btnTarget.getHeight());
+            } else {
+                popupProfile.setVisible(false);
             }
         });
     }

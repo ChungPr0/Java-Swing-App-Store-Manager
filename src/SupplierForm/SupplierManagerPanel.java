@@ -1,7 +1,7 @@
 package SupplierForm;
 
-import JDBCUntils.ComboItem;
-import JDBCUntils.DBConnection;
+import JDBCUtils.ComboItem;
+import JDBCUtils.DBConnection;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,33 +10,35 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.sql.*;
 
-import static JDBCUntils.Style.*;
+import static JDBCUtils.Style.*;
 
 public class SupplierManagerPanel extends JPanel {
+    // --- KHAI BÁO BIẾN GIAO DIỆN ---
     private JList<ComboItem> listSupplier;
     private JTextField txtSearch, txtName, txtPhone, txtAddress;
-
     private JButton btnAdd, btnSave, btnDelete;
-
     private JButton btnSort;
+
+    // --- BIẾN TRẠNG THÁI ---
     private int currentSortIndex = 0;
     private final String[] sortModes = {"A-Z", "Z-A", "NEW", "OLD"};
-
-    private int selectedSupID = -1;
-    private boolean isDataLoading = false;
+    private int selectedSupID = -1; // ID nhà cung cấp đang chọn
+    private boolean isDataLoading = false; // Cờ chặn sự kiện khi đang load dữ liệu
 
     public SupplierManagerPanel() {
-        initUI();
-        loadListData();
-        addEvents();
-        addChangeListeners();
+        initUI();           // 1. Tạo giao diện
+        loadListData();     // 2. Tải danh sách NCC
+        addEvents();        // 3. Gán sự kiện click/search
+        addChangeListeners(); // 4. Gán sự kiện gõ phím để hiện nút Lưu
     }
 
+    // --- 1. KHỞI TẠO GIAO DIỆN (UI) ---
     private void initUI() {
         this.setLayout(new BorderLayout(10, 10));
         this.setBorder(new EmptyBorder(10, 10, 10, 10));
         this.setBackground(Color.decode("#ecf0f1"));
 
+        // A. PANEL TRÁI (Tìm kiếm & Danh sách)
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
         leftPanel.setPreferredSize(new Dimension(250, 0));
         leftPanel.setOpaque(false);
@@ -46,15 +48,14 @@ public class SupplierManagerPanel extends JPanel {
         btnSort.setToolTipText("Đang xếp: Tên A-Z");
 
         JPanel searchPanel = createSearchWithButtonPanel(txtSearch, btnSort, "Tìm kiếm");
-
         leftPanel.add(searchPanel, BorderLayout.NORTH);
 
         listSupplier = new JList<>();
         listSupplier.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         listSupplier.setFixedCellHeight(30);
-
         leftPanel.add(new JScrollPane(listSupplier), BorderLayout.CENTER);
 
+        // B. PANEL PHẢI (Form nhập liệu)
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setBackground(Color.WHITE);
@@ -75,14 +76,15 @@ public class SupplierManagerPanel extends JPanel {
         rightPanel.add(createTextFieldWithLabel(txtAddress, "Địa chỉ:"));
         rightPanel.add(Box.createVerticalStrut(15));
 
+        // C. KHU VỰC NÚT BẤM
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setBackground(Color.WHITE);
 
         btnAdd = createButton("Thêm nhà cung cấp", Color.decode("#3498db"));
-
         btnSave = createButton("Lưu thay đổi", new Color(46, 204, 113));
         btnDelete = createButton("Xóa nhà cung cấp", new Color(231, 76, 60));
 
+        // Mặc định ẩn nút Lưu và Xóa khi chưa chọn ai
         btnSave.setVisible(false);
         btnDelete.setVisible(false);
 
@@ -92,12 +94,14 @@ public class SupplierManagerPanel extends JPanel {
 
         rightPanel.add(buttonPanel);
 
+        // Thêm 2 panel vào màn hình chính
         this.add(leftPanel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
 
-        enableForm(false);
+        enableForm(false); // Khóa các ô nhập liệu ban đầu
     }
 
+    // --- 2. TẢI DỮ LIỆU DANH SÁCH (LEFT PANEL) ---
     private void loadListData() {
         DefaultListModel<ComboItem> model = new DefaultListModel<>();
 
@@ -111,10 +115,11 @@ public class SupplierManagerPanel extends JPanel {
                 sql.append(" WHERE sup_name LIKE ?");
             }
 
+            // Xử lý sắp xếp
             switch (currentSortIndex) {
                 case 1: sql.append(" ORDER BY sup_name DESC"); break;
-                case 2: sql.append(" ORDER BY sup_id DESC"); break;
-                case 3: sql.append(" ORDER BY sup_id ASC"); break;
+                case 2: sql.append(" ORDER BY sup_id DESC"); break; // Mới nhất
+                case 3: sql.append(" ORDER BY sup_id ASC"); break;  // Cũ nhất
                 default: sql.append(" ORDER BY sup_name ASC");
             }
 
@@ -136,8 +141,9 @@ public class SupplierManagerPanel extends JPanel {
         }
     }
 
+    // --- 3. TẢI CHI TIẾT (RIGHT PANEL) ---
     private void loadDetail(int id) {
-        isDataLoading = true;
+        isDataLoading = true; // Chặn sự kiện text change
         try (Connection con = DBConnection.getConnection()) {
             String sql = "SELECT * FROM Suppliers WHERE sup_id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
@@ -156,13 +162,14 @@ public class SupplierManagerPanel extends JPanel {
             }
         } catch (Exception e) {
             showError(this, "Lỗi: " + e.getMessage());
-        }
-        finally {
-            isDataLoading = false;
+        } finally {
+            isDataLoading = false; // Mở lại sự kiện
         }
     }
 
+    // --- 4. XỬ LÝ CÁC SỰ KIỆN NÚT BẤM & CLICK ---
     private void addEvents() {
+        // Sự kiện chọn vào danh sách bên trái
         listSupplier.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 ComboItem selected = listSupplier.getSelectedValue();
@@ -173,12 +180,25 @@ public class SupplierManagerPanel extends JPanel {
             }
         });
 
+        // Sự kiện tìm kiếm (Gõ đến đâu tìm đến đó)
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { loadListData(); }
             public void removeUpdate(DocumentEvent e) { loadListData(); }
             public void changedUpdate(DocumentEvent e) { loadListData(); }
         });
 
+        // --- ĐOẠN NÀY ĐỂ CHẶN NHẬP CHỮ VÀO SỐ ĐIỆN THOẠI ---
+        txtPhone.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent e) {
+                char c = e.getKeyChar();
+                // Nếu ký tự gõ vào KHÔNG phải là số -> Chặn (consume)
+                if (!Character.isDigit(c)) {
+                    e.consume();
+                }
+            }
+        });
+
+        // Sự kiện nút Sắp xếp (Sort Loop)
         btnSort.addActionListener(_ -> {
             currentSortIndex++;
             if (currentSortIndex >= sortModes.length) {
@@ -196,6 +216,7 @@ public class SupplierManagerPanel extends JPanel {
             loadListData();
         });
 
+        // Sự kiện nút Thêm Mới
         btnAdd.addActionListener(_ -> {
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             AddSupplierForm addSupplierForm = new AddSupplierForm(parentFrame);
@@ -206,6 +227,7 @@ public class SupplierManagerPanel extends JPanel {
             }
         });
 
+        // Sự kiện nút Lưu Thay Đổi
         btnSave.addActionListener(_ -> {
             try (Connection con = DBConnection.getConnection()) {
                 String sql = "UPDATE Suppliers SET sup_name=?, sup_phone=?, sup_address=? WHERE sup_id=?";
@@ -213,7 +235,6 @@ public class SupplierManagerPanel extends JPanel {
                 ps.setString(1, txtName.getText());
                 ps.setString(2, txtPhone.getText());
                 ps.setString(3, txtAddress.getText());
-
                 ps.setInt(4, selectedSupID);
 
                 if (ps.executeUpdate() > 0) {
@@ -226,6 +247,7 @@ public class SupplierManagerPanel extends JPanel {
             }
         });
 
+        // Sự kiện nút Xóa (Có bắt lỗi khóa ngoại)
         btnDelete.addActionListener(_ -> {
             if(showConfirm(this, "Xóa nhà cung cấp này?")){
                 try (Connection con = DBConnection.getConnection()) {
@@ -246,6 +268,7 @@ public class SupplierManagerPanel extends JPanel {
         });
     }
 
+    // --- 5. SỰ KIỆN THEO DÕI THAY ĐỔI FORM ---
     private void addChangeListeners() {
         SimpleDocumentListener docListener = new SimpleDocumentListener(_ -> {
             if (!isDataLoading) btnSave.setVisible(true);
@@ -255,6 +278,8 @@ public class SupplierManagerPanel extends JPanel {
         txtPhone.getDocument().addDocumentListener(docListener);
         txtAddress.getDocument().addDocumentListener(docListener);
     }
+
+    // --- CÁC HÀM TIỆN ÍCH ---
 
     private void clearForm() {
         isDataLoading = true;
@@ -276,6 +301,7 @@ public class SupplierManagerPanel extends JPanel {
         loadListData();
     }
 
+    // Helper Interface & Class cho DocumentListener
     @FunctionalInterface
     interface DocumentUpdateListener { void update(DocumentEvent e); }
 

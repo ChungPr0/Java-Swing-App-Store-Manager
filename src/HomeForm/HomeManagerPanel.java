@@ -1,7 +1,7 @@
 package HomeForm;
 
 import Main.DashBoard;
-import JDBCUntils.DBConnection;
+import JDBCUtils.DBConnection;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,7 +11,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
 
-import static JDBCUntils.Style.*;
+import static JDBCUtils.Style.*;
 
 public class HomeManagerPanel extends JPanel {
     private JLabel lblRevenue, lblProductCount, lblCustomerCount, lblOrderCount;

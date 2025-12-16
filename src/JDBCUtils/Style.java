@@ -1,4 +1,4 @@
-package JDBCUntils;
+package JDBCUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -9,22 +9,13 @@ import java.awt.event.MouseEvent;
 
 /** @noinspection rawtypes*/
 public class Style {
-    public static JLabel createMenuLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        label.setForeground(Color.WHITE);
-        label.setOpaque(true);
-        label.setBackground(Color.decode("#2c3e50"));
-        label.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        label.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { label.setBackground(Color.decode("#1abc9c")); }
-            public void mouseExited(MouseEvent e) { label.setBackground(Color.decode("#2c3e50")); }
-        });
-        return label;
-    }
+    // --- CÁC HÀM TẠO LABEL (NHÃN) ---
 
+    /**
+     * Tạo nhãn tiêu đề lớn (Header) thường dùng ở đầu mỗi Form/Panel chính.
+     * Font chữ to, đậm, căn giữa.
+     */
     public static JLabel createHeaderLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -33,6 +24,10 @@ public class Style {
         return label;
     }
 
+    /**
+     * Tạo nhãn tiêu đề nhỏ (Label) nằm trên các ô nhập liệu.
+     * Font chữ nhỏ hơn, căn trái.
+     */
     public static JLabel createTitleLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -41,6 +36,12 @@ public class Style {
         return label;
     }
 
+    // --- CÁC HÀM TẠO Ô NHẬP LIỆU (INPUT FIELD) ---
+
+    /**
+     * Tạo một Panel bao gồm: 1 Nhãn tiêu đề + 1 Ô nhập văn bản (JTextField).
+     * Đã được thiết lập padding, viền và hiệu ứng focus.
+     */
     public static JPanel createTextFieldWithLabel(JTextField tf, String labelText) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
         p.setBackground(Color.WHITE);
@@ -63,6 +64,10 @@ public class Style {
         return p;
     }
 
+    /**
+     * Tạo một Panel bao gồm: 1 Nhãn tiêu đề + 1 Ô nhập mật khẩu (JPasswordField).
+     * Ký tự được ẩn bằng dấu chấm tròn.
+     */
     public static JPanel createPasswordFieldWithLabel(JPasswordField pf, String labelText) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
         p.setBackground(Color.WHITE);
@@ -87,6 +92,12 @@ public class Style {
         return p;
     }
 
+    // --- CÁC HÀM TẠO COMBOBOX (DANH SÁCH CHỌN) ---
+
+    /**
+     * Tạo Panel chứa ComboBox đầy đủ nhất: Nhãn + ComboBox + (Tối đa 2 nút chức năng bên cạnh).
+     * Thường dùng khi cần nút "Thêm nhanh" hoặc "Sửa" ngay cạnh danh sách chọn.
+     */
     public static JPanel createComboBoxWithLabel(JComboBox box, String labelText, JButton btn1, JButton btn2) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
         p.setBackground(Color.WHITE);
@@ -129,15 +140,26 @@ public class Style {
         return p;
     }
 
+    /**
+     * Tạo Panel ComboBox cơ bản: Chỉ có Nhãn + ComboBox.
+     */
     public static JPanel createComboBoxWithLabel(JComboBox box, String labelText) {
         return createComboBoxWithLabel(box, labelText, null, null);
     }
 
+    /**
+     * Tạo Panel ComboBox có 1 nút chức năng: Nhãn + ComboBox + 1 Nút.
+     */
     public static JPanel createComboBoxWithLabel(JComboBox box, String labelText, JButton btn) {
         return createComboBoxWithLabel(box, labelText, btn, null);
     }
 
-    // Hàm tạo: Label ở trên + [TextField - Button] ở dưới
+    // --- HÀM TẠO THANH TÌM KIẾM ---
+
+    /**
+     * Tạo thanh tìm kiếm chuyên dụng.
+     * Bao gồm: Ô nhập liệu (có xử lý placeholder 'Tìm kiếm...') + Nút sắp xếp bên phải.
+     */
     public static JPanel createSearchWithButtonPanel(JTextField textField, JButton btnSort, String labelText) {
         JPanel pRoot = new JPanel(new BorderLayout(5, 5));
         pRoot.setBackground(Color.WHITE);
@@ -192,6 +214,9 @@ public class Style {
         return pRoot;
     }
 
+    /**
+     * Tạo nhãn dấu gạch chéo " / " để ngăn cách ngày tháng.
+     */
     public static JLabel createSeparator() {
         JLabel lbl = new JLabel(" / ");
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -199,6 +224,11 @@ public class Style {
         return lbl;
     }
 
+    // --- CÁC HÀM TẠO CHECKBOX VÀ BUTTON ---
+
+    /**
+     * Tạo Panel chứa 1 Nhãn tiêu đề + 1 CheckBox.
+     */
     public static JPanel createCheckBoxWithLabel(JCheckBox chk, String labelText, String textContent) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
         p.setBackground(Color.WHITE);
@@ -222,6 +252,9 @@ public class Style {
         return p;
     }
 
+    /**
+     * Tạo Button chính với phong cách phẳng (Flat design), có màu nền tùy chỉnh và hiệu ứng hover.
+     */
     public static JButton createButton(String text, Color bgColor) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -243,6 +276,9 @@ public class Style {
         return btn;
     }
 
+    /**
+     * Tạo Button nhỏ, thường dùng làm nút phụ bên cạnh các ô nhập liệu (ví dụ: nút Add, Edit).
+     */
     public static JButton createSmallButton(String text, Color bg) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -268,6 +304,11 @@ public class Style {
         return btn;
     }
 
+    // --- HÀM TẠO BỘ CHỌN NGÀY THÁNG ---
+
+    /**
+     * Tạo bộ chọn ngày tháng năm gồm 3 ComboBox riêng biệt (Ngày, Tháng, Năm) ngăn cách bởi dấu "/".
+     */
     public static JPanel createDatePanel(String labelText, JComboBox<String> day, JComboBox<String> month, JComboBox<String> year) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
         p.setBackground(Color.WHITE);
@@ -288,6 +329,12 @@ public class Style {
         return p;
     }
 
+    // --- HÀM TẠO THẺ DASHBOARD ---
+
+    /**
+     * Tạo thẻ thống kê (Dashboard Card) hiển thị thông tin tóm tắt.
+     * Gồm: Tiêu đề, Số liệu lớn và Icon minh họa.
+     */
     public static JPanel createCard(String title, JLabel lblValue, Color color, String iconPath) {
         JPanel card = new JPanel(new BorderLayout(10, 0));
         card.setBackground(color);
@@ -322,6 +369,13 @@ public class Style {
         return card;
     }
 
+    // --- CÁC HÀM HIỂN THỊ HỘP THOẠI (DIALOG) ---
+
+    /**
+     * Hiển thị hộp thoại Xác nhận (Confirm Dialog) tùy chỉnh.
+     * Có 2 nút: Xác Nhận và Hủy Bỏ.
+     * @return true nếu chọn Xác Nhận, false nếu chọn Hủy.
+     */
     public static boolean showConfirm(Component parent, String msg) {
         final boolean[] result = {false};
 
@@ -426,14 +480,23 @@ public class Style {
         return result[0];
     }
 
+    /**
+     * Hiển thị thông báo thành công (Màu xanh).
+     */
     public static void showSuccess(Component parent, String msg) {
         showCustomAlert(parent, msg, true);
     }
 
+    /**
+     * Hiển thị thông báo lỗi (Màu đỏ).
+     */
     public static void showError(Component parent, String msg) {
         showCustomAlert(parent, msg, false);
     }
 
+    /**
+     * Hàm nội bộ để xây dựng và hiển thị hộp thoại thông báo tùy chỉnh (Alert Dialog).
+     */
     private static void showCustomAlert(Component parent, String msg, boolean isSuccess) {
         Color mainColor = isSuccess ? new Color(46, 204, 113) : new Color(231, 76, 60);
         String title = isSuccess ? "THÀNH CÔNG" : "THẤT BẠI";
@@ -498,6 +561,9 @@ public class Style {
         dialog.setVisible(true);
     }
 
+    /**
+     * Hàm phụ trợ để tạo phần tiêu đề (Header Panel) cho các Dialog.
+     */
     private static JPanel getJPanel(Color mainColor, String title, JDialog dialog) {
         JPanel pHeader = new JPanel(new BorderLayout());
         pHeader.setBackground(mainColor);
@@ -520,6 +586,11 @@ public class Style {
         return pHeader;
     }
 
+    // --- CÁC HÀM HỖ TRỢ XỬ LÝ GIAO DIỆN KHÁC ---
+
+    /**
+     * Áp dụng style chuẩn (font, màu nền, kích thước) cho ComboBox.
+     */
     private static void createStyleComboBox(JComboBox<String> box) {
         box.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         box.setBackground(Color.WHITE);
@@ -527,6 +598,9 @@ public class Style {
         box.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
+    /**
+     * Cài đặt hiệu ứng Animation đổi màu viền khi Focus vào ô nhập liệu.
+     */
     private static void installFocusAnimation(JTextField tf) {
         final Color normalColor = Color.decode("#bdc3c7");
         final Color focusColor = Color.decode("#3498db");
@@ -570,6 +644,9 @@ public class Style {
         });
     }
 
+    /**
+     * Hàm toán học để trộn 2 màu sắc dựa trên tỷ lệ (dùng cho Animation).
+     */
     private static Color blendColors(Color c1, Color c2, float ratio) {
         ratio = Math.max(0, Math.min(1, ratio));
 

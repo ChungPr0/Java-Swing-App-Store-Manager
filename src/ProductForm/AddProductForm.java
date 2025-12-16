@@ -1,71 +1,78 @@
 package ProductForm;
 
-import JDBCUntils.DBConnection;
+import JDBCUtils.ComboItem;
+import JDBCUtils.DBConnection;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import static JDBCUntils.Style.*;
+import static JDBCUtils.Style.*;
 
 public class AddProductForm extends JDialog {
+
+    // --- 1. KHAI BÁO BIẾN GIAO DIỆN (UI) ---
     private JTextField txtName, txtPrice, txtCount;
-    private JComboBox<String> cbType, cbSupplier;
+    private JComboBox<ComboItem> cbType, cbSupplier;
     private JButton btnSave, btnCancel;
 
-    private boolean isAdded = false;
+    // --- 2. BIẾN TRẠNG THÁI ---
+    private boolean isAdded = false; // Cờ đánh dấu thêm thành công để báo cho form cha reload lại list
 
     public AddProductForm(Frame parent) {
-        super(parent, true);
+        super(parent, true); // Modal = true (Chặn tương tác với cửa sổ cha)
         this.setTitle("Thêm Sản Phẩm Mới");
-        initUI();
-        loadTypeData();
-        loadSupplierData();
-        addEvents();
+
+        initUI();               // Dựng giao diện
+        loadTypeData();         // Nạp dữ liệu Loại SP vào ComboBox
+        loadSupplierData();     // Nạp dữ liệu Nhà Cung Cấp vào ComboBox
+        addEvents();            // Gán sự kiện nút bấm
 
         this.pack();
-        this.setLocationRelativeTo(parent);
+        this.setLocationRelativeTo(parent); // Căn giữa màn hình
         this.setResizable(false);
     }
 
+    // --- 3. KHỞI TẠO GIAO DIỆN (INIT UI) ---
     private void initUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
         mainPanel.setBackground(Color.WHITE);
 
+        // A. Tiêu đề
         JLabel lblTitle = createHeaderLabel("NHẬP THÔNG TIN");
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createVerticalStrut(20));
 
+        // B. Các ô nhập liệu
         txtName = new JTextField();
-        JPanel pName = createTextFieldWithLabel(txtName, "Tên Sản Phẩm:");
-        mainPanel.add(pName);
+        mainPanel.add(createTextFieldWithLabel(txtName, "Tên Sản Phẩm:"));
         mainPanel.add(Box.createVerticalStrut(15));
 
         txtPrice = new JTextField();
-        JPanel pPrice = createTextFieldWithLabel(txtPrice, "Giá Bán (VND):");
-        mainPanel.add(pPrice);
+        mainPanel.add(createTextFieldWithLabel(txtPrice, "Giá Bán (VND):"));
         mainPanel.add(Box.createVerticalStrut(15));
 
         txtCount = new JTextField();
-        JPanel pCount = createTextFieldWithLabel(txtCount, "Số Lượng Tồn:");
-        mainPanel.add(pCount);
+        mainPanel.add(createTextFieldWithLabel(txtCount, "Số Lượng Tồn:"));
         mainPanel.add(Box.createVerticalStrut(15));
 
+        // C. Các ComboBox chọn
         cbType = new JComboBox<>();
-        JPanel pType = createComboBoxWithLabel(cbType,"Phân Loại:");
-        mainPanel.add(pType);
+        mainPanel.add(createComboBoxWithLabel(cbType,"Phân Loại:"));
         mainPanel.add(Box.createVerticalStrut(15));
 
         cbSupplier = new JComboBox<>();
-        JPanel pSupplier = createComboBoxWithLabel(cbSupplier, "Nhà Cung Cấp:");
-        mainPanel.add(pSupplier);
+        mainPanel.add(createComboBoxWithLabel(cbSupplier, "Nhà Cung Cấp:"));
         mainPanel.add(Box.createVerticalStrut(15));
 
+        // D. Khu vực nút bấm
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setBackground(Color.WHITE);
 
@@ -80,40 +87,49 @@ public class AddProductForm extends JDialog {
 
         this.setContentPane(mainPanel);
 
+        // Bấm Enter sẽ kích hoạt nút Lưu
         getRootPane().setDefaultButton(btnSave);
     }
 
+    // --- 4. TẢI DỮ LIỆU COMBOBOX ---
+
+    // Tải danh sách tên Loại sản phẩm
     private void loadTypeData() {
+        cbType.removeAllItems();
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "SELECT type_name FROM ProductTypes";
+            String sql = "SELECT type_id, type_name FROM ProductTypes";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
-            cbType.removeAllItems();
             while (rs.next()) {
-                cbType.addItem(rs.getString("type_name"));
+                // Tạo ComboItem lưu trữ giá trị
+                cbType.addItem(new ComboItem(rs.getString("type_name"), rs.getInt("type_id")));
             }
         } catch (Exception e) {
             showError(AddProductForm.this, "Lỗi: " + e.getMessage());
         }
     }
 
+    // Tải danh sách tên Nhà cung cấp
     private void loadSupplierData() {
+        cbSupplier.removeAllItems();
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "SELECT sup_name FROM Suppliers";
+            String sql = "SELECT sup_id, sup_name FROM Suppliers";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
-            cbSupplier.removeAllItems();
             while (rs.next()) {
-                cbSupplier.addItem(rs.getString("sup_name"));
+                // Tạo ComboItem lưu trữ giá trị
+                cbSupplier.addItem(new ComboItem(rs.getString("sup_name"), rs.getInt("sup_id")));
             }
         } catch (Exception e) {
             showError(AddProductForm.this, "Lỗi: " + e.getMessage());
         }
     }
 
+    // --- 5. XỬ LÝ SỰ KIỆN (EVENTS) ---
     private void addEvents() {
+        // Sự kiện nút Lưu
         btnSave.addActionListener(_ -> {
             if (txtName.getText().trim().isEmpty() ||
                     txtPrice.getText().trim().isEmpty() ||
@@ -123,32 +139,16 @@ public class AddProductForm extends JDialog {
             }
 
             try (Connection con = DBConnection.getConnection()) {
-                String selectedTypeName = (String) cbType.getSelectedItem();
-                int typeID = 0;
+                ComboItem selectedType = (ComboItem) cbType.getSelectedItem();
+                ComboItem selectedSup = (ComboItem) cbSupplier.getSelectedItem();
 
-                if (selectedTypeName != null) {
-                    String sqlGetTypeID = "SELECT type_ID FROM ProductTypes WHERE type_name = ?";
-                    PreparedStatement psType = con.prepareStatement(sqlGetTypeID);
-                    psType.setString(1, selectedTypeName);
-                    ResultSet rsType = psType.executeQuery();
-                    if (rsType.next()) {
-                        typeID = rsType.getInt("type_ID");
-                    }
+                if (selectedType == null || selectedSup == null) {
+                    showError(this, "Vui lòng chọn Phân loại và Nhà cung cấp!");
+                    return;
                 }
 
-                String selectedSupName = (String) cbSupplier.getSelectedItem();
-                int supID = 0;
-
-                if (selectedSupName != null) {
-                    String sqlGetSupplierID = "SELECT sup_ID FROM Suppliers WHERE sup_name = ?";
-                    PreparedStatement psID = con.prepareStatement(sqlGetSupplierID);
-                    psID.setString(1, selectedSupName);
-                    ResultSet rsID = psID.executeQuery();
-                    if (rsID.next()) {
-                        supID = rsID.getInt("sup_ID");
-                    }
-                }
-
+                int typeID = selectedType.getValue();
+                int supID = selectedSup.getValue();
 
                 String sql = "INSERT INTO Products (pro_name, pro_price, pro_count, type_ID, sup_ID) VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement ps = con.prepareStatement(sql);
@@ -164,16 +164,26 @@ public class AddProductForm extends JDialog {
                     isAdded = true;
                     dispose();
                 }
-            } catch (NumberFormatException nfe) {
-                showError(AddProductForm.this, "Lỗi: Giá, Số lượng và ID phải là số hợp lệ!");
             } catch (Exception ex) {
                 showError(AddProductForm.this, "Lỗi CSDL: " + ex.getMessage());
             }
         });
 
         btnCancel.addActionListener(_ -> dispose());
+
+        // Chặn không cho nhập chữ vào ô chứa số
+        KeyAdapter numberFilter = new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                if (!Character.isDigit(e.getKeyChar())) {
+                    e.consume();
+                }
+            }
+        };
+        txtPrice.addKeyListener(numberFilter);
+        txtCount.addKeyListener(numberFilter);
     }
 
+    // Getter kiểm tra trạng thái
     public boolean isAddedSuccess() {
         return isAdded;
     }
