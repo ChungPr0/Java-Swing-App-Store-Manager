@@ -11,12 +11,12 @@ import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
+import static JDBCUtils.Export.exportToExcel;
 import static JDBCUtils.Style.*;
 
 public class CustomerStatsPanel extends JPanel {
     private final JTable table;
     private final DefaultTableModel tableModel;
-    JButton btnExport;
 
     public CustomerStatsPanel() {
         this.setLayout(new BorderLayout());
@@ -40,11 +40,15 @@ public class CustomerStatsPanel extends JPanel {
         table.getColumnModel().getColumn(1).setMaxWidth(60);
         table.getColumnModel().getColumn(1).setMinWidth(60);
 
-        btnExport = createSmallButton("Xuất Excel", Color.decode("#1D6F42"));
-        btnExport.setPreferredSize(new Dimension(100, 30));
-
-        JPanel pTable = createTableWithLabel(table, "TOP KHÁCH HÀNG CHI TIÊU NHIỀU NHẤT 7 NGÀY QUA", btnExport);
-
+        JPanel pTable;
+        if (JDBCUtils.Session.isAdmin()) {
+            JButton btnExport = createSmallButton("Xuất Excel", Color.decode("#1D6F42"));
+            btnExport.setPreferredSize(new Dimension(100, 30));
+            btnExport.addActionListener(_ -> exportToExcel(table, "Danh_sach_top_khach_hang_7_ngay_gan_nhat"));
+            pTable = createTableWithLabel(table, "TOP KHÁCH HÀNG CHI TIÊU NHIỀU NHẤT 7 NGÀY QUA", btnExport);
+        } else {
+            pTable = createTableWithLabel(table, "TOP KHÁCH HÀNG CHI TIÊU NHIỀU NHẤT 7 NGÀY QUA");
+        }
         this.add(pTable, BorderLayout.CENTER);
 
         addEvents();
@@ -102,8 +106,5 @@ public class CustomerStatsPanel extends JPanel {
                 }
             }
         });
-
-        // Khi bấm nút xuất Excel
-        btnExport.addActionListener(_ -> JDBCUtils.Export.exportToExcel(table, "Danh_sach_top_khách_hàng_7_ngay_gan_nhat"));
     }
 }

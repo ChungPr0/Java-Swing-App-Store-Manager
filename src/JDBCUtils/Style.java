@@ -302,6 +302,7 @@ public class Style {
 
         chk.setText(textContent);
         chk.setBackground(Color.WHITE);
+        chk.setFocusable(false);
         chk.setFocusPainted(false);
         chk.setFont(new Font("Segoe UI", Font.BOLD, 12));
         chk.setForeground(Color.decode("#666666"));
@@ -322,6 +323,7 @@ public class Style {
         btn.setForeground(Color.WHITE);
         btn.setBackground(bgColor);
         btn.setOpaque(true);
+        btn.setFocusable(false);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
         btn.setBorder(new EmptyBorder(10, 20, 10, 20)); // Padding (Đệm)
@@ -349,6 +351,7 @@ public class Style {
 
         btn.setPreferredSize(new Dimension(80, 30));
 
+        btn.setFocusable(false);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setOpaque(true);
@@ -501,6 +504,8 @@ public class Style {
 
         JButton btnYes = createButton("Xác Nhận", mainColor);
         JButton btnNo = createButton("Hủy Bỏ", Color.GRAY);
+        btnYes.setFocusable(false);
+        btnNo.setFocusable(false);
         btnYes.setPreferredSize(new Dimension(110, 35));
         btnNo.setPreferredSize(new Dimension(110, 35));
         btnNo.setBorder(BorderFactory.createLineBorder(Color.decode("#bdc3c7"), 1));

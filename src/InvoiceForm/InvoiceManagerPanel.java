@@ -73,6 +73,7 @@ public class InvoiceManagerPanel extends JPanel {
         txtSearch = new JTextField();
         btnSort = new JButton("NEW");
         btnSort.setToolTipText("Đang xếp: Mới nhất");
+        btnSort.setFocusable(false);
 
         JPanel searchPanel = createSearchWithButtonPanel(txtSearch, btnSort, "Tìm kiếm");
         leftPanel.add(searchPanel, BorderLayout.NORTH);

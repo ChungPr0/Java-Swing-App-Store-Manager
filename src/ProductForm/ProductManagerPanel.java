@@ -54,6 +54,7 @@ public class ProductManagerPanel extends JPanel {
         txtSearch = new JTextField();
         btnSort = new JButton("A-Z");
         btnSort.setToolTipText("Đang xếp: Tên A-Z");
+        btnSort.setFocusable(false);
 
         JPanel searchPanel = createSearchWithButtonPanel(txtSearch, btnSort, "Tìm kiếm");
         leftPanel.add(searchPanel, BorderLayout.NORTH);
