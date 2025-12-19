@@ -77,7 +77,7 @@ public class Style {
 
             private void runAnimation(boolean isEnter) {
                 if (timer != null && timer.isRunning()) timer.stop();
-                timer = new javax.swing.Timer(10, _ -> {
+                timer = new javax.swing.Timer(10, e -> {
                     if (isEnter) {
                         progress += 0.1f;
                         if (progress >= 1f) { progress = 1f; timer.stop(); }
@@ -270,7 +270,7 @@ public class Style {
             field.setAccessible(true);
             field.setBoolean(btn, value);
             btn.repaint();
-        } catch (Exception _) {}
+        } catch (Exception ignored) {}
     }
 
     // =================================================================================================================
@@ -750,8 +750,8 @@ public class Style {
         btnNo.setPreferredSize(new Dimension(110, 35));
         btnNo.setBorder(BorderFactory.createLineBorder(Color.decode("#bdc3c7"), 1));
 
-        btnYes.addActionListener(_ -> { result[0] = true; dialog.dispose(); });
-        btnNo.addActionListener(_ -> { result[0] = false; dialog.dispose(); });
+        btnYes.addActionListener(e -> { result[0] = true; dialog.dispose(); });
+        btnNo.addActionListener(e -> { result[0] = false; dialog.dispose(); });
 
         btnYes.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) { btnYes.setBackground(mainColor.darker()); }
@@ -843,7 +843,7 @@ public class Style {
 
         JButton btnOK = createButton("Đồng ý", mainColor);
         btnOK.setPreferredSize(new Dimension(110, 35));
-        btnOK.addActionListener(_ -> dialog.dispose());
+        btnOK.addActionListener(e -> dialog.dispose());
         btnOK.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) { btnOK.setBackground(mainColor.darker()); }
             public void mouseExited(MouseEvent evt) { btnOK.setBackground(mainColor); }

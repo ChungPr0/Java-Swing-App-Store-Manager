@@ -216,7 +216,7 @@ public class SupplierManagerPanel extends JPanel {
                         rs.getInt("sold_count")
                 });
             }
-        } catch (Exception _) {}
+        } catch (Exception ignored) {}
     }
 
     // --- 3. TẢI CHI TIẾT ---
@@ -304,7 +304,7 @@ public class SupplierManagerPanel extends JPanel {
             }
         });
 
-        btnSort.addActionListener(_ -> {
+        btnSort.addActionListener(e -> {
             currentSortIndex++;
             if (currentSortIndex >= sortModes.length) {
                 currentSortIndex = 0;
@@ -320,7 +320,7 @@ public class SupplierManagerPanel extends JPanel {
             loadListData();
         });
 
-        btnAdd.addActionListener(_ -> {
+        btnAdd.addActionListener(e -> {
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             AddSupplierDialog addSupplierDialog = new AddSupplierDialog(parentFrame);
             addSupplierDialog.setVisible(true);
@@ -333,7 +333,7 @@ public class SupplierManagerPanel extends JPanel {
             }
         });
 
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty() ||
                     txtPhone.getText().trim().isEmpty() ||
                     txtAddress.getText().trim().isEmpty()) {
@@ -364,7 +364,7 @@ public class SupplierManagerPanel extends JPanel {
             }
         });
 
-        btnDelete.addActionListener(_ -> {
+        btnDelete.addActionListener(e -> {
             if(showConfirm(this, "Xóa nhà cung cấp này?")){
                 try (Connection con = DBConnection.getConnection()) {
                     PreparedStatement ps = con.prepareStatement("DELETE FROM Suppliers WHERE sup_id=?");
@@ -386,7 +386,7 @@ public class SupplierManagerPanel extends JPanel {
 
     // --- 5. THEO DÕI THAY ĐỔI ---
     private void addChangeListeners() {
-        SimpleDocumentListener docListener = new SimpleDocumentListener(_ -> {
+        SimpleDocumentListener docListener = new SimpleDocumentListener(e -> {
             if (!isDataLoading) btnSave.setVisible(true);
         });
 
@@ -395,7 +395,7 @@ public class SupplierManagerPanel extends JPanel {
         txtAddress.getDocument().addDocumentListener(docListener);
         txtDescription.getDocument().addDocumentListener(docListener);
 
-        ActionListener actionListener = _ -> {
+        ActionListener actionListener = e -> {
             if (!isDataLoading) btnSave.setVisible(true);
         };
         cbDay.addActionListener(actionListener);

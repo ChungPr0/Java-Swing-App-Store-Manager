@@ -101,7 +101,7 @@ public class EditInvoiceDetailDialog extends JDialog {
         });
 
         // Sự kiện nút Lưu
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             try {
                 // Parse số lượng từ ô nhập liệu
                 int qty = Integer.parseInt(txtQuantity.getText().trim());
@@ -132,7 +132,7 @@ public class EditInvoiceDetailDialog extends JDialog {
         });
 
         // Sự kiện nút Hủy
-        btnCancel.addActionListener(_ -> dispose());
+        btnCancel.addActionListener(e -> dispose());
     }
 
     // --- 5. GETTER TRẢ VỀ KẾT QUẢ ---

@@ -98,7 +98,7 @@ public class HomeManagerPanel extends JPanel {
     }
 
     private void addEvents() {
-        btnRefresh.addActionListener(_ -> refreshData());
+        btnRefresh.addActionListener(e -> refreshData());
 
         pRevCard.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {

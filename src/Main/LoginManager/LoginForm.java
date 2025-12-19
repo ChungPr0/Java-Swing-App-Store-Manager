@@ -70,8 +70,8 @@ public class LoginForm extends JFrame {
         add(mainPanel);
 
         // E. Gán sự kiện (Events)
-        btnExit.addActionListener(_ -> System.exit(0)); // Nút thoát
-        btnLogin.addActionListener(_ -> checkLogin());  // Nút đăng nhập
+        btnExit.addActionListener(e -> System.exit(0)); // Nút thoát
+        btnLogin.addActionListener(e -> checkLogin());  // Nút đăng nhập
 
         // Bấm Enter để Đăng nhập luôn
         getRootPane().setDefaultButton(btnLogin);

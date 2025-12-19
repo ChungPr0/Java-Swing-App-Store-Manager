@@ -44,7 +44,7 @@ public class CustomerStatsPanel extends JPanel {
         if (JDBCUtils.Session.isAdmin()) {
             JButton btnExport = createSmallButton("Xuất Excel", Color.decode("#1D6F42"));
             btnExport.setPreferredSize(new Dimension(100, 35));
-            btnExport.addActionListener(_ -> exportToExcel(table, "Danh_sach_top_khach_hang_7_ngay_gan_nhat"));
+            btnExport.addActionListener(e -> exportToExcel(table, "Danh_sach_top_khach_hang_7_ngay_gan_nhat"));
             pTable = createTableWithLabel(table, "TOP KHÁCH HÀNG CHI TIÊU NHIỀU NHẤT 7 NGÀY QUA", btnExport);
         } else {
             pTable = createTableWithLabel(table, "TOP KHÁCH HÀNG CHI TIÊU NHIỀU NHẤT 7 NGÀY QUA");

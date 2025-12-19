@@ -103,7 +103,7 @@ public class AddProductDialog extends JDialog {
             while (rs.next()) {
                 cbType.addItem(new ComboItem(rs.getString("type_name"), rs.getInt("type_id")));
             }
-        } catch (Exception _) {}
+        } catch (Exception ignored) {}
     }
 
     private void loadSupplierData() {
@@ -115,14 +115,14 @@ public class AddProductDialog extends JDialog {
             while (rs.next()) {
                 cbSupplier.addItem(new ComboItem(rs.getString("sup_name"), rs.getInt("sup_id")));
             }
-        } catch (Exception _) {}
+        } catch (Exception ignored) {}
     }
 
     // --- 5. XỬ LÝ SỰ KIỆN ---
     private void addEvents() {
 
         // Nút Thêm Loại SP
-        btnAddType.addActionListener(_ -> {
+        btnAddType.addActionListener(e -> {
             Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
             TypeEditorDialog dialog = new TypeEditorDialog(parent);
             dialog.setVisible(true);
@@ -134,7 +134,7 @@ public class AddProductDialog extends JDialog {
         });
 
         // Nút Thêm NCC
-        btnAddSupplier.addActionListener(_ -> {
+        btnAddSupplier.addActionListener(e -> {
             Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
             AddSupplierDialog dialog = new AddSupplierDialog(parent);
             dialog.setVisible(true);
@@ -146,7 +146,7 @@ public class AddProductDialog extends JDialog {
         });
 
         // Nút Lưu
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty() ||
                     txtPrice.getText().trim().isEmpty() ||
                     txtCount.getText().trim().isEmpty()) {
@@ -191,7 +191,7 @@ public class AddProductDialog extends JDialog {
             }
         });
 
-        btnCancel.addActionListener(_ -> dispose());
+        btnCancel.addActionListener(e -> dispose());
 
         KeyAdapter numberFilter = new KeyAdapter() {
             public void keyTyped(KeyEvent e) {

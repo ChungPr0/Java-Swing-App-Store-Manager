@@ -63,7 +63,7 @@ public class Run {
                 System.exit(0);
             }
 
-        } catch (Exception _) {
+        } catch (Exception e) {
             System.exit(0);
         }
     }

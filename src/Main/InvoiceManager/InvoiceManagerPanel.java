@@ -335,14 +335,14 @@ public class InvoiceManagerPanel extends JPanel {
             public void changedUpdate(DocumentEvent e) { loadListData(); }
         });
 
-        btnSort.addActionListener(_ -> {
+        btnSort.addActionListener(e -> {
             currentSortIndex++;
             if (currentSortIndex >= sortModes.length) currentSortIndex = 0;
             btnSort.setText(sortModes[currentSortIndex]);
             loadListData();
         });
 
-        btnAdd.addActionListener(_ -> {
+        btnAdd.addActionListener(e -> {
             clearForm();
             enableForm(true);
             setDetailButtonsVisible(true);
@@ -355,7 +355,7 @@ public class InvoiceManagerPanel extends JPanel {
             btnPrint.setVisible(false);
         });
 
-        btnDelDetail.addActionListener(_ -> {
+        btnDelDetail.addActionListener(e -> {
             int row = tableDetails.getSelectedRow();
             if (row == -1) { showError(this, "Chọn 1 sản phẩm để xóa!"); return; }
             detailModel.removeRow(row);
@@ -363,7 +363,7 @@ public class InvoiceManagerPanel extends JPanel {
             btnSave.setVisible(true);
         });
 
-        btnEditDetail.addActionListener(_ -> {
+        btnEditDetail.addActionListener(e -> {
             int row = tableDetails.getSelectedRow();
             if (row == -1) { showError(this, "Chọn 1 sản phẩm để sửa!"); return; }
 
@@ -400,7 +400,7 @@ public class InvoiceManagerPanel extends JPanel {
             }
         });
 
-        btnAddDetail.addActionListener(_ -> {
+        btnAddDetail.addActionListener(e -> {
             JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
             AddInvoiceDetailDialog dialog = new AddInvoiceDetailDialog(parent);
             dialog.setVisible(true);
@@ -444,14 +444,14 @@ public class InvoiceManagerPanel extends JPanel {
             }
         });
 
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             if (detailModel.getRowCount() == 0) { showError(this, "Chưa có sản phẩm nào!"); return; }
             if (selectedInvID == -1) createNewInvoice();
             else saveChangesToDatabase();
         });
 
         // Nút thêm nhanh khách hàng
-        btnQuickAddCustomer.addActionListener(_ -> {
+        btnQuickAddCustomer.addActionListener(e -> {
             JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
             AddCustomerDialog dialog = new AddCustomerDialog(parent);
             dialog.setVisible(true);
@@ -467,14 +467,14 @@ public class InvoiceManagerPanel extends JPanel {
             }
         });
 
-        btnDelete.addActionListener(_ -> {
+        btnDelete.addActionListener(e -> {
             if (selectedInvID == -1) return;
             if (showConfirm(this, "Xóa hóa đơn #" + selectedInvID + "? Hàng sẽ được hoàn kho.")) {
                 deleteInvoiceTransaction();
             }
         });
 
-        btnPrint.addActionListener(_ -> printInvoice());
+        btnPrint.addActionListener(e -> printInvoice());
     }
 
     // =================================================================================
@@ -532,10 +532,10 @@ public class InvoiceManagerPanel extends JPanel {
             selectInvoiceByID(newInvID);
 
         } catch (Exception ex) {
-            try { if(con!=null) con.rollback(); } catch(Exception _) {}
+            try { if(con!=null) con.rollback(); } catch(Exception ignored) {}
             showError(this, "Lỗi tạo: " + ex.getMessage());
         } finally {
-            try { if(con!=null) { con.setAutoCommit(true); con.close(); } } catch(Exception _) {}
+            try { if(con!=null) { con.setAutoCommit(true); con.close(); } } catch(Exception ignored) {}
         }
     }
 
@@ -602,10 +602,10 @@ public class InvoiceManagerPanel extends JPanel {
             selectInvoiceByID(selectedInvID);
 
         } catch (Exception ex) {
-            try { if(con!=null) con.rollback(); } catch(Exception _) {}
+            try { if(con!=null) con.rollback(); } catch(Exception ignored) {}
             showError(this, "Lỗi cập nhật: " + ex.getMessage());
         } finally {
-            try { if(con!=null) { con.setAutoCommit(true); con.close(); } } catch(Exception _){}
+            try { if(con!=null) { con.setAutoCommit(true); con.close(); } } catch(Exception ignored){}
         }
     }
 
@@ -641,10 +641,10 @@ public class InvoiceManagerPanel extends JPanel {
             loadListData();
             clearForm();
         } catch (Exception ex) {
-            try { if (con != null) con.rollback(); } catch (Exception _) {}
+            try { if (con != null) con.rollback(); } catch (Exception ignored) {}
             showError(this, "Lỗi xóa: " + ex.getMessage());
         } finally {
-            try { if (con != null) { con.setAutoCommit(true); con.close(); } } catch (Exception _) {}
+            try { if (con != null) { con.setAutoCommit(true); con.close(); } } catch (Exception ignored) {}
         }
     }
 
@@ -706,7 +706,7 @@ public class InvoiceManagerPanel extends JPanel {
             ps.setInt(1, proID);
             ResultSet rs = ps.executeQuery();
             if(rs.next()) return rs.getDouble(1);
-        } catch(Exception _){}
+        } catch(Exception ignored){}
         return 0;
     }
 
@@ -779,8 +779,8 @@ public class InvoiceManagerPanel extends JPanel {
     }
 
     private void addChangeListeners() {
-        cbCustomer.addActionListener(_ -> checkChange());
-        cbStaff.addActionListener(_ -> checkChange());
+        cbCustomer.addActionListener(e -> checkChange());
+        cbStaff.addActionListener(e -> checkChange());
     }
 
     private void checkChange() { if (!isDataLoading) btnSave.setVisible(true); }

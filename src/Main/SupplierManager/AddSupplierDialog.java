@@ -107,7 +107,7 @@ public class AddSupplierDialog extends JDialog {
         });
 
         // Sự kiện nút Lưu
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty() || txtPhone.getText().trim().isEmpty() || txtAddress.getText().trim().isEmpty() || txtDescription.getText().trim().isEmpty()) {
                 showError(AddSupplierDialog.this, "Vui lòng nhập đầy đủ thông tin!");
                 return;
@@ -145,7 +145,7 @@ public class AddSupplierDialog extends JDialog {
             }
         });
 
-        btnCancel.addActionListener(_ -> dispose());
+        btnCancel.addActionListener(e -> dispose());
     }
 
     // --- 3. HÀM HỖ TRỢ ---

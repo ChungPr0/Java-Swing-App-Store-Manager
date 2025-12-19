@@ -250,7 +250,7 @@ public class ProductManagerPanel extends JPanel {
             public void changedUpdate(DocumentEvent e) { loadListData(); }
         });
 
-        btnSort.addActionListener(_ -> {
+        btnSort.addActionListener(e -> {
             currentSortIndex++;
             if (currentSortIndex >= sortModes.length) currentSortIndex = 0;
             btnSort.setText(sortModes[currentSortIndex]);
@@ -258,7 +258,7 @@ public class ProductManagerPanel extends JPanel {
         });
 
         // Nút thêm sản phẩm: Thêm xong tự chọn sản phẩm mới
-        btnAdd.addActionListener(_ -> {
+        btnAdd.addActionListener(e -> {
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             AddProductDialog addProductDialog = new AddProductDialog(parentFrame);
             addProductDialog.setVisible(true);
@@ -278,7 +278,7 @@ public class ProductManagerPanel extends JPanel {
             }
         });
 
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty()) { showError(this, "Tên không được để trống!"); return; }
             try (Connection con = DBConnection.getConnection()) {
                 ComboItem selectedType = (ComboItem) cbType.getSelectedItem();
@@ -308,7 +308,7 @@ public class ProductManagerPanel extends JPanel {
             }
         });
 
-        btnDelete.addActionListener(_ -> {
+        btnDelete.addActionListener(e -> {
             if(showConfirm(this, "Xóa sản phẩm này?")){
                 try (Connection con = DBConnection.getConnection()) {
                     PreparedStatement ps = con.prepareStatement("DELETE FROM Products WHERE pro_id=?");
@@ -324,7 +324,7 @@ public class ProductManagerPanel extends JPanel {
             }
         });
 
-        btnAddType.addActionListener(_ -> {
+        btnAddType.addActionListener(e -> {
             JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
             TypeEditorDialog dialog = new TypeEditorDialog(parent);
             dialog.setVisible(true);
@@ -335,7 +335,7 @@ public class ProductManagerPanel extends JPanel {
             }
         });
 
-        btnEditType.addActionListener(_ -> {
+        btnEditType.addActionListener(e -> {
             ComboItem currentItem = (ComboItem) cbType.getSelectedItem();
             if (currentItem == null) return;
             int savedID = currentItem.getValue();
@@ -350,7 +350,7 @@ public class ProductManagerPanel extends JPanel {
             }
         });
 
-        btnAddSupplier.addActionListener(_ -> {
+        btnAddSupplier.addActionListener(e -> {
             JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
             AddSupplierDialog dialog = new AddSupplierDialog(parent);
             dialog.setVisible(true);
@@ -369,14 +369,14 @@ public class ProductManagerPanel extends JPanel {
     }
 
     private void addChangeListeners() {
-        SimpleDocumentListener docListener = new SimpleDocumentListener(_ -> {
+        SimpleDocumentListener docListener = new SimpleDocumentListener(e -> {
             if (!isDataLoading) btnSave.setVisible(true);
         });
         txtName.getDocument().addDocumentListener(docListener);
         txtPrice.getDocument().addDocumentListener(docListener);
         txtCount.getDocument().addDocumentListener(docListener);
-        cbType.addActionListener(_ -> checkChange());
-        cbSupplier.addActionListener(_ -> checkChange());
+        cbType.addActionListener(e -> checkChange());
+        cbSupplier.addActionListener(e -> checkChange());
     }
 
     private void checkChange() {

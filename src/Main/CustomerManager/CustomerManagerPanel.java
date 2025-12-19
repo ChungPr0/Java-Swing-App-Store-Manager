@@ -199,7 +199,7 @@ public class CustomerManagerPanel extends JPanel {
         });
 
         // Sự kiện nút Sắp xếp
-        btnSort.addActionListener(_ -> {
+        btnSort.addActionListener(e -> {
             currentSortIndex++;
             if (currentSortIndex >= sortModes.length) {
                 currentSortIndex = 0;
@@ -217,7 +217,7 @@ public class CustomerManagerPanel extends JPanel {
         });
 
         // Nút Thêm Mới: Thêm xong tự chọn khách hàng mới
-        btnAdd.addActionListener(_ -> {
+        btnAdd.addActionListener(e -> {
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             AddCustomerDialog addCustomerDialog = new AddCustomerDialog(parentFrame);
             addCustomerDialog.setVisible(true);
@@ -238,7 +238,7 @@ public class CustomerManagerPanel extends JPanel {
         });
 
         // Nút Lưu Thay Đổi: Lưu xong giữ nguyên lựa chọn
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty() || txtPhone.getText().trim().isEmpty()) {
                 showError(this, "Tên và Số điện thoại không được để trống!");
                 return;
@@ -267,7 +267,7 @@ public class CustomerManagerPanel extends JPanel {
         });
 
         // Nút Xóa Khách Hàng
-        btnDelete.addActionListener(_ -> {
+        btnDelete.addActionListener(e -> {
             if(showConfirm(this, "Xóa khách hàng này?")){
                 try (Connection con = DBConnection.getConnection()) {
                     PreparedStatement ps = con.prepareStatement("DELETE FROM Customers WHERE cus_id=?");
@@ -289,7 +289,7 @@ public class CustomerManagerPanel extends JPanel {
 
     // --- 6. SỰ KIỆN THEO DÕI THAY ĐỔI FORM ---
     private void addChangeListeners() {
-        SimpleDocumentListener docListener = new SimpleDocumentListener(_ -> {
+        SimpleDocumentListener docListener = new SimpleDocumentListener(e -> {
             if (!isDataLoading) btnSave.setVisible(true);
         });
 

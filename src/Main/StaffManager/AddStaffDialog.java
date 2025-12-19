@@ -128,7 +128,7 @@ public class AddStaffDialog extends JDialog {
         txtSalary.addKeyListener(digitOnly);
 
         // Sự kiện nút Lưu
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             // Validate
             if (txtName.getText().trim().isEmpty() ||
                     txtPhone.getText().trim().isEmpty() ||
@@ -194,7 +194,7 @@ public class AddStaffDialog extends JDialog {
             }
         });
 
-        btnCancel.addActionListener(_ -> dispose());
+        btnCancel.addActionListener(e -> dispose());
     }
 
     // --- 3. HÀM HỖ TRỢ & GETTER ---

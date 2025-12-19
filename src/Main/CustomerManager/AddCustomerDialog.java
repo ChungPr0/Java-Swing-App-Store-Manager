@@ -90,7 +90,7 @@ public class AddCustomerDialog extends JDialog {
         });
 
         // Sự kiện nút Lưu
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty() || txtPhone.getText().trim().isEmpty()) {
                 showError(AddCustomerDialog.this, "Vui lòng nhập Tên và Số điện thoại!");
                 return;
@@ -123,7 +123,7 @@ public class AddCustomerDialog extends JDialog {
             }
         });
 
-        btnCancel.addActionListener(_ -> dispose());
+        btnCancel.addActionListener(e -> dispose());
     }
 
     // --- 5. HÀM TIỆN ÍCH ---

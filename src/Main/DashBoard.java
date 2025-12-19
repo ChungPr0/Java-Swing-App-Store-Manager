@@ -115,12 +115,12 @@ public class DashBoard extends JFrame {
     // --- 3. XỬ LÝ SỰ KIỆN ---
     private void addEvents() {
         // Gán sự kiện chuyển Tab cho từng nút
-        btnHome.addActionListener(_ -> switchTab("HOME", homePanel, btnHome));
-        btnStaff.addActionListener(_ -> switchTab("STAFF", staffPanel, btnStaff));
-        btnSupplier.addActionListener(_ -> switchTab("SUPPLIER", supplierPanel, btnSupplier));
-        btnCustomer.addActionListener(_ -> switchTab("CUSTOMER", customerPanel, btnCustomer));
-        btnProduct.addActionListener(_ -> switchTab("PRODUCT", productPanel, btnProduct));
-        btnInvoice.addActionListener(_ -> switchTab("INVOICE", invoicePanel, btnInvoice));
+        btnHome.addActionListener(e -> switchTab("HOME", homePanel, btnHome));
+        btnStaff.addActionListener(e -> switchTab("STAFF", staffPanel, btnStaff));
+        btnSupplier.addActionListener(e -> switchTab("SUPPLIER", supplierPanel, btnSupplier));
+        btnCustomer.addActionListener(e -> switchTab("CUSTOMER", customerPanel, btnCustomer));
+        btnProduct.addActionListener(e -> switchTab("PRODUCT", productPanel, btnProduct));
+        btnInvoice.addActionListener(e -> switchTab("INVOICE", invoicePanel, btnInvoice));
 
         // Mặc định chọn Trang chủ khi mở lên
         updateActiveButton(btnHome);
@@ -267,7 +267,7 @@ public class DashBoard extends JFrame {
         btnChangePass.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnChangePass.setMaximumSize(new Dimension(220, 35));
 
-        btnChangePass.addActionListener(_ -> {
+        btnChangePass.addActionListener(e -> {
             popupProfile.setVisible(false);
             JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
             new ChangePasswordDialog(parent).setVisible(true);
@@ -277,7 +277,7 @@ public class DashBoard extends JFrame {
         btnLogout.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnLogout.setMaximumSize(new Dimension(220, 35));
 
-        btnLogout.addActionListener(_ -> {
+        btnLogout.addActionListener(e -> {
             popupProfile.setVisible(false);
             if (showConfirm(this, "Bạn có chắc muốn đăng xuất?")) {
                 Session.clear();
@@ -302,7 +302,7 @@ public class DashBoard extends JFrame {
         popupProfile.add(pContent);
 
         //--- Phần 12: Sự kiện Click: Hiện Popup --
-        btnTarget.addActionListener(_ -> {
+        btnTarget.addActionListener(e -> {
             if (!popupProfile.isVisible()) {
                 popupProfile.show(btnTarget,
                         btnTarget.getWidth() - popupProfile.getPreferredSize().width,

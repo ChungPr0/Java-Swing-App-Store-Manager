@@ -70,8 +70,8 @@ public class ChangePasswordDialog extends JDialog {
         add(mainPanel);
 
         // D. Gán sự kiện
-        btnCancel.addActionListener(_ -> dispose()); // Đóng cửa sổ
-        btnSave.addActionListener(_ -> doChangePassword()); // Thực hiện đổi pass
+        btnCancel.addActionListener(e -> dispose()); // Đóng cửa sổ
+        btnSave.addActionListener(e -> doChangePassword()); // Thực hiện đổi pass
 
         // Bấm Enter để Lưu luôn
         getRootPane().setDefaultButton(btnSave);

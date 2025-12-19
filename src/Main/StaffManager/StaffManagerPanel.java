@@ -272,7 +272,7 @@ public class StaffManagerPanel extends JPanel {
         txtSalary.addKeyListener(digitOnly);
 
         // Sự kiện nút Sắp xếp
-        btnSort.addActionListener(_ -> {
+        btnSort.addActionListener(e -> {
             currentSortIndex++;
             if (currentSortIndex >= sortModes.length) {
                 currentSortIndex = 0;
@@ -290,7 +290,7 @@ public class StaffManagerPanel extends JPanel {
         });
 
         // Nút Thêm Mới: Thêm xong tự chọn nhân viên mới
-        btnAdd.addActionListener(_ -> {
+        btnAdd.addActionListener(e -> {
             JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             AddStaffDialog addStaffDialog = new AddStaffDialog(parentFrame);
             addStaffDialog.setVisible(true);
@@ -311,7 +311,7 @@ public class StaffManagerPanel extends JPanel {
         });
 
         // Nút Lưu Thay Đổi: Lưu xong giữ nguyên lựa chọn
-        btnSave.addActionListener(_ -> {
+        btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty() ||
                     txtPhone.getText().trim().isEmpty() ||
                     txtAddress.getText().trim().isEmpty() ||
@@ -349,7 +349,7 @@ public class StaffManagerPanel extends JPanel {
                 double salary;
                 try {
                     salary = Double.parseDouble(txtSalary.getText().trim());
-                } catch (Exception e) {
+                } catch (Exception ex) {
                     showError(this, "Lương phải là số!");
                     return;
                 }
@@ -387,7 +387,7 @@ public class StaffManagerPanel extends JPanel {
             }
         });
 
-        btnDelete.addActionListener(_ -> {
+        btnDelete.addActionListener(e -> {
             if(showConfirm(this, "Xóa nhân viên này?")){
                 try (Connection con = DBConnection.getConnection()) {
                     PreparedStatement ps = con.prepareStatement("DELETE FROM Staffs WHERE sta_id=?");
@@ -409,7 +409,7 @@ public class StaffManagerPanel extends JPanel {
 
     // --- 7. SỰ KIỆN THEO DÕI THAY ĐỔI FORM ---
     private void addChangeListeners() {
-        SimpleDocumentListener docListener = new SimpleDocumentListener(_ -> {
+        SimpleDocumentListener docListener = new SimpleDocumentListener(e -> {
             if (!isDataLoading) btnSave.setVisible(true);
         });
 
@@ -421,11 +421,11 @@ public class StaffManagerPanel extends JPanel {
         txtUsername.getDocument().addDocumentListener(docListener);
         txtPassword.getDocument().addDocumentListener(docListener);
 
-        chkIsAdmin.addActionListener(_ -> {
+        chkIsAdmin.addActionListener(e -> {
             if (!isDataLoading) btnSave.setVisible(true);
         });
 
-        java.awt.event.ActionListener actionListener = _ -> {
+        java.awt.event.ActionListener actionListener = e -> {
             if (!isDataLoading) btnSave.setVisible(true);
         };
         cbDay.addActionListener(actionListener);

@@ -103,7 +103,7 @@ public class TypeEditorDialog extends JDialog {
     // --- 4. XỬ LÝ SỰ KIỆN (EVENTS) ---
     private void addEvents() {
         // Sự kiện nút Action (Thêm hoặc Lưu)
-        btnAction.addActionListener(_ -> {
+        btnAction.addActionListener(e -> {
             String newName = txtName.getText().trim();
             if (newName.isEmpty()) {
                 showError(this, "Tên không được để trống!");
@@ -144,7 +144,7 @@ public class TypeEditorDialog extends JDialog {
 
         // Sự kiện nút Xóa (Chỉ có khi sửa)
         if (btnDelete != null) {
-            btnDelete.addActionListener(_ -> {
+            btnDelete.addActionListener(e -> {
                 if (showConfirm(this, "Xóa loại: " + currentName + "?\n(Không thể xóa nếu đang có sản phẩm thuộc loại này)")) {
                     try (Connection con = DBConnection.getConnection()) {
                         String sql = "DELETE FROM ProductTypes WHERE type_ID = ?";
@@ -166,7 +166,7 @@ public class TypeEditorDialog extends JDialog {
         }
 
         // Sự kiện nút Hủy
-        btnCancel.addActionListener(_ -> dispose());
+        btnCancel.addActionListener(e -> dispose());
     }
 
     // Getter để form cha biết có cần reload lại ComboBox hay không

@@ -116,7 +116,7 @@ public class AddInvoiceDetailDialog extends JDialog {
 
     private void addEvents() {
         // --- SỰ KIỆN 1: KHI CHỌN SẢN PHẨM -> FILL TỒN KHO ---
-        cbProduct.addActionListener(_ -> {
+        cbProduct.addActionListener(e -> {
             ComboItem selected = (ComboItem) cbProduct.getSelectedItem();
             if (selected != null) {
                 int proID = selected.getValue();
@@ -140,7 +140,7 @@ public class AddInvoiceDetailDialog extends JDialog {
         });
 
         // --- SỰ KIỆN 3: NÚT XÁC NHẬN ---
-        btnAdd.addActionListener(_ -> {
+        btnAdd.addActionListener(e -> {
             try {
                 String qtyText = txtQuantity.getText().trim();
                 if (qtyText.isEmpty()) {
@@ -178,7 +178,7 @@ public class AddInvoiceDetailDialog extends JDialog {
             }
         });
 
-        btnCancel.addActionListener(_ -> dispose());
+        btnCancel.addActionListener(e -> dispose());
     }
 
     public boolean isConfirmed() { return isConfirmed; }
