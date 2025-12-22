@@ -16,7 +16,7 @@ public class AddStaffDialog extends JDialog {
 
     // --- KHAI BÁO BIẾN GIAO DIỆN ---
     private JTextField txtName, txtPhone, txtAddress, txtSalary, txtUsername;
-    private JPasswordField txtPassword; // Sửa thành JPasswordField
+    private JPasswordField txtPassword;
     private JCheckBox chkIsAdmin;
     private JComboBox<String> cbDay, cbMonth, cbYear;
     private JComboBox<String> cbStartDay, cbStartMonth, cbStartYear;
@@ -46,65 +46,79 @@ public class AddStaffDialog extends JDialog {
         mainPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
         mainPanel.setBackground(Color.WHITE);
 
-        // A. Tiêu đề
-        JLabel lblTitle = createHeaderLabel("NHẬP THÔNG TIN");
-        mainPanel.add(lblTitle);
-        mainPanel.add(Box.createVerticalStrut(20));
+        // Tăng chiều cao lên chút vì tách dòng User/Pass
+        mainPanel.setPreferredSize(new Dimension(650, 680));
 
-        // B. Các ô nhập liệu
+        // A. Tiêu đề
+        JLabel lblTitle = createHeaderLabel("NHẬP THÔNG TIN NHÂN VIÊN");
+        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(lblTitle);
+        mainPanel.add(Box.createVerticalStrut(25));
+
+        // --- HÀNG 1: TÊN (Full) ---
         txtName = new JTextField();
-        mainPanel.add(createTextFieldWithLabel(txtName, "Tên Nhân Viên:"));
+        mainPanel.add(createTextFieldWithLabel(txtName, "Họ và Tên:"));
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // Khu vực chọn ngày sinh
-        cbDay = new JComboBox<>();
-        cbMonth = new JComboBox<>();
-        cbYear = new JComboBox<>();
-        JPanel datePanel = createDatePanel("Ngày sinh:", cbDay, cbMonth, cbYear);
-        mainPanel.add(datePanel);
-        mainPanel.add(Box.createVerticalStrut(16));
+        // --- HÀNG 2: SĐT | LƯƠNG (Chia đôi) ---
+        JPanel rowPhoneSalary = new JPanel(new GridLayout(1, 2, 20, 0)); // Cách nhau 20px
+        rowPhoneSalary.setBackground(Color.WHITE);
+        rowPhoneSalary.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 
         txtPhone = new JTextField();
-        mainPanel.add(createTextFieldWithLabel(txtPhone, "Số điện thoại:"));
+        rowPhoneSalary.add(createTextFieldWithLabel(txtPhone, "Số điện thoại:"));
+
+        txtSalary = new JTextField();
+        rowPhoneSalary.add(createTextFieldWithLabel(txtSalary, "Lương cơ bản (VNĐ):"));
+
+        mainPanel.add(rowPhoneSalary);
         mainPanel.add(Box.createVerticalStrut(16));
 
+        // --- HÀNG 3: ĐỊA CHỈ (Full) ---
         txtAddress = new JTextField();
         mainPanel.add(createTextFieldWithLabel(txtAddress, "Địa chỉ:"));
         mainPanel.add(Box.createVerticalStrut(16));
 
-        txtSalary = new JTextField();
-        mainPanel.add(createTextFieldWithLabel(txtSalary, "Lương cơ bản (VNĐ):"));
+        // --- HÀNG 4: NGÀY SINH | NGÀY VÀO LÀM (Chia đôi) ---
+        JPanel rowDates = new JPanel(new GridLayout(1, 2, 20, 0));
+        rowDates.setBackground(Color.WHITE);
+        rowDates.setMaximumSize(new Dimension(Integer.MAX_VALUE, 61));
+
+        cbDay = new JComboBox<>(); cbMonth = new JComboBox<>(); cbYear = new JComboBox<>();
+        rowDates.add(createDatePanel("Ngày sinh:", cbDay, cbMonth, cbYear));
+
+        cbStartDay = new JComboBox<>(); cbStartMonth = new JComboBox<>(); cbStartYear = new JComboBox<>();
+        rowDates.add(createDatePanel("Ngày vào làm:", cbStartDay, cbStartMonth, cbStartYear));
+
+        mainPanel.add(rowDates);
         mainPanel.add(Box.createVerticalStrut(16));
 
-        cbStartDay = new JComboBox<>();
-        cbStartMonth = new JComboBox<>();
-        cbStartYear = new JComboBox<>();
-        JPanel startDatePanel = createDatePanel("Ngày vào làm:", cbStartDay, cbStartMonth, cbStartYear);
-        mainPanel.add(startDatePanel);
-        mainPanel.add(Box.createVerticalStrut(16));
-
+        // --- HÀNG 5: TÀI KHOẢN (Full) ---
         txtUsername = new JTextField();
-        mainPanel.add(createTextFieldWithLabel(txtUsername, "Tài khoản đăng nhập (Có thể để trống):"));
+        mainPanel.add(createTextFieldWithLabel(txtUsername, "Tài khoản (Có thể để trống):"));
         mainPanel.add(Box.createVerticalStrut(16));
 
-        // Dùng JPasswordField và thêm checkbox hiển thị
+        // --- HÀNG 6: MẬT KHẨU (Full) ---
         txtPassword = new JPasswordField();
-        JCheckBox chkShowPass = new JCheckBox(); // Checkbox để bật/tắt xem mật khẩu
+        JCheckBox chkShowPass = new JCheckBox();
         mainPanel.add(createPasswordFieldWithLabel(txtPassword, "Mật khẩu (Có thể để trống):", chkShowPass));
         mainPanel.add(Box.createVerticalStrut(12));
 
-        // Checkbox Vai trò
+        // --- HÀNG 7 (Bạn gọi là Hàng 6): VAI TRÒ ---
         chkIsAdmin = new JCheckBox();
-        JPanel pRoleWrapper = createCheckBoxWithLabel(chkIsAdmin, "Vai trò:", "QUẢN TRỊ VIÊN");
+        JPanel pRoleWrapper = createCheckBoxWithLabel(chkIsAdmin, "Phân quyền:", "QUẢN TRỊ VIÊN");
         mainPanel.add(pRoleWrapper);
-        mainPanel.add(Box.createVerticalStrut(20));
+        mainPanel.add(Box.createVerticalStrut(16));
 
-        // C. Khu vực nút bấm
+        // --- C. KHU VỰC NÚT BẤM ---
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setBackground(Color.WHITE);
 
         btnSave = createButton("Lưu Lại", new Color(46, 204, 113));
+        btnSave.setPreferredSize(new Dimension(120, 35));
+
         btnCancel = createButton("Hủy Bỏ", new Color(231, 76, 60));
+        btnCancel.setPreferredSize(new Dimension(120, 35));
 
         buttonPanel.add(btnSave);
         buttonPanel.add(btnCancel);
@@ -143,9 +157,8 @@ public class AddStaffDialog extends JDialog {
 
             // 2. Lấy dữ liệu tài khoản và mật khẩu
             String user = txtUsername.getText().trim();
-            String pass = new String(txtPassword.getPassword()).trim(); // Lấy password chuẩn
+            String pass = new String(txtPassword.getPassword()).trim();
 
-            // Logic: Phải nhập cả user và pass HOẶC để trống cả hai
             if ((!user.isEmpty() && pass.isEmpty()) || (user.isEmpty() && !pass.isEmpty())) {
                 showError(this, "Vui lòng nhập đầy đủ cả Tài khoản và Mật khẩu (hoặc để trống cả hai)!");
                 return;

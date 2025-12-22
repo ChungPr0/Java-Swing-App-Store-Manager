@@ -542,7 +542,7 @@ public class Style {
     private static void createStyleComboBox(JComboBox<String> box) {
         box.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         box.setBackground(Color.WHITE);
-        box.setPreferredSize(new Dimension(80, 34));
+        box.setPreferredSize(new Dimension(80, 33));
         box.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 

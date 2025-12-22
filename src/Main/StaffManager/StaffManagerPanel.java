@@ -69,7 +69,7 @@ public class StaffManagerPanel extends JPanel {
         rightPanel.add(Box.createVerticalStrut(20));
 
         txtName = new JTextField();
-        rightPanel.add(createTextFieldWithLabel(txtName, "Tên Nhân Viên:"));
+        rightPanel.add(createTextFieldWithLabel(txtName, "Họ và Tên:"));
         rightPanel.add(Box.createVerticalStrut(16));
 
         // Khu vực Ngày sinh và Vai trò
@@ -79,7 +79,7 @@ public class StaffManagerPanel extends JPanel {
         JPanel datePanel = createDatePanel("Ngày sinh:", cbDay, cbMonth, cbYear);
 
         chkIsAdmin = new JCheckBox();
-        JPanel pRoleWrapper = createCheckBoxWithLabel(chkIsAdmin, "Vai trò:", "QUẢN TRỊ VIÊN");
+        JPanel pRoleWrapper = createCheckBoxWithLabel(chkIsAdmin, "Phân quyền:", "QUẢN TRỊ VIÊN");
 
         JPanel rowDateAndRole = new JPanel(new GridLayout(1, 2, 15, 0));
         rowDateAndRole.setBackground(Color.WHITE);
@@ -116,13 +116,13 @@ public class StaffManagerPanel extends JPanel {
         rightPanel.add(Box.createVerticalStrut(16));
 
         txtUsername = new JTextField();
-        rightPanel.add(createTextFieldWithLabel(txtUsername, "Tài khoản đăng nhập (Có thể để trống):"));
+        rightPanel.add(createTextFieldWithLabel(txtUsername, "Tài khoản (Có thể để trống):"));
         rightPanel.add(Box.createVerticalStrut(16));
 
         txtPassword = new JPasswordField();
         JCheckBox chkShowPass = new JCheckBox();
         rightPanel.add(createPasswordFieldWithLabel(txtPassword, "Mật khẩu (Có thể để trống):", chkShowPass));
-        rightPanel.add(Box.createVerticalStrut(16));
+        rightPanel.add(Box.createVerticalStrut(12));
 
         // C. KHU VỰC BUTTON
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
