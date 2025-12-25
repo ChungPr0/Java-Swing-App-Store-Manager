@@ -313,127 +313,110 @@ INSERT INTO Products (pro_name, pro_price, pro_count, type_ID, sup_ID) VALUES
 
 -- 3.6. HÓA ĐƠN & CHI TIẾT
 -- (Dữ liệu Hóa đơn như trên, lưu ý hàm DATE_SUB đổi thành DATE(..., '-x days'))
+-- Hóa đơn 1: Mua ngay bây giờ
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (1, 1, 1, 5000000, DATETIME('now'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (1, 50, 1, 5000000); -- Sản phẩm 50 giá 5tr
 
-INSERT INTO Invoices (sta_ID, cus_ID, inv_price, inv_date) VALUES
-(1, 1, 45000000, DATETIME('now')),
-(2, 5, 1200000, DATETIME('now', '-1 hours')),
-(3, 8, 25000000, DATETIME('now', '-3 hours')),
-(1, 12, 5500000, DATETIME('now', '-5 hours')),
-(4, 3, 18500000, DATETIME('now', '-1 days')),
-(2, 15, 900000, DATETIME('now', '-1 days')),
-(5, 20, 32000000, DATETIME('now', '-1 days')),
-(6, 22, 15000000, DATETIME('now', '-2 days')),
-(7, 25, 450000, DATETIME('now', '-2 days')),
-(1, 2, 60000000, DATETIME('now', '-2 days')),
-(3, 4, 2200000, DATETIME('now', '-3 days')),
-(8, 6, 8500000, DATETIME('now', '-3 days')),
-(2, 9, 12500000, DATETIME('now', '-3 days')),
-(9, 11, 3000000, DATETIME('now', '-4 days')),
-(10, 14, 45000000, DATETIME('now', '-4 days')),
-(4, 18, 500000, DATETIME('now', '-4 days')),
-(5, 19, 7500000, DATETIME('now', '-5 days')),
-(1, 30, 28000000, DATETIME('now', '-5 days')),
-(2, 35, 1500000, DATETIME('now', '-5 days')),
-(6, 38, 9000000, DATETIME('now', '-5 days')),
-(7, 10, 12000000, DATETIME('now', '-6 days')),
-(8, 12, 3500000, DATETIME('now', '-6 days')),
-(3, 15, 21000000, DATETIME('now', '-7 days')),
-(9, 16, 600000, DATETIME('now', '-7 days')),
-(10, 18, 4500000, DATETIME('now', '-8 days')),
-(1, 20, 18000000, DATETIME('now', '-8 days')),
-(2, 21, 2500000, DATETIME('now', '-9 days')),
-(4, 25, 30000000, DATETIME('now', '-9 days')),
-(5, 28, 5500000, DATETIME('now', '-10 days')),
-(6, 30, 9000000, DATETIME('now', '-10 days')),
-(7, 33, 1500000, DATETIME('now', '-11 days')),
-(8, 35, 40000000, DATETIME('now', '-11 days')),
-(9, 40, 1200000, DATETIME('now', '-12 days')),
-(1, 5, 8000000, DATETIME('now', '-12 days')),
-(2, 7, 24000000, DATETIME('now', '-13 days')),
-(3, 9, 3500000, DATETIME('now', '-13 days')),
-(4, 11, 19000000, DATETIME('now', '-14 days')),
-(10, 13, 6500000, DATETIME('now', '-14 days')),
-(5, 14, 2000000, DATETIME('now', '-15 days')),
-(6, 17, 15000000, DATETIME('now', '-15 days')),
-(7, 22, 9000000, DATETIME('now', '-16 days')),
-(8, 24, 4500000, DATETIME('now', '-16 days')),
-(9, 26, 32000000, DATETIME('now', '-17 days')),
-(1, 29, 2800000, DATETIME('now', '-17 days')),
-(2, 31, 1000000, DATETIME('now', '-18 days')),
-(3, 34, 5000000, DATETIME('now', '-18 days')),
-(4, 37, 12000000, DATETIME('now', '-19 days')),
-(5, 39, 8500000, DATETIME('now', '-19 days')),
-(6, 1, 30000000, DATETIME('now', '-20 days')),
-(7, 3, 2000000, DATETIME('now', '-20 days')),
-(8, 6, 1500000, DATETIME('now', '-21 days')),
-(9, 8, 45000000, DATETIME('now', '-21 days')),
-(10, 10, 6000000, DATETIME('now', '-22 days')),
-(1, 12, 2200000, DATETIME('now', '-22 days')),
-(2, 15, 9500000, DATETIME('now', '-23 days')),
-(3, 18, 18000000, DATETIME('now', '-23 days')),
-(4, 20, 3500000, DATETIME('now', '-24 days')),
-(5, 23, 1200000, DATETIME('now', '-24 days')),
-(6, 25, 28000000, DATETIME('now', '-25 days')),
-(7, 27, 4000000, DATETIME('now', '-25 days')),
-(8, 30, 15000000, DATETIME('now', '-26 days')),
-(9, 32, 500000, DATETIME('now', '-26 days')),
-(10, 35, 7000000, DATETIME('now', '-26 days')),
-(1, 38, 21000000, DATETIME('now', '-27 days')),
-(2, 40, 9000000, DATETIME('now', '-27 days')),
-(3, 2, 33000000, DATETIME('now', '-27 days')),
-(4, 4, 2500000, DATETIME('now', '-28 days')),
-(5, 7, 12000000, DATETIME('now', '-28 days')),
-(6, 9, 4500000, DATETIME('now', '-28 days')),
-(7, 11, 55000000, DATETIME('now', '-28 days')),
-(8, 13, 1800000, DATETIME('now', '-29 days')),
-(9, 16, 26000000, DATETIME('now', '-29 days')),
-(10, 19, 3000000, DATETIME('now', '-29 days')),
-(1, 21, 8000000, DATETIME('now', '-29 days')),
-(2, 24, 15000000, DATETIME('now', '-30 days')),
-(3, 26, 4000000, DATETIME('now', '-30 days')),
-(4, 28, 9500000, DATETIME('now', '-30 days')),
-(5, 31, 2200000, DATETIME('now', '-30 days')),
-(6, 33, 10000000, DATETIME('now', '-30 days')),
-(7, 36, 5000000, DATETIME('now', '-30 days')),
-(8, 39, 35000000, DATETIME('now', '-12 days')),
-(9, 1, 1200000, DATETIME('now', '-5 days')),
-(10, 5, 28000000, DATETIME('now', '-24 days')),
-(1, 8, 4500000, DATETIME('now', '-2 days')),
-(2, 12, 19000000, DATETIME('now', '-18 days')),
-(3, 15, 6000000, DATETIME('now', '-9 days')),
-(4, 20, 2500000, DATETIME('now', '-27 days')),
-(5, 25, 15000000, DATETIME('now', '-14 days')),
-(6, 30, 3000000, DATETIME('now', '-21 days')),
-(7, 35, 8500000, DATETIME('now', '-6 days')),
-(8, 40, 42000000, DATETIME('now', '-1 days')),
-(9, 1, 1200000, DATETIME('now', '-29 days')),
-(10, 5, 28000000, DATETIME('now', '-15 days')),
-(1, 8, 4500000, DATETIME('now', '-8 days')),
-(2, 12, 19000000, DATETIME('now', '-22 days')),
-(3, 15, 6000000, DATETIME('now', '-4 days')),
-(4, 20, 2500000, DATETIME('now', '-16 days')),
-(5, 25, 15000000, DATETIME('now', '-28 days')),
-(6, 30, 3000000, DATETIME('now', '-11 days')),
-(7, 35, 8500000, DATETIME('now', '-3 days'));
+-- Hóa đơn 2: Mua cách đây 2 tiếng
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (2, 2, 5, 10000000, DATETIME('now', '-2 hours'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (2, 50, 2, 5000000);
 
-INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price) VALUES
-(1, 1, 1, 45000000), (2, 2, 2, 15000000), (3, 3, 1, 25000000), (4, 4, 2, 22000000), (5, 5, 1, 18000000),
-(6, 6, 2, 35000000), (7, 7, 1, 55000000), (8, 8, 2, 28000000), (9, 9, 1, 60000000), (10, 10, 2, 33000000),
-(11, 11, 1, 20000000), (12, 12, 2, 30000000), (13, 13, 1, 35000000), (14, 14, 2, 25000000), (15, 15, 1, 20000000),
-(16, 16, 2, 18000000), (17, 17, 1, 10000000), (18, 18, 2, 7000000), (19, 19, 1, 5500000), (20, 20, 2, 7500000),
-(21, 21, 1, 9000000), (22, 22, 2, 3500000), (23, 23, 1, 1800000), (24, 24, 2, 2500000), (25, 25, 1, 2200000),
-(26, 26, 2, 1000000), (27, 27, 1, 6000000), (28, 28, 2, 9000000), (29, 29, 1, 1200000), (30, 30, 2, 2500000),
-(31, 31, 1, 2800000), (32, 32, 2, 1500000), (33, 33, 1, 50000000), (34, 34, 2, 5000000), (35, 35, 1, 9000000),
-(36, 36, 2, 15000000), (37, 37, 1, 4000000), (38, 38, 2, 3000000), (39, 39, 1, 4000000), (40, 40, 2, 600000),
-(41, 41, 1, 4100000), (42, 42, 2, 4200000), (43, 43, 1, 4300000), (44, 44, 2, 4400000), (45, 45, 1, 4500000),
-(46, 46, 2, 4600000), (47, 47, 1, 4700000), (48, 48, 2, 4800000), (49, 49, 1, 4900000), (50, 50, 2, 5000000),
-(51, 51, 1, 5100000), (52, 52, 2, 5200000), (53, 53, 1, 5300000), (54, 54, 2, 5400000), (55, 55, 1, 5500000),
-(56, 56, 2, 5600000), (57, 57, 1, 5700000), (58, 58, 2, 5800000), (59, 59, 1, 5900000), (60, 60, 2, 6000000),
-(61, 61, 1, 6100000), (62, 62, 2, 6200000), (63, 63, 1, 6300000), (64, 64, 2, 6400000), (65, 65, 1, 6500000),
-(66, 66, 2, 6600000), (67, 67, 1, 6700000), (68, 68, 2, 6800000), (69, 69, 1, 6900000), (70, 70, 2, 7000000),
-(71, 71, 1, 7100000), (72, 72, 2, 7200000), (73, 73, 1, 7300000), (74, 74, 2, 7400000), (75, 75, 1, 7500000),
-(76, 76, 2, 7600000), (77, 77, 1, 7700000), (78, 78, 2, 7800000), (79, 79, 1, 7900000), (80, 80, 2, 8000000),
-(81, 81, 1, 8100000), (82, 82, 2, 8200000), (83, 83, 1, 8300000), (84, 84, 2, 8400000), (85, 85, 1, 8500000),
-(86, 86, 2, 8600000), (87, 87, 1, 8700000), (88, 88, 2, 8800000), (89, 89, 1, 8900000), (90, 90, 2, 9000000),
-(91, 91, 1, 9100000), (92, 92, 2, 9200000), (93, 93, 1, 9300000), (94, 94, 2, 9400000), (95, 95, 1, 9500000),
-(96, 96, 2, 9600000), (97, 97, 1, 9700000), (98, 98, 2, 9800000), (99, 99, 1, 9900000), (100, 100, 2, 10000000);
+-- Hóa đơn 3: Mua cách đây 5 tiếng
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (3, 3, 8, 4500000, DATETIME('now', '-5 hours'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (3, 45, 1, 4500000); -- SP 45 giá 4.5tr
+
+-- Hóa đơn 4: Hôm qua
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (4, 1, 10, 8200000, DATETIME('now', '-1 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (4, 41, 2, 4100000); -- SP 41
+
+-- Hóa đơn 5: Cách đây 3 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (5, 2, 12, 15000000, DATETIME('now', '-3 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (5, 1, 1, 15000000); -- Laptop Dell (ID 1)
+
+-- Hóa đơn 6: Cách đây 5 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (6, 4, 15, 6000000, DATETIME('now', '-5 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (6, 60, 1, 6000000);
+
+-- Hóa đơn 7: Cách đây 6 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (7, 5, 20, 9000000, DATETIME('now', '-6 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (7, 45, 2, 4500000);
+
+-- Hóa đơn 8: Cách đây 10 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (8, 1, 22, 20000000, DATETIME('now', '-10 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (8, 50, 4, 5000000);
+
+-- Hóa đơn 9: Cách đây 15 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (9, 2, 25, 30000000, DATETIME('now', '-15 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (9, 12, 1, 30000000); -- Samsung S24 (ID 12)
+
+-- Hóa đơn 10: Cách đây 20 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (10, 3, 30, 5500000, DATETIME('now', '-20 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (10, 55, 1, 5500000);
+
+-- Hóa đơn 11: Cách đây 28 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (11, 4, 35, 12000000, DATETIME('now', '-28 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (11, 60, 2, 6000000);
+
+-- Hóa đơn 12: Cách đây 1 tháng 5 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (12, 1, 40, 45000000, DATETIME('now', '-1 months', '-5 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (12, 1, 1, 45000000); -- Dell XPS (ID 1)
+
+-- Hóa đơn 13: Cách đây 2 tháng
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (13, 2, 45, 8400000, DATETIME('now', '-2 months'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (13, 42, 2, 4200000);
+
+-- Hóa đơn 14: Cách đây 2 tháng 15 ngày
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (14, 5, 50, 25000000, DATETIME('now', '-2 months', '-15 days'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (14, 14, 1, 25000000); -- Xiaomi (ID 14)
+
+-- Hóa đơn 15: Cách đây 4 tháng
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (15, 1, 55, 10000000, DATETIME('now', '-4 months'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (15, 50, 2, 5000000);
+
+-- Hóa đơn 16: Cách đây 5 tháng
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (16, 2, 60, 60000000, DATETIME('now', '-5 months'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (16, 9, 1, 60000000); -- Macbook Pro (ID 9)
+
+-- Hóa đơn 17: Cách đây 7 tháng
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (17, 3, 65, 5500000, DATETIME('now', '-7 months'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (17, 55, 1, 5500000);
+
+-- Hóa đơn 18: Cách đây 9 tháng (Đầu năm)
+INSERT INTO Invoices (inv_ID, sta_ID, cus_ID, inv_price, inv_date)
+VALUES (18, 4, 70, 18000000, DATETIME('now', '-9 months'));
+INSERT INTO Invoice_details (inv_ID, pro_ID, ind_count, unit_price)
+VALUES (18, 5, 1, 18000000); -- HP Pavilion

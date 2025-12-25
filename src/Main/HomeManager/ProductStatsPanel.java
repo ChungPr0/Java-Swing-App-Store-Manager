@@ -47,7 +47,7 @@ public class ProductStatsPanel extends JPanel {
         tableProduct.getColumnModel().getColumn(0).setMaxWidth(60);
         tableProduct.getColumnModel().getColumn(2).setMaxWidth(70);
         tableProduct.getColumnModel().getColumn(3).setMaxWidth(70);
-        pTableWrapper = createTableWithLabel(tableProduct, "TOP SẢN PHẨM BÁN CHẠY 7 NGÀY QUA");
+        pTableWrapper = createTableWithLabel(tableProduct, "TOP SẢN PHẨM BÁN CHẠY");
 
         this.add(pChartWrapper, BorderLayout.WEST);
         this.add(pTableWrapper, BorderLayout.CENTER);
@@ -55,28 +55,40 @@ public class ProductStatsPanel extends JPanel {
         addEvents();
     }
 
-    public void loadData() {
-        chartPanel.loadPieData();
-        loadTableData("ALL");
+    private String getSqlDateFilter(String period) {
+        return switch (period) {
+            case "Hôm nay" -> "DATE(i.inv_date) = DATE('now', 'localtime')";
+            case "Tháng này" -> "strftime('%Y-%m', i.inv_date) = strftime('%Y-%m', 'now', 'localtime')";
+            case "Quý này" -> "(CAST(strftime('%m', i.inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            case "Năm nay" -> "strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            default -> "i.inv_date >= date('now', '-6 days', 'localtime')";
+        };
     }
 
-    private void loadTableData(String categoryName) {
+    public void loadData(String period) {
+        chartPanel.loadPieData(period);
+        loadTableData("ALL", period);
+    }
+
+    private void loadTableData(String categoryName, String period) {
         tableModel.setRowCount(0);
+        String dateFilter = getSqlDateFilter(period);
         String sql;
 
+        String titlePeriod = period.toUpperCase();
         if (categoryName.equals("ALL")) {
-            setTableTitle("TOP SẢN PHẨM BÁN CHẠY 7 NGÀY QUA");
+            setTableTitle("TOP SẢN PHẨM BÁN CHẠY (" + titlePeriod + ")");
             sql = "SELECT p.pro_ID, p.pro_name, p.pro_count, " +
                     "SUM(d.ind_count) as qty, " +
                     "SUM(d.ind_count * d.unit_price) as total " +
                     "FROM Invoice_details d " +
                     "JOIN Products p ON d.pro_ID = p.pro_ID " +
                     "JOIN Invoices i ON d.inv_ID = i.inv_ID " +
-                    "WHERE i.inv_date >= datetime('now', '-7 days') " +
+                    "WHERE " + dateFilter + " " +
                     "GROUP BY p.pro_ID, p.pro_name, p.pro_count " +
                     "ORDER BY qty DESC LIMIT 20";
         } else {
-            setTableTitle("CHI TIẾT: " + categoryName);
+            setTableTitle("CHI TIẾT: " + categoryName.toUpperCase() + " (" + titlePeriod + ")");
             sql = "SELECT p.pro_ID, p.pro_name, p.pro_count, " +
                     "SUM(d.ind_count) as qty, " +
                     "SUM(d.ind_count * d.unit_price) as total " +
@@ -84,8 +96,7 @@ public class ProductStatsPanel extends JPanel {
                     "JOIN Products p ON d.pro_ID = p.pro_ID " +
                     "JOIN ProductTypes t ON p.type_ID = t.type_ID " +
                     "JOIN Invoices i ON d.inv_ID = i.inv_ID " +
-                    "WHERE i.inv_date >= datetime('now', '-7 days') " +
-                    "AND t.type_name = ? " +
+                    "WHERE " + dateFilter + " AND t.type_name = ? " +
                     "GROUP BY p.pro_ID, p.pro_name, p.pro_count " +
                     "ORDER BY qty DESC";
         }

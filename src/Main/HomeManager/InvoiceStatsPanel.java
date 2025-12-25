@@ -18,6 +18,7 @@ import static Utils.Style.*;
 public class InvoiceStatsPanel extends JPanel {
     private final JTable table;
     private final DefaultTableModel tableModel;
+    private final JPanel pTableWrapper;
 
     public InvoiceStatsPanel() {
         this.setLayout(new BorderLayout());
@@ -41,27 +42,39 @@ public class InvoiceStatsPanel extends JPanel {
         table.getColumnModel().getColumn(1).setMaxWidth(60);
         table.getColumnModel().getColumn(1).setMinWidth(60);
 
-        JPanel pTable;
         if (Utils.Session.isAdmin()) {
             JButton btnExport = createSmallButton("Xuất Excel", Color.decode("#1D6F42"));
             btnExport.setPreferredSize(new Dimension(100, 35));
-            btnExport.addActionListener(e -> exportToExcel(table, "Danh_sach_top_hoa_don_7_ngay_gan_nhat"));
-            pTable = createTableWithLabel(table, "TOP HÓA ĐƠN TỔNG TIỀN NHIỀU NHẤT 7 NGÀY QUA", btnExport);
+            btnExport.addActionListener(e -> exportToExcel(table, "Danh_sach_top_hoa_don"));
+            pTableWrapper = createTableWithLabel(table, "TOP HÓA ĐƠN TỔNG TIỀN NHIỀU NHẤT", btnExport);
         } else {
-            pTable = createTableWithLabel(table, "TOP HÓA ĐƠN TỔNG TIỀN NHIỀU NHẤT 7 NGÀY QUA");
+            pTableWrapper = createTableWithLabel(table, "TOP HÓA ĐƠN TỔNG TIỀN NHIỀU NHẤT");
         }
-        this.add(pTable, BorderLayout.CENTER);
+        this.add(pTableWrapper, BorderLayout.CENTER);
 
         addEvents();
     }
 
-    public void loadData() {
+    private String getSqlDateFilter(String period) {
+        return switch (period) {
+            case "Hôm nay" -> "DATE(i.inv_date) = DATE('now', 'localtime')";
+            case "Tháng này" -> "strftime('%Y-%m', i.inv_date) = strftime('%Y-%m', 'now', 'localtime')";
+            case "Quý này" -> "(CAST(strftime('%m', i.inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            case "Năm nay" -> "strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            default -> "i.inv_date >= date('now', '-6 days', 'localtime')";
+        };
+    }
+
+    public void loadData(String period) {
+        setTableTitle("TOP HÓA ĐƠN TỔNG TIỀN NHIỀU NHẤT (" + period.toUpperCase() + ")");
         tableModel.setRowCount(0);
+        String dateFilter = getSqlDateFilter(period);
+
         String sql = "SELECT i.inv_ID, c.cus_name, s.sta_name, i.inv_date, i.inv_price " +
                 "FROM Invoices i " +
                 "LEFT JOIN Customers c ON i.cus_ID = c.cus_ID " +
                 "LEFT JOIN Staffs s ON i.sta_ID = s.sta_ID " +
-                "WHERE i.inv_date >= datetime('now', '-7 days') " +
+                "WHERE " + dateFilter + " " +
                 "ORDER BY i.inv_price DESC LIMIT 20";
 
         try (Connection con = DBConnection.getConnection()) {
@@ -128,5 +141,22 @@ public class InvoiceStatsPanel extends JPanel {
                 }
             }
         });
+    }
+
+    private void setTableTitle(String text) {
+        try {
+            BorderLayout layout = (BorderLayout) pTableWrapper.getLayout();
+            Component headerComp = layout.getLayoutComponent(BorderLayout.NORTH);
+
+            if (headerComp instanceof JPanel headerPanel) {
+                BorderLayout headerLayout = (BorderLayout) headerPanel.getLayout();
+                JLabel lbl = (JLabel) headerLayout.getLayoutComponent(BorderLayout.CENTER);
+                if (lbl != null) lbl.setText(text.toUpperCase());
+            } else if (headerComp instanceof JLabel) {
+                ((JLabel) headerComp).setText(text.toUpperCase());
+            }
+        } catch (Exception e) {
+             showError(this, "Lỗi set title: " + e.getMessage());
+        }
     }
 }

@@ -17,6 +17,7 @@ import static Utils.Style.*;
 public class CustomerStatsPanel extends JPanel {
     private final JTable table;
     private final DefaultTableModel tableModel;
+    private final JPanel pTableWrapper;
 
     public CustomerStatsPanel() {
         this.setLayout(new BorderLayout());
@@ -40,26 +41,38 @@ public class CustomerStatsPanel extends JPanel {
         table.getColumnModel().getColumn(1).setMaxWidth(60);
         table.getColumnModel().getColumn(1).setMinWidth(60);
 
-        JPanel pTable;
         if (Utils.Session.isAdmin()) {
             JButton btnExport = createSmallButton("Xuất Excel", Color.decode("#1D6F42"));
             btnExport.setPreferredSize(new Dimension(100, 35));
-            btnExport.addActionListener(e -> exportToExcel(table, "Danh_sach_top_khach_hang_7_ngay_gan_nhat"));
-            pTable = createTableWithLabel(table, "TOP KHÁCH HÀNG CHI TIÊU NHIỀU NHẤT 7 NGÀY QUA", btnExport);
+            btnExport.addActionListener(e -> exportToExcel(table, "Danh_sach_top_khach_hang"));
+            pTableWrapper = createTableWithLabel(table, "TOP KHÁCH HÀNG", btnExport);
         } else {
-            pTable = createTableWithLabel(table, "TOP KHÁCH HÀNG CHI TIÊU NHIỀU NHẤT 7 NGÀY QUA");
+            pTableWrapper = createTableWithLabel(table, "TOP KHÁCH HÀNG");
         }
-        this.add(pTable, BorderLayout.CENTER);
+        this.add(pTableWrapper, BorderLayout.CENTER);
 
         addEvents();
     }
 
-    public void loadData() {
+    private String getSqlDateFilter(String period) {
+        return switch (period) {
+            case "Hôm nay" -> "DATE(i.inv_date) = DATE('now', 'localtime')";
+            case "Tháng này" -> "strftime('%Y-%m', i.inv_date) = strftime('%Y-%m', 'now', 'localtime')";
+            case "Quý này" -> "(CAST(strftime('%m', i.inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            case "Năm nay" -> "strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            default -> "i.inv_date >= date('now', '-6 days', 'localtime')";
+        };
+    }
+
+    public void loadData(String period) {
+        setTableTitle("TOP KHÁCH HÀNG CHI TIÊU NHIỀU NHẤT (" + period.toUpperCase() + ")");
         tableModel.setRowCount(0);
+        String dateFilter = getSqlDateFilter(period);
+
         String sql = "SELECT c.cus_ID, c.cus_name, c.cus_phone, COUNT(i.inv_ID) as orders, SUM(i.inv_price) as total " +
                 "FROM Invoices i " +
                 "JOIN Customers c ON i.cus_ID = c.cus_ID " +
-                "WHERE i.inv_date >= datetime('now', '-7 days') " +
+                "WHERE " + dateFilter + " " +
                 "GROUP BY c.cus_ID, c.cus_name, c.cus_phone " +
                 "ORDER BY total DESC LIMIT 20";
 
@@ -106,5 +119,22 @@ public class CustomerStatsPanel extends JPanel {
                 }
             }
         });
+    }
+
+    private void setTableTitle(String text) {
+        try {
+            BorderLayout layout = (BorderLayout) pTableWrapper.getLayout();
+            Component headerComp = layout.getLayoutComponent(BorderLayout.NORTH);
+
+            if (headerComp instanceof JPanel headerPanel) {
+                BorderLayout headerLayout = (BorderLayout) headerPanel.getLayout();
+                JLabel lbl = (JLabel) headerLayout.getLayoutComponent(BorderLayout.CENTER);
+                if (lbl != null) lbl.setText(text.toUpperCase());
+            } else if (headerComp instanceof JLabel) {
+                ((JLabel) headerComp).setText(text.toUpperCase());
+            }
+        } catch (Exception e) {
+             showError(this, "Lỗi set title: " + e.getMessage());
+        }
     }
 }

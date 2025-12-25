@@ -17,6 +17,7 @@ public class RevenueChartPanel extends JPanel {
     private final List<String> dates = new ArrayList<>();
     private final List<Double> values = new ArrayList<>();
     private double maxValue = 0;
+    private final JLabel lblTitle;
 
     public RevenueChartPanel() {
         this.setBackground(Color.WHITE);
@@ -26,57 +27,70 @@ public class RevenueChartPanel extends JPanel {
                 new EmptyBorder(10, 10, 10, 10)
         ));
 
-        JLabel lblTitle = new JLabel("BIỂU ĐỒ DOANH THU 7 NGÀY QUA", SwingConstants.CENTER);
+        lblTitle = new JLabel("BIỂU ĐỒ DOANH THU", SwingConstants.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTitle.setForeground(Color.decode("#2c3e50"));
         lblTitle.setBorder(new EmptyBorder(10, 0, 20, 0));
         this.add(lblTitle, BorderLayout.NORTH);
     }
 
-    public void loadChartData() {
+    public void loadChartData(String period) {
         dates.clear();
         values.clear();
         maxValue = 0;
+        lblTitle.setText("BIỂU ĐỒ DOANH THU " + period.toUpperCase());
 
-        String sql = "SELECT DATE(inv_date) as d, SUM(inv_price) as total " +
+        String groupBy;
+        String dateSelect;
+        String dateFilter;
+        String orderBy;
+
+        switch (period) {
+            case "Hôm nay":
+                dateSelect = "strftime('%H:00', inv_date)";
+                groupBy = "strftime('%Y-%m-%d %H', inv_date)";
+                dateFilter = "DATE(inv_date) = DATE('now', 'localtime')";
+                orderBy = "strftime('%Y-%m-%d %H', inv_date)";
+                break;
+            case "Tháng này":
+                dateSelect = "strftime('%d', inv_date)";
+                groupBy = "DATE(inv_date)";
+                dateFilter = "strftime('%Y-%m', inv_date) = strftime('%Y-%m', 'now', 'localtime')";
+                orderBy = "DATE(inv_date)";
+                break;
+            case "Quý này":
+                dateSelect = "strftime('%m/%Y', inv_date)";
+                groupBy = "strftime('%Y-%m', inv_date)";
+                dateFilter = "(CAST(strftime('%m', inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', inv_date) = strftime('%Y', 'now', 'localtime')";
+                orderBy = "strftime('%Y-%m', inv_date)";
+                break;
+            case "Năm nay":
+                dateSelect = "strftime('%m', inv_date)";
+                groupBy = "strftime('%Y-%m', inv_date)";
+                dateFilter = "strftime('%Y', inv_date) = strftime('%Y', 'now', 'localtime')";
+                orderBy = "strftime('%Y-%m', inv_date)";
+                break;
+            default: // "7 ngày qua"
+                dateSelect = "strftime('%d/%m', inv_date)";
+                groupBy = "DATE(inv_date)";
+                dateFilter = "inv_date >= date('now', '-6 days', 'localtime')";
+                orderBy = "DATE(inv_date)";
+                break;
+        }
+
+        String sql = "SELECT " + dateSelect + " as d, SUM(inv_price) as total " +
                 "FROM Invoices " +
-                "WHERE inv_date >= datetime('now', '-7 days') " +
-                "GROUP BY DATE(inv_date) " +
-                "ORDER BY d DESC";
+                "WHERE " + dateFilter + " " +
+                "GROUP BY " + groupBy + " " +
+                "ORDER BY " + orderBy + " ASC";
 
         try (Connection con = DBConnection.getConnection()) {
             ResultSet rs = con.createStatement().executeQuery(sql);
-            List<String> tempDates = new ArrayList<>();
-            List<Double> tempValues = new ArrayList<>();
-
             while (rs.next()) {
-                String dateStr = rs.getString("d");
-                String formattedDate = "N/A";
-                if (dateStr != null && dateStr.length() >= 10) {
-                    try {
-                        java.util.Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
-                        formattedDate = new SimpleDateFormat("dd/MM").format(parsedDate);
-                    } catch (java.text.ParseException e) {
-                        System.err.println("Could not parse date in RevenueChartPanel: " + dateStr);
-                        // Fallback for different formats if needed
-                        String[] parts = dateStr.split("-");
-                        if (parts.length == 3) {
-                            formattedDate = parts[2] + "/" + parts[1];
-                        } else {
-                            formattedDate = dateStr;
-                        }
-                    }
-                }
-                tempDates.add(formattedDate);
-
+                dates.add(rs.getString("d"));
                 double val = rs.getDouble("total");
-                tempValues.add(val);
+                values.add(val);
                 if (val > maxValue) maxValue = val;
-            }
-
-            for (int i = tempDates.size() - 1; i >= 0; i--) {
-                dates.add(tempDates.get(i));
-                values.add(tempValues.get(i));
             }
             repaint();
         } catch (Exception e) {
@@ -90,14 +104,14 @@ public class RevenueChartPanel extends JPanel {
 
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON); // Chữ mịn hơn
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         Font fontValue = new Font("Segoe UI", Font.BOLD, 13);
         Font fontDate = new Font("Segoe UI", Font.PLAIN, 12);
 
         if (values.isEmpty()) {
             g2.setFont(fontValue);
-            g2.drawString("Chưa có dữ liệu doanh thu tuần này", getWidth()/2 - 100, getHeight()/2);
+            g2.drawString("Chưa có dữ liệu cho khoảng thời gian này", getWidth()/2 - 120, getHeight()/2);
             return;
         }
 
@@ -113,14 +127,14 @@ public class RevenueChartPanel extends JPanel {
         if (barWidth < 10) barWidth = 10;
 
         g2.setColor(new Color(200, 200, 200));
-        g2.drawLine(padding, height - padding, width - padding, height - padding); // Trục X
-        g2.drawLine(padding, height - padding, padding, padding); // Trục Y
+        g2.drawLine(padding, height - padding, width - padding, height - padding); // X-axis
+        g2.drawLine(padding, height - padding, padding, padding); // Y-axis
 
         double scaleFactor = 0.75;
 
         for (int i = 0; i < numberOfBars; i++) {
             double val = values.get(i);
-            int barHeight = (int) ((val / maxValue) * graphHeight * scaleFactor);
+            int barHeight = (maxValue > 0) ? (int) ((val / maxValue) * graphHeight * scaleFactor) : 0;
             if (barHeight < 2 && val > 0) barHeight = 2;
 
             int x = padding + (i * slotWidth) + (slotWidth - barWidth) / 2;
@@ -134,11 +148,7 @@ public class RevenueChartPanel extends JPanel {
             String priceStr;
             if (val >= 1000000) {
                 double tr = val / 1000000.0;
-                if (tr == (long) tr) {
-                    priceStr = String.format("%d Tr", (long)tr);
-                } else {
-                    priceStr = String.format("%.1f Tr", tr);
-                }
+                priceStr = (tr == (long) tr) ? String.format("%d Tr", (long)tr) : String.format("%.1f Tr", tr);
             } else {
                 priceStr = String.format("%d K", (long)(val / 1000));
             }

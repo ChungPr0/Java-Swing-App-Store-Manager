@@ -12,7 +12,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import static Utils.Style.showError;
 
@@ -25,10 +25,11 @@ public class PieChartPanel extends JPanel {
 
     private final ChartCanvas canvas;
     private final JPanel pLegend;
+    private String currentPeriod;
 
-    private final Consumer<String> onSliceClick;
+    private final BiConsumer<String, String> onSliceClick;
 
-    public PieChartPanel(Consumer<String> onSliceClick) {
+    public PieChartPanel(BiConsumer<String, String> onSliceClick) {
         this.onSliceClick = onSliceClick;
 
         this.setLayout(new BorderLayout());
@@ -45,14 +46,27 @@ public class PieChartPanel extends JPanel {
         this.add(pLegend, BorderLayout.EAST);
     }
 
-    public void loadPieData() {
+    private String getSqlDateFilter(String period) {
+        return switch (period) {
+            case "Hôm nay" -> "DATE(i.inv_date) = DATE('now', 'localtime')";
+            case "Tháng này" -> "strftime('%Y-%m', i.inv_date) = strftime('%Y-%m', 'now', 'localtime')";
+            case "Quý này" -> "(CAST(strftime('%m', i.inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            case "Năm nay" -> "strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            default -> "i.inv_date >= date('now', '-6 days', 'localtime')";
+        };
+    }
+
+    public void loadPieData(String period) {
+        this.currentPeriod = period;
         slices.clear();
+        String dateFilter = getSqlDateFilter(period);
+
         String sql = "SELECT t.type_name, SUM(d.ind_count) as total " +
                 "FROM Invoice_details d " +
                 "JOIN Products p ON d.pro_ID = p.pro_ID " +
                 "JOIN ProductTypes t ON p.type_ID = t.type_ID " +
                 "JOIN Invoices i ON d.inv_ID = i.inv_ID " +
-                "WHERE i.inv_date >= datetime('now', '-7 days') " +
+                "WHERE " + dateFilter + " " +
                 "GROUP BY t.type_name ORDER BY total DESC LIMIT 7";
 
         try (Connection con = DBConnection.getConnection()) {
@@ -103,7 +117,7 @@ public class PieChartPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (onSliceClick != null) {
-                    onSliceClick.accept(s == null ? "ALL" : s.name);
+                    onSliceClick.accept(s == null ? "ALL" : s.name, currentPeriod);
                 }
             }
         });
@@ -119,12 +133,12 @@ public class PieChartPanel extends JPanel {
                     boolean clicked = false;
                     for (Slice s : slices) {
                         if (s.shape != null && s.shape.contains(e.getPoint())) {
-                            if (onSliceClick != null) onSliceClick.accept(s.name);
+                            if (onSliceClick != null) onSliceClick.accept(s.name, currentPeriod);
                             clicked = true;
                             break;
                         }
                     }
-                    if (!clicked && onSliceClick != null) onSliceClick.accept("ALL");
+                    if (!clicked && onSliceClick != null) onSliceClick.accept("ALL", currentPeriod);
                 }
             });
         }
