@@ -1,153 +1,106 @@
-# 🛒 PHẦN MỀM QUẢN LÝ BÁN HÀNG (POS JAVA SWING)
+# 🛒 Phần Mềm Quản Lý Bán Hàng (Store Manager App)
 
-![Java](https://img.shields.io/badge/Language-Java_17+-orange?style=for-the-badge&logo=java)
-![Database](https://img.shields.io/badge/Database-MySQL-blue?style=for-the-badge&logo=mysql)
-![Version](https://img.shields.io/badge/Version-1.6.0-green?style=for-the-badge)
-
-> **Giải pháp quản lý bán hàng toàn diện, đơn giản và hiệu quả dành cho cửa hàng vừa và nhỏ.**
+Ứng dụng desktop quản lý cửa hàng bán lẻ được xây dựng bằng **Java Swing** và cơ sở dữ liệu **SQLite**. Ứng dụng cung cấp giải pháp toàn diện từ quản lý kho, nhân viên, khách hàng, nhà cung cấp đến lập hóa đơn và báo cáo thống kê chi tiết.
 
 ---
 
-## 📑 MỤC LỤC
-1. [Giới thiệu](#-giới-thiệu)
-2. [Tính năng nổi bật](#-tính-năng-nổi-bật)
-3. [Cài đặt môi trường (SQL)](#-cài-đặt-môi-trường-sql)
-4. [Cấu hình hệ thống](#-cấu-hình-hệ-thống-quan-trọng)
-5. [Hướng dẫn chạy phần mềm](#-hướng-dẫn-chạy-phần-mềm)
-6. [Hướng dẫn sử dụng chi tiết](#-hướng-dẫn-sử-dụng-chi-tiết)
+## 🚀 Tính Năng Nổi Bật
+
+### 1. 📊 Trang Chủ (Dashboard & Thống Kê)
+*   **Tổng quan:** Hiển thị nhanh Doanh thu, Số sản phẩm đã bán, Khách hàng hoạt động, và Số đơn hàng.
+*   **Bộ lọc thời gian linh hoạt:** Xem báo cáo theo **Hôm nay, 7 ngày qua, Tháng này, Quý này, Năm nay**.
+*   **Biểu đồ trực quan:**
+    *   Biểu đồ cột (Bar Chart): Phân tích doanh thu theo thời gian thực.
+    *   Biểu đồ tròn (Pie Chart): Tỉ lệ phần trăm doanh thu theo danh mục sản phẩm.
+*   **Bảng xếp hạng:** Top sản phẩm bán chạy, Top khách hàng chi tiêu nhiều nhất, Top hóa đơn giá trị cao.
+
+### 2. 📦 Quản Lý Sản Phẩm (Product Manager)
+*   Thêm, sửa, xóa thông tin sản phẩm.
+*   Quản lý số lượng tồn kho, giá bán.
+*   Phân loại sản phẩm (Categories) và Nhà cung cấp (Suppliers).
+*   Tìm kiếm và sắp xếp sản phẩm thông minh.
+
+### 3. 🧾 Quản Lý Hóa Đơn (Invoice / POS)
+*   **Tạo hóa đơn mới:** Chọn khách hàng, nhân viên bán hàng, thêm sản phẩm vào giỏ.
+*   **Tự động tính toán:** Tổng tiền, cập nhật trừ kho tự động khi thanh toán.
+*   **In hóa đơn:** Xem trước và in hóa đơn (Giao diện mô phỏng HTML).
+*   Xem lịch sử và chi tiết hóa đơn đã bán.
+
+### 4. 👥 Quản Lý Đối Tác & Nhân Sự
+*   **Nhân viên (Staff):** Quản lý hồ sơ, phân quyền (Admin/Staff), cấp tài khoản đăng nhập.
+*   **Khách hàng (Customer):** Lưu trữ thông tin, lịch sử mua hàng.
+*   **Nhà cung cấp (Supplier):** Quản lý nguồn nhập hàng, xem danh sách sản phẩm cung cấp.
+
+### 5. 🔐 Hệ Thống & Bảo Mật
+*   Đăng nhập / Đăng xuất an toàn.
+*   Phân quyền chức năng dựa trên vai trò (Admin có toàn quyền, Staff bị giới hạn một số chức năng quản lý).
+*   Đổi mật khẩu cá nhân.
 
 ---
 
-## 📖 GIỚI THIỆU
+## 🛠 Công Nghệ Sử Dụng
 
-Phần mềm **Quản Lý Bán Hàng** được xây dựng trên nền tảng **Java Swing** kết hợp với cơ sở dữ liệu **MySQL**. Hệ thống tập trung vào tính chính xác trong giao dịch, quản lý chặt chẽ tồn kho và cung cấp trải nghiệm bán hàng nhanh chóng.
-
-Phần mềm hoạt động tốt trên Windows, macOS và Linux (yêu cầu cài đặt Java).
-
----
-
-## 🌟 TÍNH NĂNG NỔI BẬT
-
-| Chức năng                 | Mô tả chi tiết                                                                                                        |
-|:--------------------------|:----------------------------------------------------------------------------------------------------------------------|
-| **📦 Quản lý Kho Hàng**   | Tự động trừ kho khi bán. **Chặn bán quá số lượng tồn**. Hiển thị tồn kho thực tế ngay khi chọn sản phẩm.              |
-| **🧾 Hóa đơn thông minh** | Tạo hóa đơn nhanh, hỗ trợ tìm kiếm khách hàng/sản phẩm. Tự động tính tổng tiền. **Hoàn kho tự động** khi xóa hóa đơn. |
-| **⚙️ Cấu hình động**      | Sử dụng file `config.properties` bên ngoài. Dễ dàng đổi mật khẩu/địa chỉ Database mà không cần sửa code.              |
-| **🛡️ Bảo mật & An toàn** | Cơ chế **Transaction** (Rollback) đảm bảo dữ liệu không bị lỗi nửa vời. Ngăn chặn SQL Injection.                      |
-| **👥 Quản lý Đối tượng**  | Quản lý thông tin Khách hàng, Nhân viên. Phân quyền **Admin** (Toàn quyền) và **Staff** (Hạn chế).                    |
+*   **Ngôn ngữ:** Java (JDK 8 trở lên).
+*   **Giao diện (GUI):** Java Swing (Sử dụng các Custom Components, CardLayout, BorderLayout...).
+*   **Cơ sở dữ liệu:** SQLite (Lưu trữ cục bộ, không cần cài đặt server phức tạp).
+*   **Thư viện:** `sqlite-jdbc` (Kết nối Database).
+*   **Mô hình:** MVC (Model-View-Controller) pattern (tương đối).
 
 ---
 
-## 🛠 CÀI ĐẶT MÔI TRƯỜNG (SQL)
+## ⚙️ Cài Đặt & Chạy Ứng Dụng
 
-Để phần mềm chạy được, bạn cần tạo Cơ sở dữ liệu. Hãy làm theo các bước sau:
+### Yêu cầu
+*   Java Development Kit (JDK) phiên bản 8 trở lên.
+*   IDE: IntelliJ IDEA, Eclipse, hoặc NetBeans.
 
-### Bước 1: Mở trình quản lý MySQL
-Sử dụng **phpMyAdmin**, **MySQL Workbench**, hoặc **HeidiSQL**.
-
-### Bước 2: Chạy Script tạo Database
-Để chạy dự án, bạn cần tạo Database bằng Script sau:
-
-1. **[Bấm vào đây để xem file csdl.sql](https://github.com/ChungPr0/Java-Swing-App-Store-Manger/blob/master/ResourcesPack/csdl.sql)**
-2. Copy toàn bộ nội dung.
-3. Mở MySQL Workbench -> Paste vào và bấm nút ⚡ (Execute).
-
----
-
-## ⚙️ CẤU HÌNH HỆ THỐNG (QUAN TRỌNG)
-
-Phần mềm hoạt động dựa trên file cấu hình bên ngoài. Điều này giúp bạn dễ dàng thay đổi thông tin kết nối mà không cần can thiệp vào mã nguồn.
-
-**Bước 1:** Tạo một file mới tên là `config.properties`.
-**Bước 2:** Mở bằng Notepad (hoặc trình soạn thảo bất kỳ) và dán nội dung sau:
-
-```properties
-# --- CẤU HÌNH KẾT NỐI MYSQL ---
-# Đường dẫn kết nối (bao gồm fix lỗi font tiếng Việt)
-db.url=jdbc:mysql://localhost:3306/QuanLyBanHang?useSSL=false&useUnicode=true&characterEncoding=UTF-8
-
-# Tài khoản đăng nhập MySQL
-db.username=root
-
-# Mật khẩu MySQL (Điền ngay sau dấu bằng nếu có)
-db.password=
-```
-
----
-
-## 🚀 HƯỚNG DẪN CHẠY PHẦN MỀM
-
-Sau khi Build dự án ra file `.jar` (ví dụ `StoreManager.jar`), bạn cần đảm bảo cấu trúc thư mục đúng như sau:
-
-### 1. Cấu trúc thư mục chuẩn
-```text
-D:\PhanMemBanHang\
-   ├── ☕ StoreManager.jar    (File phần mềm chính)
-   └── 📄 config.properties   (File cấu hình đã tạo ở trên)
-```
-
-Hoặc bạn cũng có thể dùng bản đã được Build sẵn tại đây (chỉ cần sửa lại file config cho đúng là dùng được) tại [ResourcesPack/Versions](./ResourcesPack/Versions).
-
-
-### 2. Cách chạy phần mềm
-Bạn có thể chọn 1 trong 2 cách sau:
-
-* **Cách 1 (Nhanh):** Double click trực tiếp vào file `StoreManager.jar`.
-* **Cách 2 (Khuyên dùng):** Chạy bằng dòng lệnh để xem thông báo lỗi (nếu có).
-    1.  Tại thư mục chứa file, gõ `cmd` vào thanh địa chỉ -> Nhấn **Enter**.
-    2.  Gõ lệnh sau:
+### Các bước thực hiện
+1.  **Clone dự án:**
     ```bash
-    java -jar StoreManager.jar
+    git clone https://github.com/username/Java-Swing-App-Store-Manager.git
     ```
+2.  **Mở dự án:** Mở thư mục dự án trong IDE của bạn.
+3.  **Cấu hình thư viện:**
+    *   Đảm bảo file `sqlite-jdbc-....jar` đã được thêm vào **Libraries/Classpath** của dự án.
+4.  **Cơ sở dữ liệu:**
+    *   File `storedatabase.db` sẽ tự động được tạo hoặc sử dụng file có sẵn trong thư mục gốc.
+    *   Nếu cần reset dữ liệu, bạn có thể chạy script trong `ResourcesPack/csdl.sql` bằng một công cụ quản lý SQLite (như *DB Browser for SQLite*).
+5.  **Chạy ứng dụng:**
+    *   Tìm file `src/Main/Main.java` (hoặc `src/Main/LoginManager/LoginForm.java`) và chạy (Run).
 
 ---
 
-## 📘 HƯỚNG DẪN SỬ DỤNG CHI TIẾT
+## 📂 Cấu Trúc Thư Mục
 
-### 🔐 1. Đăng Nhập Hệ Thống
-Khởi động phần mềm và sử dụng các tài khoản mặc định sau (hoặc tài khoản trong Database của bạn):
-
-| Vai trò   | Tên đăng nhập | Mật khẩu | Quyền hạn                             |
-|:----------|:--------------|:---------|:--------------------------------------|
-| **Admin** | `admin`       | `123`    | Toàn quyền (Xóa hóa đơn, Sửa dữ liệu) |
-| **Staff** | `user1`       | `123`    | Bán hàng, Tra cứu (Không được xóa)    |
-
-### 🛒 2. Quy Trình Bán Hàng (Tạo Hóa Đơn)
-Để thực hiện một giao dịch bán hàng, hãy làm theo các bước:
-
-1.  **Vào tab Hóa Đơn** → Bấm nút <kbd>Tạo mới</kbd>.
-2.  **Chọn Khách hàng:**
-    * Chọn từ danh sách xổ xuống.
-    * *Mẹo:* Nếu là khách mới, bấm nút **"Thêm"** nhỏ bên cạnh để tạo nhanh hồ sơ.
-3.  **Thêm Sản phẩm vào giỏ:**
-    * Bấm nút <kbd>THÊM</kbd> (nằm dưới bảng danh sách sản phẩm).
-    * Một cửa sổ hiện ra: Chọn sản phẩm (Hệ thống sẽ hiển thị **Tồn kho hiện tại**).
-    * Nhập số lượng mua → Bấm **"Xác nhận"**.
-    * *Lưu ý:* Hệ thống sẽ chặn nếu bạn nhập quá số lượng tồn kho.
-4.  **Chỉnh sửa giỏ hàng (Nếu cần):**
-    * Chọn dòng sản phẩm trong bảng.
-    * Bấm <kbd>SỬA</kbd> để đổi số lượng hoặc <kbd>XÓA</kbd> để bỏ món.
-5.  **Thanh toán:**
-    * Kiểm tra lại **Tổng tiền**.
-    * Bấm nút <kbd>Lưu hóa đơn</kbd> để hoàn tất.
-    * 👉 *Lúc này số lượng hàng trong kho mới chính thức bị trừ.*
-
-### 🧾 3. Quản lý Hóa đơn & Hoàn trả
-* **Xem chi tiết:** Chọn một hóa đơn trong danh sách bên trái, thông tin chi tiết sẽ hiện bên phải.
-* **Xóa hóa đơn (Chỉ Admin):**
-    * Bấm nút <kbd>Xóa Hóa Đơn</kbd>.
-    * Hệ thống sẽ hỏi xác nhận và **tự động hoàn trả (cộng lại)** số lượng sản phẩm về kho.
-* **In ấn:** Bấm nút <kbd>In Hóa Đơn</kbd> để xem trước phiếu in (View).
-
-### 👥 4. Quản lý Khách hàng
-* Truy cập tab **Khách hàng**.
-* **Tìm kiếm:** Nhập Tên hoặc Số điện thoại vào ô tìm kiếm → Nhấn Enter.
-* **Sắp xếp:** Bấm nút **Sắp xếp** để đổi kiểu xem (Tên A-Z, Khách mới/cũ).
-* **Kiểm soát lỗi:** Ô nhập Số điện thoại được tích hợp bộ lọc, chỉ cho phép nhập số.
+```
+Java-Swing-App-Store-Manager/
+├── assets/                 # Chứa hình ảnh, icon
+├── src/
+│   ├── Main/
+│   │   ├── CustomerManager/ # Quản lý khách hàng
+│   │   ├── HomeManager/     # Màn hình chính & Thống kê
+│   │   ├── InvoiceManager/  # Quản lý hóa đơn
+│   │   ├── LoginManager/    # Đăng nhập & Đổi mật khẩu
+│   │   ├── ProductManager/  # Quản lý sản phẩm
+│   │   ├── StaffManager/    # Quản lý nhân viên
+│   │   ├── SupplierManager/ # Quản lý nhà cung cấp
+│   │   └── DashBoard.java   # Khung giao diện chính
+│   └── Utils/
+│       ├── DBConnection.java # Kết nối SQLite
+│       └── ...
+├── storedatabase.db        # File cơ sở dữ liệu SQLite
+└── README.md
+```
 
 ---
 
-<div style="text-align: center;">
-<b>© 2025 Copyright by Chung. All rights reserved.</b><br>
-<i>Designed with using Java Swing & MySQL.</i>
-</div>
+## 📸 Screenshots
+
+*(Bạn có thể thêm ảnh chụp màn hình ứng dụng tại đây)*
+
+---
+
+## 👨‍💻 Tác Giả
+
+Dự án được phát triển bởi **[Chung]**.
+Mọi đóng góp và ý kiến phản hồi đều được hoan nghênh!
