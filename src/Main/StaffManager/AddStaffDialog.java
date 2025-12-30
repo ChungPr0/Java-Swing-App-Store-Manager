@@ -12,20 +12,28 @@ import java.sql.Statement;
 
 import static Utils.Style.*;
 
+/**
+ * Dialog for adding a new staff member.
+ */
 public class AddStaffDialog extends JDialog {
 
-    // --- KHAI BÁO BIẾN GIAO DIỆN ---
+    // --- UI VARIABLES ---
     private JTextField txtName, txtPhone, txtAddress, txtSalary, txtUsername;
     private JPasswordField txtPassword;
-    private JCheckBox chkIsAdmin;
+    private JComboBox<RoleItem> cbRole;
     private JComboBox<String> cbDay, cbMonth, cbYear;
     private JComboBox<String> cbStartDay, cbStartMonth, cbStartYear;
     private JButton btnSave, btnCancel;
 
-    // --- BIẾN TRẠNG THÁI ---
+    // --- STATE VARIABLES ---
     private boolean isAdded = false;
     private int newStaffID = -1;
 
+    /**
+     * Constructor to initialize the Add Staff Dialog.
+     *
+     * @param parent The parent frame.
+     */
     public AddStaffDialog(Frame parent) {
         super(parent, true); // Modal = true
         this.setTitle("Thêm Nhân Viên Mới");
@@ -39,29 +47,33 @@ public class AddStaffDialog extends JDialog {
         this.setResizable(false);
     }
 
-    // --- 1. KHỞI TẠO GIAO DIỆN (INIT UI) ---
+    // --- 1. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
         mainPanel.setBackground(Color.WHITE);
 
-        // Tăng chiều cao lên chút vì tách dòng User/Pass
+        // Increased height slightly to accommodate User/Pass fields
         mainPanel.setPreferredSize(new Dimension(650, 680));
 
-        // A. Tiêu đề
+        // A. Title
         JLabel lblTitle = createHeaderLabel("NHẬP THÔNG TIN NHÂN VIÊN");
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createVerticalStrut(25));
 
-        // --- HÀNG 1: TÊN (Full) ---
+        // --- ROW 1: NAME (Full) ---
         txtName = new JTextField();
         mainPanel.add(createTextFieldWithLabel(txtName, "Họ và Tên:"));
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // --- HÀNG 2: SĐT | LƯƠNG (Chia đôi) ---
-        JPanel rowPhoneSalary = new JPanel(new GridLayout(1, 2, 20, 0)); // Cách nhau 20px
+        // --- ROW 2: PHONE | SALARY (Split) ---
+        JPanel rowPhoneSalary = new JPanel(new GridLayout(1, 2, 20, 0)); // 20px gap
         rowPhoneSalary.setBackground(Color.WHITE);
         rowPhoneSalary.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 
@@ -74,43 +86,51 @@ public class AddStaffDialog extends JDialog {
         mainPanel.add(rowPhoneSalary);
         mainPanel.add(Box.createVerticalStrut(16));
 
-        // --- HÀNG 3: ĐỊA CHỈ (Full) ---
+        // --- ROW 3: ADDRESS (Full) ---
         txtAddress = new JTextField();
         mainPanel.add(createTextFieldWithLabel(txtAddress, "Địa chỉ:"));
         mainPanel.add(Box.createVerticalStrut(16));
 
-        // --- HÀNG 4: NGÀY SINH | NGÀY VÀO LÀM (Chia đôi) ---
+        // --- ROW 4: DOB | START DATE (Split) ---
         JPanel rowDates = new JPanel(new GridLayout(1, 2, 20, 0));
         rowDates.setBackground(Color.WHITE);
         rowDates.setMaximumSize(new Dimension(Integer.MAX_VALUE, 61));
 
-        cbDay = new JComboBox<>(); cbMonth = new JComboBox<>(); cbYear = new JComboBox<>();
+        cbDay = new JComboBox<>();
+        cbMonth = new JComboBox<>();
+        cbYear = new JComboBox<>();
         rowDates.add(createDatePanel("Ngày sinh:", cbDay, cbMonth, cbYear));
 
-        cbStartDay = new JComboBox<>(); cbStartMonth = new JComboBox<>(); cbStartYear = new JComboBox<>();
+        cbStartDay = new JComboBox<>();
+        cbStartMonth = new JComboBox<>();
+        cbStartYear = new JComboBox<>();
         rowDates.add(createDatePanel("Ngày vào làm:", cbStartDay, cbStartMonth, cbStartYear));
 
         mainPanel.add(rowDates);
         mainPanel.add(Box.createVerticalStrut(16));
 
-        // --- HÀNG 5: TÀI KHOẢN (Full) ---
+        // --- ROW 5: USERNAME (Full) ---
         txtUsername = new JTextField();
         mainPanel.add(createTextFieldWithLabel(txtUsername, "Tài khoản (Có thể để trống):"));
         mainPanel.add(Box.createVerticalStrut(16));
 
-        // --- HÀNG 6: MẬT KHẨU (Full) ---
+        // --- ROW 6: PASSWORD (Full) ---
         txtPassword = new JPasswordField();
         JCheckBox chkShowPass = new JCheckBox();
         mainPanel.add(createPasswordFieldWithLabel(txtPassword, "Mật khẩu (Có thể để trống):", chkShowPass));
         mainPanel.add(Box.createVerticalStrut(12));
 
-        // --- HÀNG 7 (Bạn gọi là Hàng 6): VAI TRÒ ---
-        chkIsAdmin = new JCheckBox();
-        JPanel pRoleWrapper = createCheckBoxWithLabel(chkIsAdmin, "Phân quyền:", "QUẢN TRỊ VIÊN");
-        mainPanel.add(pRoleWrapper);
+        // --- ROW 7: ROLE (ComboBox) ---
+        cbRole = new JComboBox<>();
+        cbRole.addItem(new RoleItem("Admin", "Quản trị viên"));
+        cbRole.addItem(new RoleItem("Manager", "Quản lý"));
+        cbRole.addItem(new RoleItem("SaleStaff", "Nhân viên bán hàng"));
+        cbRole.addItem(new RoleItem("StorageStaff", "Nhân viên kho"));
+
+        mainPanel.add(createComboBoxWithLabel(cbRole, "Vai trò:"));
         mainPanel.add(Box.createVerticalStrut(16));
 
-        // --- C. KHU VỰC NÚT BẤM ---
+        // --- C. BUTTON AREA ---
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setBackground(Color.WHITE);
 
@@ -126,14 +146,18 @@ public class AddStaffDialog extends JDialog {
         mainPanel.add(buttonPanel);
         this.setContentPane(mainPanel);
 
-        // Kích hoạt nút Lưu khi bấm Enter
+        // Activate Save button on Enter
         getRootPane().setDefaultButton(btnSave);
     }
 
-    // --- 2. XỬ LÝ SỰ KIỆN (EVENTS) ---
+    // --- 2. EVENT HANDLING ---
+
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
 
-        // Chặn nhập chữ vào số điện thoại và lương
+        // Block non-digit input for phone and salary
         java.awt.event.KeyAdapter digitOnly = new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent e) {
                 if (!Character.isDigit(e.getKeyChar())) {
@@ -144,9 +168,9 @@ public class AddStaffDialog extends JDialog {
         txtPhone.addKeyListener(digitOnly);
         txtSalary.addKeyListener(digitOnly);
 
-        // Sự kiện nút Lưu
+        // Save button event
         btnSave.addActionListener(e -> {
-            // 1. Validate thông tin cơ bản
+            // 1. Validate basic info
             if (txtName.getText().trim().isEmpty() ||
                     txtPhone.getText().trim().isEmpty() ||
                     txtAddress.getText().trim().isEmpty() ||
@@ -155,7 +179,7 @@ public class AddStaffDialog extends JDialog {
                 return;
             }
 
-            // 2. Lấy dữ liệu tài khoản và mật khẩu
+            // 2. Validate username and password
             String user = txtUsername.getText().trim();
             String pass = new String(txtPassword.getPassword()).trim();
 
@@ -169,7 +193,10 @@ public class AddStaffDialog extends JDialog {
                 String strStartDate = cbStartYear.getSelectedItem() + "-" + cbStartMonth.getSelectedItem() + "-" + cbStartDay.getSelectedItem();
 
                 double salary = 0;
-                try { salary = Double.parseDouble(txtSalary.getText().trim()); } catch (Exception ignored) {}
+                try {
+                    salary = Double.parseDouble(txtSalary.getText().trim());
+                } catch (Exception ignored) {
+                }
 
                 String sql = "INSERT INTO Staffs (sta_name, sta_date_of_birth, sta_phone, sta_address, sta_salary, sta_start_date, sta_username, sta_password, sta_role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -188,7 +215,9 @@ public class AddStaffDialog extends JDialog {
                 if (pass.isEmpty()) ps.setNull(8, java.sql.Types.VARCHAR);
                 else ps.setString(8, pass);
 
-                ps.setString(9, chkIsAdmin.isSelected() ? "Admin" : "Staff");
+                // Get role code (English) to save to DB
+                RoleItem selectedRole = (RoleItem) cbRole.getSelectedItem();
+                ps.setString(9, selectedRole != null ? selectedRole.code : "SaleStaff");
 
                 int rows = ps.executeUpdate();
                 if (rows > 0) {
@@ -213,7 +242,11 @@ public class AddStaffDialog extends JDialog {
         btnCancel.addActionListener(e -> dispose());
     }
 
-    // --- 3. HÀM HỖ TRỢ & GETTER ---
+    // --- 3. HELPER METHODS & GETTERS ---
+
+    /**
+     * Initializes data for date combo boxes.
+     */
     private void initComboBoxData() {
         for (int i = 1; i <= 31; i++) {
             String val = String.format("%02d", i);
@@ -232,11 +265,37 @@ public class AddStaffDialog extends JDialog {
         }
     }
 
+    /**
+     * Checks if the staff member was added successfully.
+     *
+     * @return true if added, false otherwise.
+     */
     public boolean isAddedSuccess() {
         return isAdded;
     }
 
+    /**
+     * Gets the ID of the newly added staff member.
+     *
+     * @return The new staff ID.
+     */
     public int getNewStaffID() {
         return newStaffID;
+    }
+
+    // --- INNER CLASS FOR ROLE ---
+    private static class RoleItem {
+        String code; // Stored in DB (Admin)
+        String name; // Displayed (Quản trị viên)
+
+        public RoleItem(String code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

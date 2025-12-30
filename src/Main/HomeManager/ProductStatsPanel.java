@@ -2,6 +2,7 @@ package Main.HomeManager;
 
 import Main.HomeManager.Charts.PieChartPanel;
 import Utils.DBConnection;
+import Utils.Session;
 import Main.DashBoard;
 
 import javax.swing.*;
@@ -17,12 +18,19 @@ import java.sql.ResultSet;
 import static Utils.Style.createTableWithLabel;
 import static Utils.Style.showError;
 
+/**
+ * Panel for displaying product statistics.
+ * Includes a pie chart for sales by category and a table for best-selling products.
+ */
 public class ProductStatsPanel extends JPanel {
     private final PieChartPanel chartPanel;
     private final JTable tableProduct;
     private final DefaultTableModel tableModel;
     private final JPanel pTableWrapper;
 
+    /**
+     * Constructor to initialize the Product Statistics Panel.
+     */
     public ProductStatsPanel() {
         this.setLayout(new BorderLayout(20, 0));
         this.setBackground(Color.WHITE);
@@ -34,7 +42,10 @@ public class ProductStatsPanel extends JPanel {
 
         String[] cols = {"Mã SP", "Tên Sản Phẩm", "Đã Bán", "Tồn Kho", "Doanh Thu"};
         tableModel = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
         tableProduct = new JTable(tableModel);
 
@@ -55,22 +66,42 @@ public class ProductStatsPanel extends JPanel {
         addEvents();
     }
 
+    /**
+     * Generates SQL date filter condition based on the selected period.
+     *
+     * @param period The selected period string.
+     * @return SQL condition string.
+     */
     private String getSqlDateFilter(String period) {
         return switch (period) {
             case "Hôm nay" -> "DATE(i.inv_date) = DATE('now', 'localtime')";
             case "Tháng này" -> "strftime('%Y-%m', i.inv_date) = strftime('%Y-%m', 'now', 'localtime')";
-            case "Quý này" -> "(CAST(strftime('%m', i.inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            case "Quý này" ->
+                    "(CAST(strftime('%m', i.inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
             case "Năm nay" -> "strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
             default -> "i.inv_date >= date('now', '-6 days', 'localtime')";
         };
     }
 
+    /**
+     * Loads data into the chart and table.
+     *
+     * @param period The time period to filter by.
+     */
     public void loadData(String period) {
+        if (!Session.canViewStats()) return;
         chartPanel.loadPieData(period);
         loadTableData("ALL", period);
     }
 
+    /**
+     * Loads data into the product table.
+     *
+     * @param categoryName The category name to filter by ("ALL" for no filter).
+     * @param period       The time period to filter by.
+     */
     private void loadTableData(String categoryName, String period) {
+        if (!Session.canViewStats()) return;
         tableModel.setRowCount(0);
         String dateFilter = getSqlDateFilter(period);
         String sql;
@@ -86,7 +117,7 @@ public class ProductStatsPanel extends JPanel {
                     "JOIN Invoices i ON d.inv_ID = i.inv_ID " +
                     "WHERE " + dateFilter + " " +
                     "GROUP BY p.pro_ID, p.pro_name, p.pro_count " +
-                    "ORDER BY qty DESC"; // Đã bỏ LIMIT 20
+                    "ORDER BY qty DESC"; // Removed LIMIT 20
         } else {
             setTableTitle("CHI TIẾT: " + categoryName.toUpperCase() + " (" + titlePeriod + ")");
             sql = "SELECT p.pro_ID, p.pro_name, p.pro_count, " +
@@ -109,7 +140,7 @@ public class ProductStatsPanel extends JPanel {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 double total = rs.getDouble("total");
-                String moneyStr = (total >= 1000000) ? String.format("%.1f Tr", total/1000000) : String.format("%.0f K", total/1000);
+                String moneyStr = (total >= 1000000) ? String.format("%.1f Tr", total / 1000000) : String.format("%.0f K", total / 1000);
 
                 tableModel.addRow(new Object[]{
                         rs.getInt("pro_ID"),
@@ -124,6 +155,9 @@ public class ProductStatsPanel extends JPanel {
         }
     }
 
+    /**
+     * Adds event listeners to the table.
+     */
     private void addEvents() {
         tableProduct.addMouseListener(new MouseAdapter() {
             @Override
@@ -146,6 +180,12 @@ public class ProductStatsPanel extends JPanel {
         });
     }
 
+    /**
+     * Creates a wrapper panel for the chart with a title.
+     *
+     * @param content The chart content panel.
+     * @return A JPanel wrapping the chart.
+     */
     private JPanel createChartWrapper(JPanel content) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -162,6 +202,11 @@ public class ProductStatsPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Updates the title of the table wrapper.
+     *
+     * @param text The new title text.
+     */
     private void setTableTitle(String text) {
         try {
             BorderLayout layout = (BorderLayout) pTableWrapper.getLayout();
@@ -177,7 +222,7 @@ public class ProductStatsPanel extends JPanel {
                 ((JLabel) headerComp).setText(text.toUpperCase());
             }
         } catch (Exception e) {
-             showError(this, "Lỗi set title: " + e.getMessage());
+            showError(this, "Lỗi set title: " + e.getMessage());
         }
     }
 }

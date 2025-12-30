@@ -12,16 +12,24 @@ import java.sql.Statement;
 
 import static Utils.Style.*;
 
+/**
+ * Dialog for adding a new customer.
+ */
 public class AddCustomerDialog extends JDialog {
 
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN (UI) ---
+    // --- 1. UI VARIABLES ---
     private JTextField txtName, txtPhone, txtAddress;
     private JButton btnSave, btnCancel;
 
-    // --- 2. BIẾN TRẠNG THÁI ---
+    // --- 2. STATE VARIABLES ---
     private boolean isAdded = false;
-    private int newCustomerID = -1; // Biến lưu ID khách hàng vừa thêm
+    private int newCustomerID = -1; // Variable to store the ID of the newly added customer
 
+    /**
+     * Constructor to initialize the Add Customer Dialog.
+     *
+     * @param parent The parent frame.
+     */
     public AddCustomerDialog(Frame parent) {
         super(parent, true);
         this.setTitle("Thêm Khách Hàng Mới");
@@ -34,19 +42,23 @@ public class AddCustomerDialog extends JDialog {
         this.setResizable(false);
     }
 
-    // --- 3. KHỞI TẠO GIAO DIỆN (INIT UI) ---
+    // --- 3. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
         mainPanel.setBackground(Color.WHITE);
 
-        // A. Tiêu đề
+        // A. Title
         JLabel lblTitle = createHeaderLabel("NHẬP THÔNG TIN");
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // B. Các ô nhập liệu
+        // B. Input Fields
         txtName = new JTextField();
         mainPanel.add(createTextFieldWithLabel(txtName, "Tên khách hàng:"));
         mainPanel.add(Box.createVerticalStrut(15));
@@ -59,7 +71,7 @@ public class AddCustomerDialog extends JDialog {
         mainPanel.add(createTextFieldWithLabel(txtAddress, "Địa chỉ:"));
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // C. Khu vực nút bấm
+        // C. Button Area
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setBackground(Color.WHITE);
 
@@ -74,13 +86,17 @@ public class AddCustomerDialog extends JDialog {
 
         this.setContentPane(mainPanel);
 
-        // Bấm Enter sẽ kích hoạt nút Lưu
+        // Pressing Enter will activate the Save button
         getRootPane().setDefaultButton(btnSave);
     }
 
-    // --- 4. XỬ LÝ SỰ KIỆN (EVENTS) ---
+    // --- 4. EVENT HANDLING ---
+
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
-        // --- CHẶN NHẬP CHỮ CHO SỐ ĐIỆN THOẠI ---
+        // --- BLOCK NON-DIGIT INPUT FOR PHONE NUMBER ---
         txtPhone.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent e) {
                 if (!Character.isDigit(e.getKeyChar())) {
@@ -89,7 +105,7 @@ public class AddCustomerDialog extends JDialog {
             }
         });
 
-        // Sự kiện nút Lưu
+        // Save button event
         btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty() || txtPhone.getText().trim().isEmpty()) {
                 showError(AddCustomerDialog.this, "Vui lòng nhập Tên và Số điện thoại!");
@@ -99,7 +115,7 @@ public class AddCustomerDialog extends JDialog {
             try (Connection con = DBConnection.getConnection()) {
                 String sql = "INSERT INTO Customers (cus_name, cus_phone, cus_address) VALUES (?, ?, ?)";
 
-                // [SỬA LẠI] Thêm tham số RETURN_GENERATED_KEYS để lấy ID
+                // [MODIFIED] Add RETURN_GENERATED_KEYS parameter to get the ID
                 PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
                 ps.setString(1, txtName.getText().trim());
@@ -108,7 +124,7 @@ public class AddCustomerDialog extends JDialog {
 
                 int rows = ps.executeUpdate();
                 if (rows > 0) {
-                    // Lấy ID vừa sinh ra từ Database
+                    // Get the newly generated ID from the Database
                     ResultSet rs = ps.getGeneratedKeys();
                     if (rs.next()) {
                         this.newCustomerID = rs.getInt(1);
@@ -126,12 +142,22 @@ public class AddCustomerDialog extends JDialog {
         btnCancel.addActionListener(e -> dispose());
     }
 
-    // --- 5. HÀM TIỆN ÍCH ---
+    // --- 5. UTILITY METHODS ---
+
+    /**
+     * Checks if the customer was added successfully.
+     *
+     * @return true if added, false otherwise.
+     */
     public boolean isAddedSuccess() {
         return isAdded;
     }
 
-    // Getter để lấy ID khách hàng mới
+    /**
+     * Gets the ID of the newly added customer.
+     *
+     * @return The new customer ID.
+     */
     public int getNewCustomerID() {
         return newCustomerID;
     }

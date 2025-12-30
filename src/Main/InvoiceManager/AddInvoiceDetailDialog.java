@@ -13,21 +13,29 @@ import java.util.Map;
 
 import static Utils.Style.*;
 
+/**
+ * Dialog for adding a product to an invoice.
+ */
 public class AddInvoiceDetailDialog extends JDialog {
 
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN ---
+    // --- 1. UI VARIABLES ---
     private JComboBox<ComboItem> cbProduct;
     private JTextField txtStock;
     private JTextField txtQuantity;
     private JButton btnSearchProduct, btnAdd, btnCancel;
 
-    // --- 2. BIẾN DỮ LIỆU ---
+    // --- 2. DATA VARIABLES ---
     private boolean isConfirmed = false;
     private ComboItem selectedProduct = null;
     private int selectedQty = 0;
 
     private final Map<Integer, Integer> productStockMap = new HashMap<>();
 
+    /**
+     * Constructor to initialize the Add Invoice Detail Dialog.
+     *
+     * @param parent The parent frame.
+     */
     public AddInvoiceDetailDialog(Frame parent) {
         super(parent, true);
         setTitle("Thêm Sản Phẩm");
@@ -45,6 +53,9 @@ public class AddInvoiceDetailDialog extends JDialog {
         setResizable(false);
     }
 
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -84,6 +95,9 @@ public class AddInvoiceDetailDialog extends JDialog {
         getRootPane().setDefaultButton(btnAdd);
     }
 
+    /**
+     * Loads product data into the combo box.
+     */
     private void loadProductData() {
         try (Connection con = DBConnection.getConnection()) {
             String sql = "SELECT pro_ID, pro_name, pro_count FROM Products WHERE pro_count > 0 ORDER BY pro_name ASC";
@@ -105,6 +119,9 @@ public class AddInvoiceDetailDialog extends JDialog {
         }
     }
 
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
         cbProduct.addActionListener(e -> {
             ComboItem selected = (ComboItem) cbProduct.getSelectedItem();
@@ -175,6 +192,12 @@ public class AddInvoiceDetailDialog extends JDialog {
         btnCancel.addActionListener(e -> dispose());
     }
 
+    /**
+     * Sets the selected item in a combo box by ID.
+     *
+     * @param cb The combo box.
+     * @param id The ID to select.
+     */
     private void setSelectedComboItem(JComboBox<ComboItem> cb, int id) {
         for (int i = 0; i < cb.getItemCount(); i++) {
             if (cb.getItemAt(i).getValue() == id) {
@@ -184,7 +207,30 @@ public class AddInvoiceDetailDialog extends JDialog {
         }
     }
 
-    public boolean isConfirmed() { return isConfirmed; }
-    public ComboItem getSelectedProduct() { return selectedProduct; }
-    public int getSelectedQty() { return selectedQty; }
+    /**
+     * Checks if the dialog was confirmed.
+     *
+     * @return true if confirmed, false otherwise.
+     */
+    public boolean isConfirmed() {
+        return isConfirmed;
+    }
+
+    /**
+     * Gets the selected product.
+     *
+     * @return The selected product as a ComboItem.
+     */
+    public ComboItem getSelectedProduct() {
+        return selectedProduct;
+    }
+
+    /**
+     * Gets the selected quantity.
+     *
+     * @return The selected quantity.
+     */
+    public int getSelectedQty() {
+        return selectedQty;
+    }
 }

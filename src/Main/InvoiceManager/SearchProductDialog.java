@@ -16,6 +16,9 @@ import java.sql.ResultSet;
 
 import static Utils.Style.*;
 
+/**
+ * Dialog for searching products.
+ */
 public class SearchProductDialog extends JDialog {
 
     private JTextField txtSearch;
@@ -24,6 +27,11 @@ public class SearchProductDialog extends JDialog {
 
     private ComboItem selectedProduct = null;
 
+    /**
+     * Constructor to initialize the Search Product Dialog.
+     *
+     * @param parent The parent frame.
+     */
     public SearchProductDialog(Frame parent) {
         super(parent, "Tìm Kiếm Sản Phẩm", true);
         initUI();
@@ -33,6 +41,9 @@ public class SearchProductDialog extends JDialog {
         setResizable(false);
     }
 
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -73,12 +84,26 @@ public class SearchProductDialog extends JDialog {
         getRootPane().setDefaultButton(btnConfirm);
     }
 
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
         // Search as you type
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { search(); }
-            @Override public void removeUpdate(DocumentEvent e) { search(); }
-            @Override public void changedUpdate(DocumentEvent e) { search(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                search();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                search();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                search();
+            }
         });
 
         // Double-click to confirm
@@ -95,6 +120,9 @@ public class SearchProductDialog extends JDialog {
         btnCancel.addActionListener(e -> dispose());
     }
 
+    /**
+     * Performs the product search.
+     */
     private void search() {
         String keyword = txtSearch.getText().trim();
         if (keyword.isEmpty() || keyword.equals("Nhập tên sản phẩm...")) {
@@ -125,6 +153,9 @@ public class SearchProductDialog extends JDialog {
         }
     }
 
+    /**
+     * Confirms the selected product.
+     */
     private void confirmSelection() {
         selectedProduct = listResults.getSelectedValue();
         if (selectedProduct == null) {
@@ -134,6 +165,11 @@ public class SearchProductDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Gets the selected product.
+     *
+     * @return The selected product as a ComboItem.
+     */
     public ComboItem getSelectedProduct() {
         return selectedProduct;
     }

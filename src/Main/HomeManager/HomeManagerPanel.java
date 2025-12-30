@@ -1,6 +1,7 @@
 package Main.HomeManager;
 
 import Utils.DBConnection;
+import Utils.Session;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,6 +13,10 @@ import java.sql.ResultSet;
 
 import static Utils.Style.*;
 
+/**
+ * Panel for the Home Manager Dashboard.
+ * Displays overview statistics and charts.
+ */
 public class HomeManagerPanel extends JPanel {
     private JLabel lblRevenue, lblItemsSold, lblActiveCustomers, lblOrders;
     private JButton btnRefresh;
@@ -27,12 +32,18 @@ public class HomeManagerPanel extends JPanel {
     private CustomerStatsPanel customerPanel;
     private InvoiceStatsPanel invoicePanel;
 
+    /**
+     * Constructor to initialize the Home Manager Panel.
+     */
     public HomeManagerPanel() {
         initUI();
         refreshData();
         addEvents();
     }
 
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         this.setLayout(new BorderLayout(20, 20));
         this.setBackground(Color.decode("#ecf0f1"));
@@ -118,20 +129,29 @@ public class HomeManagerPanel extends JPanel {
         this.add(pCenter, BorderLayout.CENTER);
     }
 
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
         btnRefresh.addActionListener(e -> refreshData());
         cbPeriod.addActionListener(e -> refreshData());
 
         pRevCard.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!Session.canViewStats()) return;
                 String period = (String) cbPeriod.getSelectedItem();
-                chartPanel.loadChartData(period);
+                if (period != null) {
+                    chartPanel.loadChartData(period);
+                }
                 bottomCardLayout.show(bottomPanel, "REVENUE");
             }
         });
 
         pItemCard.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!Session.canViewStats()) return;
                 String period = (String) cbPeriod.getSelectedItem();
                 productPanel.loadData(period);
                 bottomCardLayout.show(bottomPanel, "PRODUCT");
@@ -139,22 +159,36 @@ public class HomeManagerPanel extends JPanel {
         });
 
         pCusCard.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!Session.canViewStats()) return;
                 String period = (String) cbPeriod.getSelectedItem();
-                customerPanel.loadData(period);
+                if (period != null) {
+                    customerPanel.loadData(period);
+                }
                 bottomCardLayout.show(bottomPanel, "CUSTOMER");
             }
         });
 
         pOrdCard.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!Session.canViewStats()) return;
                 String period = (String) cbPeriod.getSelectedItem();
-                invoicePanel.loadData(period);
+                if (period != null) {
+                    invoicePanel.loadData(period);
+                }
                 bottomCardLayout.show(bottomPanel, "INVOICE");
             }
         });
     }
 
+    /**
+     * Formats money values into a shorter string (e.g., 1.5 Tr, 500 K).
+     *
+     * @param val The value to format.
+     * @return Formatted string.
+     */
     private String formatSmartMoney(double val) {
         if (val >= 1000000) {
             double tr = val / 1000000.0;
@@ -164,17 +198,36 @@ public class HomeManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Generates SQL date filter condition based on the selected period.
+     *
+     * @param period The selected period string.
+     * @return SQL condition string.
+     */
     private String getSqlDateFilter(String period) {
         return switch (period) {
             case "Hôm nay" -> "DATE(inv_date) = DATE('now', 'localtime')";
             case "Tháng này" -> "strftime('%Y-%m', inv_date) = strftime('%Y-%m', 'now', 'localtime')";
-            case "Quý này" -> "(CAST(strftime('%m', inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', inv_date) = strftime('%Y', 'now', 'localtime')";
+            case "Quý này" ->
+                    "(CAST(strftime('%m', inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', inv_date) = strftime('%Y', 'now', 'localtime')";
             case "Năm nay" -> "strftime('%Y', inv_date) = strftime('%Y', 'now', 'localtime')";
-            default -> "inv_date >= date('now', '-6 days', 'localtime')"; // 7 ngày qua
+            default -> "inv_date >= date('now', '-6 days', 'localtime')"; // 7 days ago
         };
     }
 
+    /**
+     * Refreshes the data displayed on the panel.
+     */
     public void refreshData() {
+        // Only allow viewing statistics if authorized
+        if (!Session.canViewStats()) {
+            lblRevenue.setText("---");
+            lblItemsSold.setText("---");
+            lblActiveCustomers.setText("---");
+            lblOrders.setText("---");
+            return;
+        }
+
         String period = (String) cbPeriod.getSelectedItem();
         if (period == null) return;
 

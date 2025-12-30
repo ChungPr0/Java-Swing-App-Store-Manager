@@ -2,6 +2,7 @@ package Main.DiscountManager;
 
 import Utils.ComboItem;
 import Utils.DBConnection;
+import Utils.Session;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,8 +17,12 @@ import java.util.Calendar;
 
 import static Utils.Style.*;
 
+/**
+ * Panel for managing discounts.
+ * Allows adding, editing, deleting, and searching for discounts.
+ */
 public class DiscountManagerPanel extends JPanel {
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN ---
+    // --- 1. UI VARIABLES ---
     private JList<ComboItem> listDiscount;
     private JTextField txtSearch, txtCode, txtValue;
     private JComboBox<String> cbType, cbScope;
@@ -27,12 +32,15 @@ public class DiscountManagerPanel extends JPanel {
     private JButton btnAdd, btnSave, btnDelete;
     private JButton btnSort;
 
-    // --- 2. BIẾN TRẠNG THÁI ---
+    // --- 2. STATE VARIABLES ---
     private int currentSortIndex = 0;
     private final String[] sortModes = {"A-Z", "Z-A", "NEW", "OLD"};
-    private int selectedDiscountID = -1; // -1: Chế độ thêm mới
+    private int selectedDiscountID = -1; // -1: Create mode
     private boolean isDataLoading = false;
 
+    /**
+     * Constructor to initialize the Discount Manager Panel.
+     */
     public DiscountManagerPanel() {
         initUI();
         initDateData();
@@ -42,13 +50,17 @@ public class DiscountManagerPanel extends JPanel {
         addChangeListeners();
     }
 
-    // --- 3. KHỞI TẠO GIAO DIỆN ---
+    // --- 3. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         this.setLayout(new BorderLayout(10, 10));
         this.setBorder(new EmptyBorder(10, 10, 10, 10));
         this.setBackground(Color.decode("#ecf0f1"));
 
-        // A. PANEL TRÁI (DANH SÁCH)
+        // A. LEFT PANEL (LIST)
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
         leftPanel.setPreferredSize(new Dimension(250, 0));
         leftPanel.setOpaque(false);
@@ -65,9 +77,9 @@ public class DiscountManagerPanel extends JPanel {
         listDiscount.setFixedCellHeight(30);
         leftPanel.add(new JScrollPane(listDiscount), BorderLayout.CENTER);
 
-        // B. PANEL PHẢI (FORM + FOOTER)
+        // B. RIGHT PANEL (FORM + FOOTER)
 
-        // B1. Form Panel (Cuộn được)
+        // B1. Form Panel (Scrollable)
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBackground(Color.WHITE);
@@ -80,7 +92,7 @@ public class DiscountManagerPanel extends JPanel {
         formPanel.add(createTextFieldWithLabel(txtCode, "Mã Code (Ví dụ: SALE10):"));
         formPanel.add(Box.createVerticalStrut(15));
 
-        // Loại giảm giá & Giá trị
+        // Discount Type & Value
         JPanel rowTypeVal = new JPanel(new GridLayout(1, 2, 15, 0));
         rowTypeVal.setBackground(Color.WHITE);
         rowTypeVal.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
@@ -93,7 +105,7 @@ public class DiscountManagerPanel extends JPanel {
         formPanel.add(rowTypeVal);
         formPanel.add(Box.createVerticalStrut(15));
 
-        // Phạm vi & Danh mục
+        // Scope & Category
         JPanel rowScopeCat = new JPanel(new GridLayout(1, 2, 15, 0));
         rowScopeCat.setBackground(Color.WHITE);
         rowScopeCat.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
@@ -107,23 +119,27 @@ public class DiscountManagerPanel extends JPanel {
         formPanel.add(rowScopeCat);
         formPanel.add(Box.createVerticalStrut(15));
 
-        // Ngày bắt đầu
-        cbStartDay = new JComboBox<>(); cbStartMonth = new JComboBox<>(); cbStartYear = new JComboBox<>();
+        // Start Date
+        cbStartDay = new JComboBox<>();
+        cbStartMonth = new JComboBox<>();
+        cbStartYear = new JComboBox<>();
         formPanel.add(createDatePanel("Ngày bắt đầu:", cbStartDay, cbStartMonth, cbStartYear));
         formPanel.add(Box.createVerticalStrut(15));
 
-        // Ngày kết thúc
-        cbEndDay = new JComboBox<>(); cbEndMonth = new JComboBox<>(); cbEndYear = new JComboBox<>();
+        // End Date
+        cbEndDay = new JComboBox<>();
+        cbEndMonth = new JComboBox<>();
+        cbEndYear = new JComboBox<>();
         formPanel.add(createDatePanel("Ngày kết thúc:", cbEndDay, cbEndMonth, cbEndYear));
 
-        formPanel.add(Box.createVerticalGlue()); // Đẩy nội dung lên trên
+        formPanel.add(Box.createVerticalGlue()); // Push content up
 
         JScrollPane scrollForm = new JScrollPane(formPanel);
         scrollForm.setBorder(null);
         scrollForm.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollForm.getVerticalScrollBar().setUnitIncrement(16);
 
-        // B2. Footer Panel (Cố định)
+        // B2. Footer Panel (Fixed)
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         footerPanel.setBackground(Color.WHITE);
         footerPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -138,8 +154,8 @@ public class DiscountManagerPanel extends JPanel {
         btnSave.setVisible(false);
         btnDelete.setVisible(false);
 
-        // Chỉ admin mới thấy nút Thêm
-        if (!Utils.Session.isAdmin()) {
+        // Only Manager can see Add button
+        if (!Session.canManageDiscounts()) {
             btnAdd.setVisible(false);
         }
 
@@ -147,7 +163,7 @@ public class DiscountManagerPanel extends JPanel {
         footerPanel.add(btnSave);
         footerPanel.add(btnDelete);
 
-        // B3. Ghép vào Panel Phải
+        // B3. Combine into Right Panel
         JPanel rightContainer = new JPanel(new BorderLayout());
         rightContainer.add(scrollForm, BorderLayout.CENTER);
         rightContainer.add(footerPanel, BorderLayout.SOUTH);
@@ -158,25 +174,48 @@ public class DiscountManagerPanel extends JPanel {
         enableForm(false);
     }
 
-    // --- 4. TẢI DỮ LIỆU ---
+    // --- 4. DATA LOADING ---
 
+    /**
+     * Initializes data for date combo boxes.
+     */
     private void initDateData() {
-        for (int i=1; i<=31; i++) { String s = String.format("%02d", i); cbStartDay.addItem(s); cbEndDay.addItem(s); }
-        for (int i=1; i<=12; i++) { String s = String.format("%02d", i); cbStartMonth.addItem(s); cbEndMonth.addItem(s); }
+        for (int i = 1; i <= 31; i++) {
+            String s = String.format("%02d", i);
+            cbStartDay.addItem(s);
+            cbEndDay.addItem(s);
+        }
+        for (int i = 1; i <= 12; i++) {
+            String s = String.format("%02d", i);
+            cbStartMonth.addItem(s);
+            cbEndMonth.addItem(s);
+        }
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        for (int i=currentYear; i<=currentYear+5; i++) { String s = String.valueOf(i); cbStartYear.addItem(s); cbEndYear.addItem(s); }
+        for (int i = currentYear; i <= currentYear + 5; i++) {
+            String s = String.valueOf(i);
+            cbStartYear.addItem(s);
+            cbEndYear.addItem(s);
+        }
     }
 
+    /**
+     * Loads product categories into the combo box.
+     */
     private void loadCategoryData() {
         isDataLoading = true;
         cbCategory.removeAllItems();
         try (Connection con = DBConnection.getConnection()) {
             ResultSet rs = con.createStatement().executeQuery("SELECT type_ID, type_name FROM ProductTypes");
             while (rs.next()) cbCategory.addItem(new ComboItem(rs.getString("type_name"), rs.getInt("type_ID")));
-        } catch (Exception ignored) {}
-        finally { isDataLoading = false; }
+        } catch (Exception ignored) {
+        } finally {
+            isDataLoading = false;
+        }
     }
 
+    /**
+     * Loads the list of discounts from the database.
+     */
     private void loadListData() {
         DefaultListModel<ComboItem> model = new DefaultListModel<>();
         String keyword = txtSearch.getText().trim();
@@ -188,10 +227,17 @@ public class DiscountManagerPanel extends JPanel {
             if (isSearching) sql.append(" WHERE dis_code LIKE ?");
 
             switch (currentSortIndex) {
-                case 1: sql.append(" ORDER BY dis_code DESC"); break;
-                case 2: sql.append(" ORDER BY dis_ID DESC"); break;
-                case 3: sql.append(" ORDER BY dis_ID ASC"); break;
-                default: sql.append(" ORDER BY dis_code ASC");
+                case 1:
+                    sql.append(" ORDER BY dis_code DESC");
+                    break;
+                case 2:
+                    sql.append(" ORDER BY dis_ID DESC");
+                    break;
+                case 3:
+                    sql.append(" ORDER BY dis_ID ASC");
+                    break;
+                default:
+                    sql.append(" ORDER BY dis_code ASC");
             }
 
             PreparedStatement ps = con.prepareStatement(sql.toString());
@@ -207,6 +253,11 @@ public class DiscountManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Loads details of a specific discount.
+     *
+     * @param id The discount ID.
+     */
     private void loadDetail(int id) {
         isDataLoading = true;
         try (Connection con = DBConnection.getConnection()) {
@@ -233,13 +284,13 @@ public class DiscountManagerPanel extends JPanel {
                 setDateToCombo(rs.getString("dis_start_date"), cbStartDay, cbStartMonth, cbStartYear);
                 setDateToCombo(rs.getString("dis_end_date"), cbEndDay, cbEndMonth, cbEndYear);
 
-                // Logic hiển thị
-                if (Utils.Session.isAdmin()) {
+                // Visibility logic
+                if (Session.canManageDiscounts()) {
                     enableForm(true);
                     btnAdd.setVisible(true);
                     btnDelete.setVisible(true);
                     btnSave.setText("Lưu");
-                    btnSave.setVisible(false); // Chờ sửa
+                    btnSave.setVisible(false); // Wait for edit
                 } else {
                     enableForm(false);
                     btnAdd.setVisible(false);
@@ -253,8 +304,11 @@ public class DiscountManagerPanel extends JPanel {
         }
     }
 
-    // --- 5. SỰ KIỆN ---
+    // --- 5. EVENTS ---
 
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
         listDiscount.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -267,9 +321,17 @@ public class DiscountManagerPanel extends JPanel {
         });
 
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { loadListData(); }
-            public void removeUpdate(DocumentEvent e) { loadListData(); }
-            public void changedUpdate(DocumentEvent e) { loadListData(); }
+            public void insertUpdate(DocumentEvent e) {
+                loadListData();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                loadListData();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                loadListData();
+            }
         });
 
         btnSort.addActionListener(e -> {
@@ -279,19 +341,19 @@ public class DiscountManagerPanel extends JPanel {
         });
 
         cbScope.addActionListener(e -> {
-            // Chỉ enable nếu là Admin và chọn Scope là Category
+            // Only enable if Manager and Scope is Category
             boolean isCategory = cbScope.getSelectedIndex() == 1;
-            cbCategory.setVisible(isCategory && Utils.Session.isAdmin());
+            cbCategory.setVisible(isCategory && Session.canManageDiscounts());
             checkChange();
         });
 
-        // --- NÚT THÊM MỚI ---
+        // --- ADD BUTTON ---
         btnAdd.addActionListener(e -> prepareCreate());
 
-        // --- NÚT LƯU ---
+        // --- SAVE BUTTON ---
         btnSave.addActionListener(e -> saveDiscount());
 
-        // --- NÚT XÓA ---
+        // --- DELETE BUTTON ---
         btnDelete.addActionListener(e -> deleteDiscount());
 
         txtValue.addKeyListener(new KeyAdapter() {
@@ -302,25 +364,34 @@ public class DiscountManagerPanel extends JPanel {
         });
     }
 
-    // --- CÁC HÀM LOGIC CHÍNH ---
+    // --- MAIN LOGIC METHODS ---
 
+    /**
+     * Prepares the form for creating a new discount.
+     */
     private void prepareCreate() {
         listDiscount.clearSelection();
-        selectedDiscountID = -1; // Mode thêm mới
+        selectedDiscountID = -1; // Create mode
 
         isDataLoading = true;
-        txtCode.setText(""); txtValue.setText("");
-        cbType.setSelectedIndex(0); cbScope.setSelectedIndex(0);
+        txtCode.setText("");
+        txtValue.setText("");
+        cbType.setSelectedIndex(0);
+        cbScope.setSelectedIndex(0);
         cbCategory.setVisible(false);
         if (cbCategory.getItemCount() > 0) cbCategory.setSelectedIndex(0);
 
-        // Set ngày hiện tại
+        // Set current date
         Calendar cal = Calendar.getInstance();
         String d = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH));
         String m = String.format("%02d", cal.get(Calendar.MONTH) + 1);
         String y = String.valueOf(cal.get(Calendar.YEAR));
-        cbStartDay.setSelectedItem(d); cbStartMonth.setSelectedItem(m); cbStartYear.setSelectedItem(y);
-        cbEndDay.setSelectedItem(d); cbEndMonth.setSelectedItem(m); cbEndYear.setSelectedItem(y);
+        cbStartDay.setSelectedItem(d);
+        cbStartMonth.setSelectedItem(m);
+        cbStartYear.setSelectedItem(y);
+        cbEndDay.setSelectedItem(d);
+        cbEndMonth.setSelectedItem(m);
+        cbEndYear.setSelectedItem(y);
         isDataLoading = false;
 
         enableForm(true);
@@ -332,6 +403,9 @@ public class DiscountManagerPanel extends JPanel {
         btnSave.setVisible(true);
     }
 
+    /**
+     * Saves the discount (Insert or Update).
+     */
     private void saveDiscount() {
         if (txtCode.getText().trim().isEmpty() || txtValue.getText().trim().isEmpty()) {
             showError(this, "Vui lòng nhập Mã Code và Giá trị!");
@@ -348,7 +422,10 @@ public class DiscountManagerPanel extends JPanel {
             if ("CATEGORY".equals(scope)) {
                 ComboItem item = (ComboItem) cbCategory.getSelectedItem();
                 if (item != null) catID = item.getValue();
-                else { showError(this, "Vui lòng chọn danh mục!"); return; }
+                else {
+                    showError(this, "Vui lòng chọn danh mục!");
+                    return;
+                }
             }
 
             String startDate = getSelectedDate(cbStartYear, cbStartMonth, cbStartDay);
@@ -363,26 +440,34 @@ public class DiscountManagerPanel extends JPanel {
                 // INSERT
                 String sql = "INSERT INTO Discounts (dis_code, dis_type, dis_value, dis_scope, dis_category_id, dis_start_date, dis_end_date) VALUES (?,?,?,?,?,?,?)";
                 PreparedStatement ps = con.prepareStatement(sql);
-                ps.setString(1, code); ps.setString(2, type); ps.setDouble(3, value);
+                ps.setString(1, code);
+                ps.setString(2, type);
+                ps.setDouble(3, value);
                 ps.setString(4, scope);
-                if (catID == null) ps.setNull(5, Types.INTEGER); else ps.setInt(5, catID);
-                ps.setString(6, startDate); ps.setString(7, endDate);
+                if (catID == null) ps.setNull(5, Types.INTEGER);
+                else ps.setInt(5, catID);
+                ps.setString(6, startDate);
+                ps.setString(7, endDate);
                 ps.executeUpdate();
                 showSuccess(this, "Thêm thành công!");
             } else {
                 // UPDATE
                 String sql = "UPDATE Discounts SET dis_code=?, dis_type=?, dis_value=?, dis_scope=?, dis_category_id=?, dis_start_date=?, dis_end_date=? WHERE dis_ID=?";
                 PreparedStatement ps = con.prepareStatement(sql);
-                ps.setString(1, code); ps.setString(2, type); ps.setDouble(3, value);
+                ps.setString(1, code);
+                ps.setString(2, type);
+                ps.setDouble(3, value);
                 ps.setString(4, scope);
-                if (catID == null) ps.setNull(5, Types.INTEGER); else ps.setInt(5, catID);
-                ps.setString(6, startDate); ps.setString(7, endDate);
+                if (catID == null) ps.setNull(5, Types.INTEGER);
+                else ps.setInt(5, catID);
+                ps.setString(6, startDate);
+                ps.setString(7, endDate);
                 ps.setInt(8, selectedDiscountID);
                 ps.executeUpdate();
                 showSuccess(this, "Cập nhật thành công!");
             }
             loadListData();
-            // Nếu là insert thì clear, update thì load lại chi tiết
+            // If insert, clear form; if update, reload details
             if (selectedDiscountID == -1) clearForm();
             else loadDetail(selectedDiscountID);
 
@@ -392,8 +477,11 @@ public class DiscountManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Deletes the selected discount.
+     */
     private void deleteDiscount() {
-        if(selectedDiscountID == -1) return;
+        if (selectedDiscountID == -1) return;
         if (showConfirm(this, "Xóa mã này?")) {
             try (Connection con = DBConnection.getConnection()) {
                 PreparedStatement ps = con.prepareStatement("DELETE FROM Discounts WHERE dis_ID=?");
@@ -403,14 +491,18 @@ public class DiscountManagerPanel extends JPanel {
                 loadListData();
                 clearForm();
             } catch (Exception ex) {
-                if (ex.getMessage().contains("foreign key")) showError(this, "Mã đã được sử dụng trong hóa đơn, không thể xóa!");
+                if (ex.getMessage().contains("foreign key"))
+                    showError(this, "Mã đã được sử dụng trong hóa đơn, không thể xóa!");
                 else showError(this, "Lỗi: " + ex.getMessage());
             }
         }
     }
 
-    // --- CÁC HÀM TIỆN ÍCH ---
+    // --- UTILITY METHODS ---
 
+    /**
+     * Adds change listeners to form fields to enable the Save button.
+     */
     private void addChangeListeners() {
         SimpleDocumentListener docListener = new SimpleDocumentListener(e -> checkChange());
         txtCode.getDocument().addDocumentListener(docListener);
@@ -419,50 +511,96 @@ public class DiscountManagerPanel extends JPanel {
         ActionListener actionListener = e -> checkChange();
         cbType.addActionListener(actionListener);
         cbCategory.addActionListener(actionListener);
-        cbStartDay.addActionListener(actionListener); cbStartMonth.addActionListener(actionListener); cbStartYear.addActionListener(actionListener);
-        cbEndDay.addActionListener(actionListener); cbEndMonth.addActionListener(actionListener); cbEndYear.addActionListener(actionListener);
+        cbStartDay.addActionListener(actionListener);
+        cbStartMonth.addActionListener(actionListener);
+        cbStartYear.addActionListener(actionListener);
+        cbEndDay.addActionListener(actionListener);
+        cbEndMonth.addActionListener(actionListener);
+        cbEndYear.addActionListener(actionListener);
     }
 
+    /**
+     * Checks for changes and enables the Save button.
+     */
     private void checkChange() {
-        if (!isDataLoading && Utils.Session.isAdmin()) btnSave.setVisible(true);
+        if (!isDataLoading && Session.canManageDiscounts()) btnSave.setVisible(true);
     }
 
+    /**
+     * Clears the form fields.
+     */
     private void clearForm() {
         isDataLoading = true;
-        txtCode.setText(""); txtValue.setText("");
-        cbType.setSelectedIndex(0); cbScope.setSelectedIndex(0);
+        txtCode.setText("");
+        txtValue.setText("");
+        cbType.setSelectedIndex(0);
+        cbScope.setSelectedIndex(0);
         cbCategory.setVisible(false);
         isDataLoading = false;
 
         enableForm(false);
         selectedDiscountID = -1;
 
-        if (Utils.Session.isAdmin()) btnAdd.setVisible(true);
+        if (Session.canManageDiscounts()) btnAdd.setVisible(true);
         btnSave.setVisible(false);
         btnDelete.setVisible(false);
     }
 
+    /**
+     * Enables or disables form fields.
+     *
+     * @param enable True to enable, false to disable.
+     */
     private void enableForm(boolean enable) {
-        boolean isAdmin = Utils.Session.isAdmin();
-        txtCode.setEnabled(enable && isAdmin);
-        cbType.setEnabled(enable && isAdmin);
-        txtValue.setEnabled(enable && isAdmin);
-        cbScope.setEnabled(enable && isAdmin);
-        cbCategory.setVisible(enable && isAdmin && cbScope.getSelectedIndex() == 1);
-        cbStartDay.setEnabled(enable && isAdmin); cbStartMonth.setEnabled(enable && isAdmin); cbStartYear.setEnabled(enable && isAdmin);
-        cbEndDay.setEnabled(enable && isAdmin); cbEndMonth.setEnabled(enable && isAdmin); cbEndYear.setEnabled(enable && isAdmin);
+        boolean canManage = Session.canManageDiscounts();
+        txtCode.setEnabled(enable && canManage);
+        cbType.setEnabled(enable && canManage);
+        txtValue.setEnabled(enable && canManage);
+        cbScope.setEnabled(enable && canManage);
+        cbCategory.setVisible(enable && canManage && cbScope.getSelectedIndex() == 1);
+        cbStartDay.setEnabled(enable && canManage);
+        cbStartMonth.setEnabled(enable && canManage);
+        cbStartYear.setEnabled(enable && canManage);
+        cbEndDay.setEnabled(enable && canManage);
+        cbEndMonth.setEnabled(enable && canManage);
+        cbEndYear.setEnabled(enable && canManage);
     }
 
+    /**
+     * Sets the selected item in a combo box by ID.
+     *
+     * @param cb The combo box.
+     * @param id The ID to select.
+     */
     private void setSelectedComboItem(JComboBox<ComboItem> cb, int id) {
         for (int i = 0; i < cb.getItemCount(); i++) {
-            if (cb.getItemAt(i).getValue() == id) { cb.setSelectedIndex(i); break; }
+            if (cb.getItemAt(i).getValue() == id) {
+                cb.setSelectedIndex(i);
+                break;
+            }
         }
     }
 
+    /**
+     * Gets the selected date from combo boxes.
+     *
+     * @param y Year ComboBox.
+     * @param m Month ComboBox.
+     * @param d Day ComboBox.
+     * @return The date string (YYYY-MM-DD).
+     */
     private String getSelectedDate(JComboBox<String> y, JComboBox<String> m, JComboBox<String> d) {
         return y.getSelectedItem() + "-" + m.getSelectedItem() + "-" + d.getSelectedItem();
     }
 
+    /**
+     * Sets the selected date in combo boxes.
+     *
+     * @param dateStr The date string (YYYY-MM-DD).
+     * @param d       Day ComboBox.
+     * @param m       Month ComboBox.
+     * @param y       Year ComboBox.
+     */
     private void setDateToCombo(String dateStr, JComboBox<String> d, JComboBox<String> m, JComboBox<String> y) {
         if (dateStr != null && dateStr.length() >= 10) {
             String[] parts = dateStr.split("-");
@@ -472,6 +610,11 @@ public class DiscountManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Selects a discount in the list by ID.
+     *
+     * @param id The discount ID.
+     */
     private void selectDiscountByID(int id) {
         for (int i = 0; i < listDiscount.getModel().getSize(); i++) {
             if (listDiscount.getModel().getElementAt(i).getValue() == id) {
@@ -482,18 +625,37 @@ public class DiscountManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Refreshes the data in the panel.
+     */
     public void refreshData() {
-        loadCategoryData(); // Load lại category phòng trường hợp mới thêm
+        loadCategoryData(); // Reload categories in case new ones were added
         loadListData();
         selectDiscountByID(selectedDiscountID);
     }
 
-    @FunctionalInterface interface DocumentUpdateListener { void update(DocumentEvent e); }
+    @FunctionalInterface
+    interface DocumentUpdateListener {
+        void update(DocumentEvent e);
+    }
+
     static class SimpleDocumentListener implements DocumentListener {
         private final DocumentUpdateListener listener;
-        public SimpleDocumentListener(DocumentUpdateListener listener) { this.listener = listener; }
-        public void insertUpdate(DocumentEvent e) { listener.update(e); }
-        public void removeUpdate(DocumentEvent e) { listener.update(e); }
-        public void changedUpdate(DocumentEvent e) { listener.update(e); }
+
+        public SimpleDocumentListener(DocumentUpdateListener listener) {
+            this.listener = listener;
+        }
+
+        public void insertUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
+
+        public void removeUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
+
+        public void changedUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
     }
 }

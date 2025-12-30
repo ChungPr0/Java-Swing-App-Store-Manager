@@ -12,35 +12,47 @@ import java.sql.ResultSet;
 
 import static Utils.Style.*;
 
+/**
+ * Dialog for changing user password.
+ */
 public class ChangePasswordDialog extends JDialog {
 
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN ---
+    // --- 1. UI VARIABLES ---
     private JPasswordField txtOldPass, txtNewPass, txtConfirmPass;
 
+    /**
+     * Constructor to initialize the Change Password Dialog.
+     *
+     * @param parent The parent frame.
+     */
     public ChangePasswordDialog(JFrame parent) {
-        // Cấu hình Dialog (Modal = true để chặn tương tác cửa sổ cha)
+        // Dialog configuration (Modal = true to block parent window interaction)
         super(parent, "Đổi Mật Khẩu", true);
         setSize(400, 500);
-        setLocationRelativeTo(parent); // Căn giữa màn hình cha
+        setLocationRelativeTo(parent); // Center on parent screen
 
-        initUI(); // Khởi tạo giao diện
+        initUI(); // Initialize UI
     }
 
-    // --- 2. KHỞI TẠO GIAO DIỆN (INIT UI) ---
+    // --- 2. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(20, 40, 30, 40));
         mainPanel.setBackground(Color.WHITE);
 
-        // A. Tiêu đề
+        // A. Title
         JLabel lblTitle = createHeaderLabel("ĐỔI MẬT KHẨU");
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createVerticalStrut(30));
 
-        // B. Các ô nhập mật khẩu
+        // B. Password Fields
         txtOldPass = new JPasswordField();
         JCheckBox chkShowOldPass = new JCheckBox();
         JPanel pOld = createPasswordFieldWithLabel(txtOldPass, "Mật khẩu hiện tại:", chkShowOldPass);
@@ -59,12 +71,12 @@ public class ChangePasswordDialog extends JDialog {
         mainPanel.add(pConfirm);
         mainPanel.add(Box.createVerticalStrut(30));
 
-        // C. Khu vực nút bấm
+        // C. Button Area
         JPanel pBtn = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         pBtn.setBackground(Color.WHITE);
 
-        JButton btnSave = createButton("Lưu", new Color(46, 204, 113)); // Màu xanh lá
-        JButton btnCancel = createButton("Hủy", new Color(231, 76, 60));     // Màu đỏ
+        JButton btnSave = createButton("Lưu", new Color(46, 204, 113)); // Green
+        JButton btnCancel = createButton("Hủy", new Color(231, 76, 60));     // Red
 
         pBtn.add(btnSave);
         pBtn.add(btnCancel);
@@ -72,29 +84,33 @@ public class ChangePasswordDialog extends JDialog {
 
         add(mainPanel);
 
-        // D. Gán sự kiện
-        btnCancel.addActionListener(e -> dispose()); // Đóng cửa sổ
-        btnSave.addActionListener(e -> doChangePassword()); // Thực hiện đổi pass
+        // D. Assign Events
+        btnCancel.addActionListener(e -> dispose()); // Close window
+        btnSave.addActionListener(e -> doChangePassword()); // Perform password change
 
-        // Bấm Enter để Lưu luôn
+        // Press Enter to Save
         getRootPane().setDefaultButton(btnSave);
     }
 
-    // --- 3. XỬ LÝ LOGIC ĐỔI MẬT KHẨU ---
+    // --- 3. PASSWORD CHANGE LOGIC ---
+
+    /**
+     * Handles the logic for changing the password.
+     */
     private void doChangePassword() {
-        // 1. Lấy mật khẩu dưới dạng mảng ký tự (char[]) thay vì String
+        // 1. Get passwords as char arrays instead of Strings
         char[] oldPass = txtOldPass.getPassword();
         char[] newPass = txtNewPass.getPassword();
         char[] confirmPass = txtConfirmPass.getPassword();
 
         try {
-            // 2. Kiểm tra dữ liệu rỗng bằng độ dài mảng
+            // 2. Check for empty fields using array length
             if (oldPass.length == 0 || newPass.length == 0 || confirmPass.length == 0) {
                 showError(this, "Vui lòng nhập đầy đủ thông tin!");
                 return;
             }
 
-            // 3. So sánh nội dung 2 mảng ký tự
+            // 3. Compare content of two char arrays
             if (!java.util.Arrays.equals(newPass, confirmPass)) {
                 showError(this, "Mật khẩu xác nhận không trùng khớp!");
                 return;
@@ -106,12 +122,12 @@ public class ChangePasswordDialog extends JDialog {
             }
 
             try (Connection con = DBConnection.getConnection()) {
-                // Kiểm tra mật khẩu cũ
+                // Check old password
                 String checkSql = "SELECT * FROM Staffs WHERE sta_ID = ? AND sta_password = ?";
                 PreparedStatement psCheck = con.prepareStatement(checkSql);
                 psCheck.setInt(1, Session.loggedInStaffID);
 
-                // Tạo String tạm thời chỉ để gửi xuống DB, sau đó nó sẽ được GC dọn dẹp
+                // Create temporary String only to send to DB, then it will be garbage collected
                 psCheck.setString(2, new String(oldPass));
 
                 ResultSet rs = psCheck.executeQuery();
@@ -121,11 +137,11 @@ public class ChangePasswordDialog extends JDialog {
                     return;
                 }
 
-                // Cập nhật mật khẩu mới
+                // Update new password
                 String updateSql = "UPDATE Staffs SET sta_password = ? WHERE sta_ID = ?";
                 PreparedStatement psUpdate = con.prepareStatement(updateSql);
 
-                // Tạo String tạm thời để update
+                // Create temporary String for update
                 psUpdate.setString(1, new String(newPass));
                 psUpdate.setInt(2, Session.loggedInStaffID);
 
@@ -138,8 +154,8 @@ public class ChangePasswordDialog extends JDialog {
                 showError(this, "Lỗi kết nối: " + ex.getMessage());
             }
         } finally {
-            // 4. QUAN TRỌNG: Xóa trắng bộ nhớ (Ghi đè tất cả thành số 0)
-            // Dù code chạy thành công hay thất bại, phần này luôn được thực thi
+            // 4. IMPORTANT: Clear memory (overwrite all with zeros)
+            // This part is always executed, whether the code succeeds or fails
             java.util.Arrays.fill(oldPass, '0');
             java.util.Arrays.fill(newPass, '0');
             java.util.Arrays.fill(confirmPass, '0');

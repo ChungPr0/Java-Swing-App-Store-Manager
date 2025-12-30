@@ -1,6 +1,7 @@
 package Main.HomeManager;
 
 import Utils.DBConnection;
+import Utils.Session;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,12 +13,19 @@ import java.util.List;
 
 import static Utils.Style.showError;
 
+/**
+ * Panel for displaying the Revenue Chart.
+ * Draws a bar chart based on the selected time period.
+ */
 public class RevenueChartPanel extends JPanel {
     private final List<String> dates = new ArrayList<>();
     private final List<Double> values = new ArrayList<>();
     private double maxValue = 0;
     private final JLabel lblTitle;
 
+    /**
+     * Constructor to initialize the Revenue Chart Panel.
+     */
     public RevenueChartPanel() {
         this.setBackground(Color.WHITE);
         this.setLayout(new BorderLayout());
@@ -33,11 +41,21 @@ public class RevenueChartPanel extends JPanel {
         this.add(lblTitle, BorderLayout.NORTH);
     }
 
+    /**
+     * Loads chart data from the database based on the selected period.
+     *
+     * @param period The time period to filter by.
+     */
     public void loadChartData(String period) {
         dates.clear();
         values.clear();
         maxValue = 0;
         lblTitle.setText("BIỂU ĐỒ DOANH THU " + period.toUpperCase());
+
+        if (!Session.canViewStats()) {
+            repaint();
+            return;
+        }
 
         String groupBy;
         String dateSelect;
@@ -69,7 +87,7 @@ public class RevenueChartPanel extends JPanel {
                 dateFilter = "strftime('%Y', inv_date) = strftime('%Y', 'now', 'localtime')";
                 orderBy = "strftime('%Y-%m', inv_date)";
                 break;
-            default: // "7 ngày qua"
+            default: // "7 days ago"
                 dateSelect = "strftime('%d/%m', inv_date)";
                 groupBy = "DATE(inv_date)";
                 dateFilter = "inv_date >= date('now', '-6 days', 'localtime')";
@@ -97,6 +115,11 @@ public class RevenueChartPanel extends JPanel {
         }
     }
 
+    /**
+     * Paints the bar chart component.
+     *
+     * @param g The Graphics object.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -110,7 +133,7 @@ public class RevenueChartPanel extends JPanel {
 
         if (values.isEmpty()) {
             g2.setFont(fontValue);
-            g2.drawString("Chưa có dữ liệu cho khoảng thời gian này", getWidth()/2 - 120, getHeight()/2);
+            g2.drawString("Chưa có dữ liệu cho khoảng thời gian này", getWidth() / 2 - 120, getHeight() / 2);
             return;
         }
 
@@ -147,9 +170,9 @@ public class RevenueChartPanel extends JPanel {
             String priceStr;
             if (val >= 1000000) {
                 double tr = val / 1000000.0;
-                priceStr = (tr == (long) tr) ? String.format("%d Tr", (long)tr) : String.format("%.1f Tr", tr);
+                priceStr = (tr == (long) tr) ? String.format("%d Tr", (long) tr) : String.format("%.1f Tr", tr);
             } else {
-                priceStr = String.format("%d K", (long)(val / 1000));
+                priceStr = String.format("%d K", (long) (val / 1000));
             }
             g2.setFont(fontValue);
             g2.setColor(Color.DARK_GRAY);

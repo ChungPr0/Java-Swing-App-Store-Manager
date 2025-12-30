@@ -9,24 +9,20 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
 /**
- * Class Style cung cấp các phương thức tiện ích (Utility methods) để chuẩn hóa giao diện người dùng (UI).
- * Bao gồm các thành phần: Buttons, Labels, Input Fields, ComboBoxes, Tables, và Dialogs.
- * Sử dụng phong cách thiết kế phẳng (Flat Design) kết hợp hiệu ứng 3D nhẹ và Animation.
+ * Utility class providing methods to standardize the User Interface (UI).
+ * Includes components: Buttons, Labels, Input Fields, ComboBoxes, Tables, and Dialogs.
+ * Uses Flat Design style combined with light 3D effects and Animation.
  */
 public class Style {
 
-    // =================================================================================================================
-    // GROUP 1: CORE UTILITIES & ANIMATION (CÁC HÀM XỬ LÝ MÀU SẮC VÀ HIỆU ỨNG CỐT LÕI)
-    // =================================================================================================================
-
     /**
-     * Trộn hai màu sắc lại với nhau dựa trên tỷ lệ phần trăm.
-     * Thường dùng để tạo màu Hover (sáng hơn) hoặc Shadow (tối hơn).
+     * Mixes two colors based on a percentage ratio.
+     * Often used to create Hover (lighter) or Shadow (darker) colors.
      *
-     * @param main Màu gốc.
-     * @param mix Màu muốn trộn vào (thường là TRẮNG hoặc ĐEN).
-     * @param ratio Tỷ lệ trộn (0.0 đến 1.0).
-     * @return Đối tượng Color mới sau khi trộn.
+     * @param main  The base color.
+     * @param mix   The color to mix in (usually WHITE or BLACK).
+     * @param ratio The mixing ratio (0.0 to 1.0).
+     * @return A new Color object after mixing.
      */
     private static Color mixColors(Color main, Color mix, double ratio) {
         int r = (int) (mix.getRed() * ratio + main.getRed() * (1 - ratio));
@@ -36,12 +32,12 @@ public class Style {
     }
 
     /**
-     * Trộn màu tịnh tiến giữa 2 màu (Linear Interpolation) dùng cho Animation.
+     * Linearly interpolates between two colors for Animation.
      *
-     * @param c1 Màu bắt đầu.
-     * @param c2 Màu kết thúc.
-     * @param ratio Tỷ lệ chuyển đổi (0.0 đến 1.0).
-     * @return Màu tại thời điểm ratio.
+     * @param c1    Start color.
+     * @param c2    End color.
+     * @param ratio Transition ratio (0.0 to 1.0).
+     * @return The color at the specific ratio.
      */
     private static Color blendColors(Color c1, Color c2, float ratio) {
         ratio = Math.max(0, Math.min(1, ratio));
@@ -52,10 +48,10 @@ public class Style {
     }
 
     /**
-     * Cài đặt hiệu ứng chuyển màu viền (Glow Effect) cho cả TextField và TextArea.
-     * Tự động phát hiện JScrollPane để tô viền đúng vị trí.
+     * Installs a glow border effect for TextField and TextArea.
+     * Automatically detects JScrollPane to paint the border in the correct position.
      *
-     * @param comp Component cần cài đặt hiệu ứng (JTextField hoặc JTextArea).
+     * @param comp The component to install the effect on (JTextField or JTextArea).
      */
     public static void installFocusAnimation(JComponent comp) {
         final Color normalColor = Color.decode("#bdc3c7");
@@ -80,10 +76,16 @@ public class Style {
                 timer = new javax.swing.Timer(10, e -> {
                     if (isEnter) {
                         progress += 0.1f;
-                        if (progress >= 1f) { progress = 1f; timer.stop(); }
+                        if (progress >= 1f) {
+                            progress = 1f;
+                            timer.stop();
+                        }
                     } else {
                         progress -= 0.1f;
-                        if (progress <= 0f) { progress = 0f; timer.stop(); }
+                        if (progress <= 0f) {
+                            progress = 0f;
+                            timer.stop();
+                        }
                     }
 
                     Color newColor = blendColors(normalColor, focusColor, progress);
@@ -112,15 +114,11 @@ public class Style {
         });
     }
 
-    // =================================================================================================================
-    // GROUP 2: BASIC COMPONENTS (LABELS & SEPARATORS)
-    // =================================================================================================================
-
     /**
-     * Tạo nhãn tiêu đề lớn (Header) cho Form.
+     * Creates a large header label for Forms.
      *
-     * @param text Nội dung tiêu đề.
-     * @return JLabel được định dạng font to, đậm, căn giữa.
+     * @param text The title content.
+     * @return A JLabel formatted with large, bold font and centered alignment.
      */
     public static JLabel createHeaderLabel(String text) {
         JLabel label = new JLabel(text);
@@ -131,10 +129,10 @@ public class Style {
     }
 
     /**
-     * Tạo nhãn tiêu đề nhỏ cho các trường nhập liệu.
+     * Creates a small title label for input fields.
      *
-     * @param text Nội dung nhãn.
-     * @return JLabel định dạng tiêu chuẩn.
+     * @param text The label content.
+     * @return A JLabel with standard formatting.
      */
     public static JLabel createTitleLabel(String text) {
         JLabel label = new JLabel(text);
@@ -145,9 +143,9 @@ public class Style {
     }
 
     /**
-     * Tạo nhãn phân cách (dấu gạch chéo) dùng trong bộ chọn ngày tháng.
+     * Creates a separator label (slash) used in date pickers.
      *
-     * @return JLabel chứa ký tự " / ".
+     * @return A JLabel containing " / ".
      */
     public static JLabel createSeparator() {
         JLabel lbl = new JLabel(" / ");
@@ -156,46 +154,42 @@ public class Style {
         return lbl;
     }
 
-    // =================================================================================================================
-    // GROUP 3: BUTTONS (CÁC NÚT BẤM CUSTOM 3D)
-    // =================================================================================================================
-
     /**
-     * Tạo Button kích thước tiêu chuẩn với hiệu ứng 3D và bo góc.
+     * Creates a standard sized button with 3D effect and rounded corners.
      *
-     * @param text Nội dung nút.
-     * @param bgColor Màu nền chủ đạo.
-     * @return JButton đã được custom.
+     * @param text    The button text.
+     * @param bgColor The main background color.
+     * @return A customized JButton.
      */
     public static JButton createButton(String text, Color bgColor) {
         return createCustom3DButton(text, bgColor, 0, 0, 14);
     }
 
     /**
-     * Tạo Button kích thước nhỏ (thường dùng cho các thao tác phụ).
+     * Creates a small button (usually for secondary actions).
      *
-     * @param text Nội dung nút.
-     * @param bg Màu nền.
-     * @return JButton kích thước 80x35.
+     * @param text The button text.
+     * @param bg   The background color.
+     * @return A JButton with size 80x35.
      */
     public static JButton createSmallButton(String text, Color bg) {
         return createCustom3DButton(text, bg, 80, 35, 12);
     }
 
     /**
-     * Hàm nội bộ tạo Button 3D tùy chỉnh (Core Button Logic).
-     * Vẽ thủ công (Custom Painting) để tạo hiệu ứng bóng đổ và lún xuống khi nhấn.
+     * Internal method to create a custom 3D button.
+     * Uses custom painting to create shadow and pressed effects.
      *
-     * @param text Nội dung text.
-     * @param mainColor Màu chủ đạo.
-     * @param width Chiều rộng (0 nếu muốn tự động).
-     * @param height Chiều cao (0 nếu muốn tự động).
-     * @param fontSize Kích thước font chữ.
-     * @return JButton hoàn chỉnh.
+     * @param text      The button text.
+     * @param mainColor The main color.
+     * @param width     Width (0 for automatic).
+     * @param height    Height (0 for automatic).
+     * @param fontSize  Font size.
+     * @return A complete JButton.
      */
     private static JButton createCustom3DButton(String text, Color mainColor, int width, int height, int fontSize) {
-        Color shadowColor = mixColors(mainColor, Color.BLACK, 0.3); // Màu bóng tối hơn 30%
-        Color hoverColor = mixColors(mainColor, Color.WHITE, 0.15); // Màu hover sáng hơn 15%
+        Color shadowColor = mixColors(mainColor, Color.BLACK, 0.3);
+        Color hoverColor = mixColors(mainColor, Color.WHITE, 0.15);
 
         JButton btn = new JButton(text) {
             @SuppressWarnings("FieldMayBeFinal")
@@ -216,17 +210,14 @@ public class Style {
                 int shadowSize = 4;
                 int yOffset = isPressed ? shadowSize : 0;
 
-                // 1. Vẽ bóng (đế)
                 if (!isPressed) {
                     g2.setColor(shadowColor);
                     g2.fill(new RoundRectangle2D.Float(0, shadowSize, w, h - shadowSize, arc, arc));
                 }
 
-                // 2. Vẽ mặt nút
                 g2.setColor(isHovered ? hoverColor : mainColor);
                 g2.fill(new RoundRectangle2D.Float(0, yOffset, w, h - shadowSize, arc, arc));
 
-                // 3. Vẽ chữ căn giữa
                 g2.setColor(Color.WHITE);
                 g2.setFont(getFont());
                 FontMetrics fm = g2.getFontMetrics();
@@ -252,17 +243,32 @@ public class Style {
         }
 
         btn.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { setField(btn, "isPressed", true); }
-            public void mouseReleased(MouseEvent e) { setField(btn, "isPressed", false); }
-            public void mouseEntered(MouseEvent e) { setField(btn, "isHovered", true); }
-            public void mouseExited(MouseEvent e) { setField(btn, "isHovered", false); }
+            public void mousePressed(MouseEvent e) {
+                setField(btn, "isPressed", true);
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                setField(btn, "isPressed", false);
+            }
+
+            public void mouseEntered(MouseEvent e) {
+                setField(btn, "isHovered", true);
+            }
+
+            public void mouseExited(MouseEvent e) {
+                setField(btn, "isHovered", false);
+            }
         });
 
         return btn;
     }
 
     /**
-     * Helper cập nhật trạng thái button thông qua Reflection (cho gọn code).
+     * Helper to update button state via Reflection.
+     *
+     * @param btn       The button to update.
+     * @param fieldName The field name to set.
+     * @param value     The boolean value to set.
      */
     private static void setField(JButton btn, String fieldName, boolean value) {
         try {
@@ -270,20 +276,17 @@ public class Style {
             field.setAccessible(true);
             field.setBoolean(btn, value);
             btn.repaint();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
-    // =================================================================================================================
-    // GROUP 4: INPUT (CÁC Ô NHẬP LIỆU)
-    // =================================================================================================================
-
     /**
-     * Tạo Panel chứa TextArea (Ghi chú) kèm nhãn tiêu đề.
-     * Giống createTextFieldWithLabel nhưng có thanh cuộn và cao hơn.
+     * Creates a Panel containing a TextArea (Note) with a title label.
+     * Similar to createTextFieldWithLabel but with scrollbar and taller height.
      *
-     * @param ta JTextArea cần bọc.
-     * @param labelText Tiêu đề nhãn.
-     * @return JPanel chứa Label và TextArea có Scroll.
+     * @param ta        The JTextArea to wrap.
+     * @param labelText The label title.
+     * @return A JPanel containing Label and TextArea with ScrollPane.
      */
     public static JPanel createTextAreaWithLabel(JTextArea ta, String labelText) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
@@ -305,11 +308,11 @@ public class Style {
     }
 
     /**
-     * Tạo Panel chứa TextField kèm nhãn tiêu đề.
+     * Creates a Panel containing a TextField with a title label.
      *
-     * @param tf JTextField cần bọc.
-     * @param labelText Tiêu đề nhãn.
-     * @return JPanel chứa Label và TextField.
+     * @param tf        The JTextField to wrap.
+     * @param labelText The label title.
+     * @return A JPanel containing Label and TextField.
      */
     public static JPanel createTextFieldWithLabel(JTextField tf, String labelText) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
@@ -328,26 +331,24 @@ public class Style {
         return p;
     }
 
-    // [MỚI] HÀM NÀY ĐƯỢC THÊM VÀO ĐỂ TẠO TEXT FIELD KÈM BUTTON BÊN CẠNH
     /**
-     * Tạo Panel chứa TextField kèm Button nằm ngang hàng bên phải.
+     * Creates a Panel containing a TextField with a button on the right.
      *
-     * @param tf JTextField nhập liệu.
-     * @param btn JButton chức năng bên cạnh.
-     * @param labelText Tiêu đề nhãn.
-     * @return JPanel hoàn chỉnh.
+     * @param tf        The input JTextField.
+     * @param btn       The function JButton next to it.
+     * @param labelText The label title.
+     * @return A complete JPanel.
      */
     public static JPanel createTextFieldWithButton(JTextField tf, JButton btn, String labelText) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
         p.setBackground(Color.WHITE);
-        p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 65)); // Chiều cao chuẩn
+        p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 65));
 
         p.add(createTitleLabel(labelText), BorderLayout.NORTH);
 
         JPanel pInput = new JPanel(new BorderLayout(5, 0));
         pInput.setBackground(Color.WHITE);
 
-        // 1. Style TextField
         tf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tf.setPreferredSize(new Dimension(0, 35));
         tf.setBorder(new javax.swing.border.CompoundBorder(
@@ -356,7 +357,6 @@ public class Style {
         ));
         installFocusAnimation(tf);
 
-        // 2. Style Button (đảm bảo chiều cao khớp với TextField)
         Dimension d = btn.getPreferredSize();
         btn.setPreferredSize(new Dimension(d.width > 0 ? d.width : 80, 35));
 
@@ -368,25 +368,24 @@ public class Style {
     }
 
     /**
-     * Tạo Panel chứa PasswordField kèm nhãn tiêu đề và Checkbox ẩn/hiện mật khẩu.
+     * Creates a Panel containing a PasswordField with a title label and a 'Show Password' checkbox.
      *
-     * @param pf JPasswordField cần bọc.
-     * @param labelText Tiêu đề nhãn.
-     * @param chkShowPass JCheckBox để bật tắt xem mật khẩu (có thể null nếu không cần).
-     * @return JPanel chứa Label, PasswordField và Checkbox bên dưới.
+     * @param pf          The JPasswordField to wrap.
+     * @param labelText   The label title.
+     * @param chkShowPass The JCheckBox to toggle password visibility (can be null).
+     * @return A JPanel containing Label, PasswordField, and Checkbox below.
      */
     public static JPanel createPasswordFieldWithLabel(JPasswordField pf, String labelText, JCheckBox chkShowPass) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
         p.setBackground(Color.WHITE);
 
-        // Tăng chiều cao tối đa lên 90 để chứa đủ cả checkbox (nếu có)
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
 
         p.add(createTitleLabel(labelText), BorderLayout.NORTH);
 
         pf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         pf.setPreferredSize(new Dimension(0, 35));
-        pf.setEchoChar('•'); // Mặc định là ẩn
+        pf.setEchoChar('•');
         pf.setBorder(new javax.swing.border.CompoundBorder(
                 new javax.swing.border.LineBorder(Color.decode("#bdc3c7"), 1),
                 new javax.swing.border.EmptyBorder(5, 10, 5, 10)
@@ -394,21 +393,18 @@ public class Style {
         installFocusAnimation(pf);
         p.add(pf, BorderLayout.CENTER);
 
-        // Xử lý Checkbox nếu được truyền vào
-
         if (chkShowPass != null) {
             chkShowPass.setBackground(Color.WHITE);
-            chkShowPass.setFont(new Font("Segoe UI", Font.ITALIC, 12)); // Font nhỏ, nghiêng
+            chkShowPass.setFont(new Font("Segoe UI", Font.ITALIC, 12));
             chkShowPass.setText("Hiển thị mật khẩu");
             chkShowPass.setForeground(Color.GRAY);
-            chkShowPass.setFocusable(false); // Bỏ viền focus khi click cho đẹp
+            chkShowPass.setFocusable(false);
 
-            // Sự kiện: Click vào checkbox để ẩn/hiện
             chkShowPass.addActionListener(e -> {
                 if (chkShowPass.isSelected()) {
-                    pf.setEchoChar((char) 0); // Hiện mật khẩu
+                    pf.setEchoChar((char) 0);
                 } else {
-                    pf.setEchoChar('•'); // Ẩn mật khẩu
+                    pf.setEchoChar('•');
                 }
             });
 
@@ -419,12 +415,12 @@ public class Style {
     }
 
     /**
-     * Tạo thanh tìm kiếm đơn giản, không có nút bấm, có tiêu đề.
+     * Creates a simple search bar without buttons, with a title.
      *
-     * @param textField Ô nhập liệu tìm kiếm.
-     * @param labelText Tiêu đề của thanh tìm kiếm.
-     * @param placeholderText Placeholder text.
-     * @return JPanel chứa ô tìm kiếm.
+     * @param textField       The search input field.
+     * @param labelText       The title of the search bar.
+     * @param placeholderText The placeholder text.
+     * @return A JPanel containing the search field.
      */
     public static JPanel createSearchPanel(JTextField textField, String labelText, String placeholderText) {
         JPanel pRoot = new JPanel(new BorderLayout(5, 5));
@@ -450,6 +446,7 @@ public class Style {
                     textField.setForeground(Color.BLACK);
                 }
             }
+
             @Override
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (textField.getText().isEmpty()) {
@@ -464,13 +461,13 @@ public class Style {
     }
 
     /**
-     * Tạo thanh tìm kiếm kèm nút chức năng (Sắp xếp/Lọc) bên phải.
+     * Creates a search bar with a function button (Sort/Filter) on the right.
      *
-     * @param textField Ô nhập liệu tìm kiếm.
-     * @param btnSort Nút chức năng bên cạnh.
-     * @param labelText Tiêu đề thanh tìm kiếm.
-     * @param placeholderText Placeholder text.
-     * @return JPanel hoàn chỉnh.
+     * @param textField       The search input field.
+     * @param btnSort         The function button next to it.
+     * @param labelText       The title of the search bar.
+     * @param placeholderText The placeholder text.
+     * @return A complete JPanel.
      */
     public static JPanel createSearchWithButtonPanel(JTextField textField, JButton btnSort, String labelText, String placeholderText) {
         JPanel pRoot = new JPanel(new BorderLayout(5, 5));
@@ -499,6 +496,7 @@ public class Style {
                     textField.setForeground(Color.BLACK);
                 }
             }
+
             @Override
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (textField.getText().isEmpty()) {
@@ -524,18 +522,14 @@ public class Style {
         return pRoot;
     }
 
-    // =================================================================================================================
-    // GROUP 5: SELECTION & CHECKBOX (COMBOBOX, DATE PICKER, CHECKBOX)
-    // =================================================================================================================
-
     /**
-     * Tạo Panel ComboBox nâng cao với các nút chức năng bên cạnh (Sử dụng GridBagLayout).
+     * Creates an advanced ComboBox Panel with function buttons next to it.
      *
-     * @param box ComboBox chính.
-     * @param labelText Tiêu đề nhãn.
-     * @param btn1 Nút chức năng 1 (có thể null).
-     * @param btn2 Nút chức năng 2 (có thể null).
-     * @return JPanel chứa ComboBox và các nút.
+     * @param box       The main ComboBox.
+     * @param labelText The label title.
+     * @param btn1      Function button 1 (can be null).
+     * @param btn2      Function button 2 (can be null).
+     * @return A JPanel containing the ComboBox and buttons.
      */
     public static JPanel createComboBoxWithLabel(JComboBox<?> box, String labelText, JButton btn1, JButton btn2) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
@@ -549,7 +543,6 @@ public class Style {
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.BOTH;
 
-        // Cấu hình ComboBox
         box.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         box.setBackground(Color.WHITE);
         box.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -558,7 +551,6 @@ public class Style {
         gbc.weightx = 1.0;
         rowPanel.add(box, gbc);
 
-        // Cấu hình Buttons
         gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
 
@@ -589,13 +581,13 @@ public class Style {
     }
 
     /**
-     * Tạo bộ chọn ngày tháng năm gồm 3 ComboBox riêng biệt.
+     * Creates a date picker consisting of 3 separate ComboBoxes (Day, Month, Year).
      *
-     * @param labelText Tiêu đề.
-     * @param day ComboBox ngày.
-     * @param month ComboBox tháng.
-     * @param year ComboBox năm.
-     * @return Panel chứa bộ chọn ngày.
+     * @param labelText The title.
+     * @param day       The Day ComboBox.
+     * @param month     The Month ComboBox.
+     * @param year      The Year ComboBox.
+     * @return A Panel containing the date picker.
      */
     public static JPanel createDatePanel(String labelText, JComboBox<String> day, JComboBox<String> month, JComboBox<String> year) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
@@ -621,7 +613,9 @@ public class Style {
     }
 
     /**
-     * Định dạng style chuẩn cho ComboBox con (dùng trong DatePanel).
+     * Standardizes style for child ComboBoxes (used in DatePanel).
+     *
+     * @param box The ComboBox to style.
      */
     private static void createStyleComboBox(JComboBox<String> box) {
         box.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -631,12 +625,12 @@ public class Style {
     }
 
     /**
-     * Tạo CheckBox kèm nhãn tiêu đề phía trên.
+     * Creates a CheckBox with a title label above it.
      *
-     * @param chk JCheckBox cần hiển thị.
-     * @param labelText Tiêu đề nhóm.
-     * @param textContent Nội dung bên cạnh CheckBox.
-     * @return JPanel chứa CheckBox.
+     * @param chk         The JCheckBox to display.
+     * @param labelText   The group title.
+     * @param textContent The content next to the CheckBox.
+     * @return A JPanel containing the CheckBox.
      */
     public static JPanel createCheckBoxWithLabel(JCheckBox chk, String labelText, String textContent) {
         JPanel p = new JPanel(new BorderLayout(5, 5));
@@ -661,17 +655,13 @@ public class Style {
         return p;
     }
 
-    // =================================================================================================================
-    // GROUP 6: DATA DISPLAY (TABLES & DASHBOARD CARDS)
-    // =================================================================================================================
-
     /**
-     * Tạo JTable được bọc trong ScrollPane, có tiêu đề và danh sách nút chức năng.
+     * Creates a JTable wrapped in a ScrollPane, with a title and a list of function buttons.
      *
-     * @param table JTable chứa dữ liệu.
-     * @param titleText Tiêu đề bảng.
-     * @param buttons Danh sách các nút chức năng (Thêm, Sửa, Xóa...) (Varargs).
-     * @return JPanel hoàn chỉnh chứa bảng.
+     * @param table     The JTable containing data.
+     * @param titleText The table title.
+     * @param buttons   List of function buttons (Add, Edit, Delete...) (Varargs).
+     * @return A complete JPanel containing the table.
      */
     public static JPanel createTableWithLabel(JTable table, String titleText, JButton... buttons) {
         table.setRowHeight(30);
@@ -724,21 +714,64 @@ public class Style {
     }
 
     /**
-     * Tạo thẻ Dashboard thống kê số liệu với hiệu ứng Hover đổi màu nền.
-     * Khi di chuột vào: Nền sáng hơn một chút để tạo điểm nhấn, kích thước giữ nguyên.
+     * Creates a Section (Block) with a title and buttons, similar to Table Header.
+     * Used to wrap other components like Filters, Charts...
      *
-     * @param title Tiêu đề thẻ (ví dụ: Doanh thu).
-     * @param lblValue JLabel hiển thị giá trị số liệu.
-     * @param color Màu nền chủ đạo của thẻ.
-     * @param iconPath Đường dẫn icon minh họa.
-     * @return JPanel thẻ thống kê hoàn chỉnh.
+     * @param content   The content component inside.
+     * @param titleText The section title.
+     * @param buttons   Function buttons (if any).
+     * @return A complete JPanel.
+     */
+    public static JPanel createSectionWithHeader(JComponent content, String titleText, JButton... buttons) {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setPreferredSize(new Dimension(0, 45));
+        headerPanel.setBorder(new EmptyBorder(5, 10, 5, 0));
+
+        JLabel lblTitle = new JLabel(titleText);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblTitle.setForeground(Color.decode("#2c3e50"));
+        headerPanel.add(lblTitle, BorderLayout.WEST);
+
+        if (buttons != null && buttons.length > 0) {
+            JPanel btnWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+            btnWrapper.setBackground(Color.WHITE);
+            for (JButton btn : buttons) {
+                btnWrapper.add(btn);
+            }
+            headerPanel.add(btnWrapper, BorderLayout.EAST);
+        }
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createLineBorder(Color.decode("#bdc3c7"), 1));
+
+        headerPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#bdc3c7")),
+                new EmptyBorder(5, 10, 5, 0)
+        ));
+
+        panel.add(headerPanel, BorderLayout.NORTH);
+        panel.add(content, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    /**
+     * Creates a Dashboard statistic card with Hover background color change effect.
+     * When hovering: The background becomes slightly lighter to create a highlight, size remains the same.
+     *
+     * @param title    Card title (e.g., Revenue).
+     * @param lblValue JLabel displaying the statistic value.
+     * @param color    Main background color of the card.
+     * @param iconPath Path to the illustration icon.
+     * @return A complete statistic card JPanel.
      */
     public static JPanel createCard(String title, JLabel lblValue, Color color, String iconPath) {
         JPanel card = new JPanel(new BorderLayout(10, 0));
         card.setBackground(color);
         card.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // Phần Text (Tiêu đề + Số liệu)
         JPanel pText = new JPanel(new GridLayout(2, 1));
         pText.setOpaque(false);
 
@@ -752,7 +785,6 @@ public class Style {
         pText.add(lblTitle);
         pText.add(lblValue);
 
-        // Phần Icon (Cố định kích thước 40x40)
         JLabel lblIcon = new JLabel();
         lblIcon.setHorizontalAlignment(SwingConstants.RIGHT);
         lblIcon.setIcon(new ImageIcon(new ImageIcon(iconPath).getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
@@ -760,24 +792,20 @@ public class Style {
         card.add(pText, BorderLayout.CENTER);
         card.add(lblIcon, BorderLayout.EAST);
 
-        // Viền mỏng tạo khối
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(color.darker(), 1),
                 new EmptyBorder(15, 20, 15, 20)
         ));
 
-        // XỬ LÝ SỰ KIỆN HOVER (CHỈ ĐỔI MÀU NỀN)
         card.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                // Pha thêm 10% màu trắng vào nền -> Sáng hơn
                 card.setBackground(mixColors(color, Color.WHITE, 0.1));
                 card.setCursor(new Cursor(Cursor.HAND_CURSOR));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                // Trả về màu gốc
                 card.setBackground(color);
             }
         });
@@ -785,49 +813,54 @@ public class Style {
         return card;
     }
 
-    // =================================================================================================================
-    // GROUP 7: DIALOGS & NOTIFICATIONS (HỘP THOẠI VÀ THÔNG BÁO)
-    // =================================================================================================================
-
     /**
-     * Hiển thị thông báo Thành công (Màu xanh lá).
+     * Displays a Success notification (Green).
      *
-     * @param parent Component cha.
-     * @param msg Nội dung thông báo.
+     * @param parent The parent component.
+     * @param msg    The notification message.
      */
     public static void showSuccess(Component parent, String msg) {
         showCustomAlert(parent, msg, true);
     }
 
     /**
-     * Hiển thị thông báo Lỗi (Màu đỏ).
+     * Displays an Error notification (Red).
      *
-     * @param parent Component cha.
-     * @param msg Nội dung lỗi.
+     * @param parent The parent component.
+     * @param msg    The error message.
      */
     public static void showError(Component parent, String msg) {
         showCustomAlert(parent, msg, false);
     }
 
     /**
-     * Hiển thị hộp thoại Xác nhận (Yes/No).
+     * Displays a Confirmation dialog (Yes/No).
      *
-     * @param parent Component cha.
-     * @param msg Câu hỏi xác nhận.
-     * @return true nếu chọn "Xác nhận", false nếu chọn "Hủy bỏ".
+     * @param parent The parent component.
+     * @param msg    The confirmation question.
+     * @return true if "Confirm" is selected, false if "Cancel" is selected.
      */
     public static boolean showConfirm(Component parent, String msg) {
         final boolean[] result = {false};
         Color mainColor = new Color(230, 126, 34);
-        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent));
+
+        Window owner = null;
+        if (parent != null) {
+            if (parent instanceof Window) {
+                owner = (Window) parent;
+            } else {
+                owner = SwingUtilities.getWindowAncestor(parent);
+            }
+        }
+        JDialog dialog = new JDialog(owner);
+
         dialog.setModal(true);
         dialog.setUndecorated(true);
         dialog.setLayout(new BorderLayout());
-        ((JPanel)dialog.getContentPane()).setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        ((JPanel) dialog.getContentPane()).setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         JPanel pHeader = getJPanel(mainColor, result, dialog);
 
-        // Content
         JPanel pContent = new JPanel(new BorderLayout());
         pContent.setBackground(Color.WHITE);
         pContent.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -849,7 +882,6 @@ public class Style {
         txtMsg.setPreferredSize(new Dimension(400, txtMsg.getPreferredSize().height));
         pContent.add(txtMsg, BorderLayout.CENTER);
 
-        // Buttons
         JPanel pButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         pButton.setBackground(Color.WHITE);
         pButton.setBorder(new EmptyBorder(0, 0, 15, 0));
@@ -860,16 +892,32 @@ public class Style {
         btnNo.setPreferredSize(new Dimension(110, 35));
         btnNo.setBorder(BorderFactory.createLineBorder(Color.decode("#bdc3c7"), 1));
 
-        btnYes.addActionListener(e -> { result[0] = true; dialog.dispose(); });
-        btnNo.addActionListener(e -> { result[0] = false; dialog.dispose(); });
+        btnYes.addActionListener(e -> {
+            result[0] = true;
+            dialog.dispose();
+        });
+        btnNo.addActionListener(e -> {
+            result[0] = false;
+            dialog.dispose();
+        });
 
         btnYes.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent evt) { btnYes.setBackground(mainColor.darker()); }
-            public void mouseExited(MouseEvent evt) { btnYes.setBackground(mainColor); }
+            public void mouseEntered(MouseEvent evt) {
+                btnYes.setBackground(mainColor.darker());
+            }
+
+            public void mouseExited(MouseEvent evt) {
+                btnYes.setBackground(mainColor);
+            }
         });
         btnNo.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent evt) { btnNo.setBackground(Color.GRAY.darker()); }
-            public void mouseExited(MouseEvent evt) { btnNo.setBackground(Color.GRAY); }
+            public void mouseEntered(MouseEvent evt) {
+                btnNo.setBackground(Color.GRAY.darker());
+            }
+
+            public void mouseExited(MouseEvent evt) {
+                btnNo.setBackground(Color.GRAY);
+            }
         });
 
         pButton.add(btnYes);
@@ -902,28 +950,40 @@ public class Style {
         lblClose.setForeground(Color.WHITE);
         lblClose.setCursor(new Cursor(Cursor.HAND_CURSOR));
         lblClose.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) { result[0] = false; dialog.dispose(); }
+            public void mouseClicked(MouseEvent e) {
+                result[0] = false;
+                dialog.dispose();
+            }
         });
         pHeader.add(lblClose, BorderLayout.EAST);
         return pHeader;
     }
 
     /**
-     * Hàm nội bộ hiển thị Alert Dialog (Dùng chung cho Success/Error).
+     * Internal method to display Alert Dialog (Shared for Success/Error).
+     *
+     * @param parent    The parent component.
+     * @param msg       The message content.
+     * @param isSuccess True for Success (Green), False for Error (Red).
      */
     private static void showCustomAlert(Component parent, String msg, boolean isSuccess) {
         Color mainColor = isSuccess ? new Color(46, 204, 113) : new Color(231, 76, 60);
         String title = isSuccess ? "THÀNH CÔNG" : "THẤT BẠI";
 
         Window owner = null;
-        if (parent instanceof Window) owner = (Window) parent;
-        else if (parent != null) owner = SwingUtilities.getWindowAncestor(parent);
-
+        if (parent != null) {
+            if (parent instanceof Window) {
+                owner = (Window) parent;
+            } else {
+                owner = SwingUtilities.getWindowAncestor(parent);
+            }
+        }
         JDialog dialog = new JDialog(owner);
+
         dialog.setModal(true);
         dialog.setUndecorated(true);
         dialog.setLayout(new BorderLayout());
-        ((JPanel)dialog.getContentPane()).setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        ((JPanel) dialog.getContentPane()).setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         JPanel pHeader = getJPanel(mainColor, title, dialog);
 
@@ -955,8 +1015,13 @@ public class Style {
         btnOK.setPreferredSize(new Dimension(110, 35));
         btnOK.addActionListener(e -> dialog.dispose());
         btnOK.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent evt) { btnOK.setBackground(mainColor.darker()); }
-            public void mouseExited(MouseEvent evt) { btnOK.setBackground(mainColor); }
+            public void mouseEntered(MouseEvent evt) {
+                btnOK.setBackground(mainColor.darker());
+            }
+
+            public void mouseExited(MouseEvent evt) {
+                btnOK.setBackground(mainColor);
+            }
         });
 
         pButton.add(btnOK);
@@ -971,7 +1036,12 @@ public class Style {
     }
 
     /**
-     * Helper tạo Header Panel cho Dialog.
+     * Helper to create Header Panel for Dialog.
+     *
+     * @param mainColor The background color.
+     * @param title     The title text.
+     * @param dialog    The dialog instance.
+     * @return A JPanel header.
      */
     private static JPanel getJPanel(Color mainColor, String title, JDialog dialog) {
         JPanel pHeader = new JPanel(new BorderLayout());
@@ -989,7 +1059,9 @@ public class Style {
         lblClose.setForeground(Color.WHITE);
         lblClose.setCursor(new Cursor(Cursor.HAND_CURSOR));
         lblClose.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) { dialog.dispose(); }
+            public void mouseClicked(MouseEvent e) {
+                dialog.dispose();
+            }
         });
         pHeader.add(lblClose, BorderLayout.EAST);
         return pHeader;

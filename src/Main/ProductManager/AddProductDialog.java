@@ -16,19 +16,27 @@ import java.sql.Statement;
 
 import static Utils.Style.*;
 
+/**
+ * Dialog for adding a new product.
+ */
 public class AddProductDialog extends JDialog {
 
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN (UI) ---
+    // --- 1. UI VARIABLES ---
     private JTextField txtName, txtPrice, txtCount;
-    private JTextArea txtDescription; // Thêm ô mô tả
+    private JTextArea txtDescription; // Added description field
     private JComboBox<ComboItem> cbType, cbSupplier;
     private JButton btnAddType, btnAddSupplier;
     private JButton btnSave, btnCancel;
 
-    // --- 2. BIẾN TRẠNG THÁI ---
+    // --- 2. STATE VARIABLES ---
     private boolean isAdded = false;
-    private int newProductID = -1; // Biến lưu ID của sản phẩm vừa thêm
+    private int newProductID = -1; // Variable to store the ID of the newly added product
 
+    /**
+     * Constructor to initialize the Add Product Dialog.
+     *
+     * @param parent The parent frame.
+     */
     public AddProductDialog(Frame parent) {
         super(parent, true);
         this.setTitle("Thêm Sản Phẩm Mới");
@@ -43,7 +51,11 @@ public class AddProductDialog extends JDialog {
         this.setResizable(false);
     }
 
-    // --- 3. KHỞI TẠO GIAO DIỆN ---
+    // --- 3. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -66,19 +78,19 @@ public class AddProductDialog extends JDialog {
         mainPanel.add(createTextFieldWithLabel(txtCount, "Số Lượng Tồn:"));
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // Phân loại
+        // Category
         cbType = new JComboBox<>();
         btnAddType = createSmallButton("Mới", Color.GRAY);
         mainPanel.add(createComboBoxWithLabel(cbType, "Phân Loại:", btnAddType, null));
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // Nhà cung cấp
+        // Supplier
         cbSupplier = new JComboBox<>();
         btnAddSupplier = createSmallButton("Mới", Color.GRAY);
         mainPanel.add(createComboBoxWithLabel(cbSupplier, "Nhà Cung Cấp:", btnAddSupplier, null));
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // Mô tả sản phẩm
+        // Product Description
         txtDescription = new JTextArea(4, 20);
         JPanel pDesc = createTextAreaWithLabel(txtDescription, "Mô tả / Ghi chú:");
         mainPanel.add(pDesc);
@@ -100,7 +112,11 @@ public class AddProductDialog extends JDialog {
         getRootPane().setDefaultButton(btnSave);
     }
 
-    // --- 4. TẢI DỮ LIỆU ---
+    // --- 4. DATA LOADING ---
+
+    /**
+     * Loads product types into the combo box.
+     */
     private void loadTypeData() {
         cbType.removeAllItems();
         try (Connection con = DBConnection.getConnection()) {
@@ -110,9 +126,13 @@ public class AddProductDialog extends JDialog {
             while (rs.next()) {
                 cbType.addItem(new ComboItem(rs.getString("type_name"), rs.getInt("type_id")));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
+    /**
+     * Loads suppliers into the combo box.
+     */
     private void loadSupplierData() {
         cbSupplier.removeAllItems();
         try (Connection con = DBConnection.getConnection()) {
@@ -122,13 +142,18 @@ public class AddProductDialog extends JDialog {
             while (rs.next()) {
                 cbSupplier.addItem(new ComboItem(rs.getString("sup_name"), rs.getInt("sup_id")));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
-    // --- 5. XỬ LÝ SỰ KIỆN ---
+    // --- 5. EVENT HANDLING ---
+
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
 
-        // Nút Thêm Loại SP
+        // Add Product Type button
         btnAddType.addActionListener(e -> {
             Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
             TypeEditorDialog dialog = new TypeEditorDialog(parent);
@@ -140,7 +165,7 @@ public class AddProductDialog extends JDialog {
             }
         });
 
-        // Nút Thêm NCC
+        // Add Supplier button
         btnAddSupplier.addActionListener(e -> {
             Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
             AddSupplierDialog dialog = new AddSupplierDialog(parent);
@@ -152,7 +177,7 @@ public class AddProductDialog extends JDialog {
             }
         });
 
-        // Nút Lưu
+        // Save button
         btnSave.addActionListener(e -> {
             if (txtName.getText().trim().isEmpty() ||
                     txtPrice.getText().trim().isEmpty() ||
@@ -172,7 +197,7 @@ public class AddProductDialog extends JDialog {
 
                 String sql = "INSERT INTO Products (pro_name, pro_price, pro_count, type_ID, sup_ID, pro_description) VALUES (?, ?, ?, ?, ?, ?)";
 
-                // Thêm tham số RETURN_GENERATED_KEYS để lấy ID
+                // Add RETURN_GENERATED_KEYS parameter to get the ID
                 PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
                 ps.setString(1, txtName.getText().trim());
@@ -180,11 +205,11 @@ public class AddProductDialog extends JDialog {
                 ps.setInt(3, Integer.parseInt(txtCount.getText().trim()));
                 ps.setInt(4, selectedType.getValue());
                 ps.setInt(5, selectedSup.getValue());
-                ps.setString(6, txtDescription.getText().trim()); // Thêm mô tả
+                ps.setString(6, txtDescription.getText().trim()); // Add description
 
                 int rows = ps.executeUpdate();
                 if (rows > 0) {
-                    // Lấy ID vừa sinh ra từ Database
+                    // Get the newly generated ID from the Database
                     ResultSet rs = ps.getGeneratedKeys();
                     if (rs.next()) {
                         this.newProductID = rs.getInt(1);
@@ -210,7 +235,13 @@ public class AddProductDialog extends JDialog {
         txtCount.addKeyListener(numberFilter);
     }
 
-    // --- HÀM TIỆN ÍCH ---
+    // --- HELPER METHODS ---
+
+    /**
+     * Selects the newest item in a combo box.
+     *
+     * @param cb The combo box.
+     */
     private void selectNewestItem(JComboBox<ComboItem> cb) {
         int maxId = Integer.MIN_VALUE;
         int indexToSelect = -1;
@@ -227,11 +258,20 @@ public class AddProductDialog extends JDialog {
         }
     }
 
+    /**
+     * Checks if the product was added successfully.
+     *
+     * @return true if added, false otherwise.
+     */
     public boolean isAddedSuccess() {
         return isAdded;
     }
 
-    // Getter để lấy ID sản phẩm mới
+    /**
+     * Gets the ID of the newly added product.
+     *
+     * @return The new product ID.
+     */
     public int getNewProductID() {
         return newProductID;
     }

@@ -1,86 +1,93 @@
 import Main.LoginManager.LoginForm;
 import Utils.DBConnection;
+import Utils.Style;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.sql.Connection;
 import java.util.Locale;
 
-import static Utils.Style.showError;
-
+/**
+ * Main entry point for the application.
+ */
 public class Run {
 
     /**
-     * Hàm main: Điểm khởi chạy của toàn bộ chương trình.
-     * Sử dụng invokeLater để đảm bảo luồng giao diện (EDT) chạy an toàn.
+     * Main method to start the application.
+     *
+     * @param args Command line arguments.
      */
     public static void main(String[] args) {
+        // --- STEP 1: CHECK DATABASE BEFORE STARTING SWING ---
+        File dbFile = new File("data/storedatabase.db");
+        if (!dbFile.exists()) {
+            Style.showError(null, "Không tìm thấy file cơ sở dữ liệu tại:\n" + dbFile.getAbsolutePath() + "\nVui lòng cung cấp file database và khởi động lại.");
+            System.exit(1);
+        }
+
+        // --- STEP 2: START SWING UI AFTER DATABASE IS READY ---
         Locale.setDefault(Locale.US);
         SwingUtilities.invokeLater(Run::createAndShowGUI);
     }
 
     /**
-     * Thiết lập giao diện và khởi động màn hình Đăng nhập.
+     * Creates and shows the GUI.
      */
     private static void createAndShowGUI() {
         try {
-            // 1. Cài đặt giao diện hệ thống (Windows/Mac/Linux) cho phần mềm
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            setupUIDefaults();
 
-            // 2. Tùy chỉnh màu sắc cho các ô nhập liệu khi bị vô hiệu hóa (Disabled/Inactive)
-            // Mục đích: Mặc định Java Swing làm mờ chữ (màu xám) khi setEnabled(false).
-            // Đoạn này ép nó hiển thị màu Đen để người dùng vẫn đọc được rõ ràng.
-            Color black = Color.BLACK;
-            Color white = Color.WHITE;
-
-            UIManager.put("TextField.inactiveForeground", black);      // TextField không focus
-            UIManager.put("TextField.disabledTextColor", black);       // TextField bị disable
-            UIManager.put("FormattedTextField.inactiveForeground", black);
-            UIManager.put("PasswordField.inactiveForeground", black);  // Mật khẩu
-            UIManager.put("TextArea.inactiveForeground", black);       // Vùng văn bản
-            UIManager.put("ComboBox.disabledForeground", black);       // ComboBox
-
-            UIManager.put("TextField.disabledBackground", white);          // TextField
-            UIManager.put("FormattedTextField.disabledBackground", white); // Ô nhập số/ngày
-            UIManager.put("PasswordField.disabledBackground", white);      // Ô mật khẩu
-            UIManager.put("TextArea.disabledBackground", white);           // Vùng văn bản lớn
-            UIManager.put("ComboBox.disabledBackground", white);           // ComboBox
-            UIManager.put("ScrollPane.disabledBackground", white);         // Cuộn trang
-            UIManager.put("EditorPane.disabledBackground", white);         // EditorPane
-            UIManager.put("TextField.inactiveBackground", white);
-            UIManager.put("TextArea.inactiveBackground", white);
-
-            // Màu chữ của Button khi bị disable (giữ màu xám cho nút bấm là hợp lý)
-            UIManager.put("Button.disabledText", Color.GRAY);
-
-            // 3. Kiểm tra kết nối CSDL
+            // Check connection one last time to ensure file is not corrupted
             if (checkDatabaseConnection()) {
-                // Kết nối thành công -> Mở form Đăng nhập
                 LoginForm loginForm = new LoginForm();
                 loginForm.setVisible(true);
                 loginForm.setLocationRelativeTo(null);
             } else {
-                // Nếu kết nối thất bại (Hàm checkDatabaseConnection đã hiện Dialog báo lỗi rồi)
-                // Thì tại đây ta tắt hẳn chương trình để tránh chạy ngầm.
-                System.exit(0);
+                // This error occurs if DB file is corrupted or unreadable
+                System.exit(1);
             }
 
         } catch (Exception e) {
-            System.exit(0);
+            System.exit(1);
         }
     }
 
     /**
-     * Kiểm tra xem có kết nối được tới Database hay không.
-     * @return true nếu kết nối thành công, false nếu thất bại.
+     * Sets up UI defaults.
+     */
+    private static void setupUIDefaults() {
+        Color black = Color.BLACK;
+        Color white = Color.WHITE;
+        UIManager.put("TextField.inactiveForeground", black);
+        UIManager.put("TextField.disabledTextColor", black);
+        UIManager.put("FormattedTextField.inactiveForeground", black);
+        UIManager.put("PasswordField.inactiveForeground", black);
+        UIManager.put("TextArea.inactiveForeground", black);
+        UIManager.put("ComboBox.disabledForeground", black);
+        UIManager.put("TextField.disabledBackground", white);
+        UIManager.put("FormattedTextField.disabledBackground", white);
+        UIManager.put("PasswordField.disabledBackground", white);
+        UIManager.put("TextArea.disabledBackground", white);
+        UIManager.put("ComboBox.disabledBackground", white);
+        UIManager.put("ScrollPane.disabledBackground", white);
+        UIManager.put("EditorPane.disabledBackground", white);
+        UIManager.put("TextField.inactiveBackground", white);
+        UIManager.put("TextArea.inactiveBackground", white);
+        UIManager.put("Button.disabledText", Color.GRAY);
+    }
+
+    /**
+     * Checks the database connection.
+     *
+     * @return true if connection is successful, false otherwise.
      */
     private static boolean checkDatabaseConnection() {
         try (Connection con = DBConnection.getConnection()) {
-            // Nếu con != null nghĩa là lấy được kết nối -> Trả về true
             return con != null;
         } catch (Exception e) {
-            // Nếu lỗi, hiện thông báo cho người dùng biết
-            showError(null, "Lỗi kết nối CSDL: " + e.getMessage());
+            Style.showError(null, "Lỗi kết nối CSDL: " + e.getMessage());
         }
         return false;
     }

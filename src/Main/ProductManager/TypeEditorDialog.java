@@ -1,6 +1,7 @@
 package Main.ProductManager;
 
 import Utils.DBConnection;
+import Utils.Session;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,31 +13,31 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import static Utils.Style.*;
 
 /**
- * Dialog dùng chung cho 2 chức năng:
- * 1. Thêm mới Phân loại (nếu typeID = -1)
- * 2. Chỉnh sửa / Xóa Phân loại (nếu typeID > 0)
+ * Dialog for both adding and editing Product Types.
+ * 1. Add new Product Type (if typeID = -1)
+ * 2. Edit/Delete Product Type (if typeID > 0)
  */
 public class TypeEditorDialog extends JDialog {
-    // --- 1. KHAI BÁO BIẾN ---
+    // --- 1. VARIABLES ---
     private JTextField txtName;
-    private JButton btnAction; // Nút này sẽ là "Thêm Mới" hoặc "Lưu Thay Đổi" tùy ngữ cảnh
+    private JButton btnAction; // This button will be "Add New" or "Save Changes" depending on the context
     private JButton btnDelete, btnCancel;
 
-    // Biến dữ liệu
-    private final int typeID;  // ID của loại SP (-1 là thêm mới)
+    // Data variables
+    private final int typeID;  // ID of the product type (-1 for new)
     private String currentName = "";
-    private boolean isUpdated = false; // Cờ báo cho form cha biết có dữ liệu thay đổi
+    private boolean isUpdated = false; // Flag to notify the parent form if data has changed
 
-    // --- 2. CONSTRUCTORS (HÀM KHỞI TẠO) ---
+    // --- 2. CONSTRUCTORS ---
 
-    // Constructor 1: Dùng cho THÊM MỚI (Không cần truyền ID)
+    // Constructor 1: For ADDING NEW (No ID needed)
     public TypeEditorDialog(Frame parent) {
         super(parent, true); // Modal = true
-        this.typeID = -1;    // Đánh dấu là chế độ Thêm
+        this.typeID = -1;    // Mark as Add mode
         setupDialog(parent, "THÊM PHÂN LOẠI SẢN PHẨM");
     }
 
-    // Constructor 2: Dùng cho CHỈNH SỬA (Cần truyền ID và Tên cũ)
+    // Constructor 2: For EDITING (ID and old name needed)
     public TypeEditorDialog(Frame parent, int typeID, String currentName) {
         super(parent, true);
         this.typeID = typeID;
@@ -44,50 +45,60 @@ public class TypeEditorDialog extends JDialog {
         setupDialog(parent, "CHỈNH SỬA PHÂN LOẠI SẢN PHẨM");
     }
 
-    // Hàm cấu hình chung cho cả 2 constructor
+    // Common setup method for both constructors
     private void setupDialog(Frame parent, String title) {
         setTitle(title);
-        initUI(title); // Dựng giao diện
-        addEvents();   // Gán sự kiện
+        initUI(title); // Build UI
+        addEvents();   // Assign events
         pack();
         setLocationRelativeTo(parent);
         setResizable(false);
     }
 
-    // --- 3. KHỞI TẠO GIAO DIỆN (UI) ---
+    // --- 3. UI INITIALIZATION ---
     private void initUI(String titleText) {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
         mainPanel.setBackground(Color.WHITE);
 
-        // A. Tiêu đề
+        // A. Title
         mainPanel.add(createHeaderLabel(titleText));
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // B. Ô nhập tên
-        txtName = new JTextField(currentName); // Nếu sửa thì hiện tên cũ
+        // B. Name input
+        txtName = new JTextField(currentName); // Show old name if editing
         mainPanel.add(createTextFieldWithLabel(txtName, "Tên phân loại Sản Phẩm:"));
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // C. Khu vực nút bấm (Thay đổi tùy theo chế độ Thêm hay Sửa)
+        // C. Button area (Changes depending on Add or Edit mode)
         JPanel btnPanel = new JPanel(new GridLayout(1, 0, 10, 0));
         btnPanel.setBackground(Color.WHITE);
 
         if (typeID == -1) {
-            // Chế độ Thêm: Nút màu Xanh lá
+            // Add mode: Green button
             btnAction = createButton("Thêm Mới", new Color(46, 204, 113));
         } else {
-            // Chế độ Sửa: Nút màu Xanh lá (Lưu)
+            // Edit mode: Green button (Save)
             btnAction = createButton("Lưu Thay Đổi", new Color(46, 204, 113));
         }
 
         btnDelete = createButton("Xóa", new Color(231, 76, 60));
         btnCancel = createButton("Hủy", Color.GRAY);
 
+        // Only enable actions if user has permission
+        if (Session.canManageTypes()) {
+            btnAction.setEnabled(true);
+            btnDelete.setEnabled(true);
+        } else {
+            btnAction.setEnabled(false);
+            btnDelete.setEnabled(false);
+            txtName.setEnabled(false);
+        }
+
         btnPanel.add(btnAction);
 
-        // Chỉ hiện nút Xóa khi đang ở chế độ Sửa (typeID != -1)
+        // Only show Delete button in Edit mode (typeID != -1)
         if (typeID != -1) {
             btnPanel.add(btnDelete);
         }
@@ -100,10 +111,15 @@ public class TypeEditorDialog extends JDialog {
         getRootPane().setDefaultButton(btnAction);
     }
 
-    // --- 4. XỬ LÝ SỰ KIỆN (EVENTS) ---
+    // --- 4. EVENT HANDLING ---
     private void addEvents() {
-        // Sự kiện nút Action (Thêm hoặc Lưu)
+        // Action button event (Add or Save)
         btnAction.addActionListener(e -> {
+            if (!Session.canManageTypes()) {
+                showError(this, "Bạn không có quyền thực hiện chức năng này!");
+                return;
+            }
+
             String newName = txtName.getText().trim();
             if (newName.isEmpty()) {
                 showError(this, "Tên không được để trống!");
@@ -112,7 +128,7 @@ public class TypeEditorDialog extends JDialog {
 
             try (Connection con = DBConnection.getConnection()) {
                 if (typeID == -1) {
-                    // Logic THÊM MỚI
+                    // ADD NEW logic
                     String sql = "INSERT INTO ProductTypes (type_name) VALUES (?)";
                     PreparedStatement ps = con.prepareStatement(sql);
                     ps.setString(1, newName);
@@ -122,7 +138,7 @@ public class TypeEditorDialog extends JDialog {
                         dispose();
                     }
                 } else {
-                    // Logic CẬP NHẬT
+                    // UPDATE logic
                     String sql = "UPDATE ProductTypes SET type_name = ? WHERE type_ID = ?";
                     PreparedStatement ps = con.prepareStatement(sql);
                     ps.setString(1, newName);
@@ -142,9 +158,14 @@ public class TypeEditorDialog extends JDialog {
             }
         });
 
-        // Sự kiện nút Xóa (Chỉ có khi sửa)
+        // Delete button event (Only when editing)
         if (btnDelete != null) {
             btnDelete.addActionListener(e -> {
+                if (!Session.canManageTypes()) {
+                    showError(this, "Bạn không có quyền thực hiện chức năng này!");
+                    return;
+                }
+
                 if (showConfirm(this, "Xóa loại: " + currentName + "?\n(Không thể xóa nếu đang có sản phẩm thuộc loại này)")) {
                     try (Connection con = DBConnection.getConnection()) {
                         String sql = "DELETE FROM ProductTypes WHERE type_ID = ?";
@@ -156,7 +177,7 @@ public class TypeEditorDialog extends JDialog {
                             dispose();
                         }
                     } catch (SQLIntegrityConstraintViolationException ex) {
-                        // Bắt lỗi ràng buộc khóa ngoại (Foreign Key)
+                        // Catch Foreign Key constraint violation
                         showError(this, "Không thể xóa vì đang có sản phẩm thuộc loại này!");
                     } catch (Exception ex) {
                         showError(this, "Lỗi: " + ex.getMessage());
@@ -165,11 +186,11 @@ public class TypeEditorDialog extends JDialog {
             });
         }
 
-        // Sự kiện nút Hủy
+        // Cancel button event
         btnCancel.addActionListener(e -> dispose());
     }
 
-    // Getter để form cha biết có cần reload lại ComboBox hay không
+    // Getter for parent form to know if it needs to reload the ComboBox
     public boolean isUpdated() {
         return isUpdated;
     }

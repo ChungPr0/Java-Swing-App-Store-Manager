@@ -12,23 +12,30 @@ import java.sql.*;
 
 import static Utils.Style.*;
 
+/**
+ * Panel for managing staff members.
+ * Allows adding, editing, deleting, and searching for staff.
+ */
 public class StaffManagerPanel extends JPanel {
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN ---
+    // --- 1. UI VARIABLES ---
     private JList<ComboItem> listStaff;
     private JTextField txtSearch, txtName, txtSalary, txtPhone, txtAddress, txtUsername;
     private JPasswordField txtPassword;
-    private JCheckBox chkIsAdmin;
+    private JComboBox<RoleItem> cbRole;
     private JComboBox<String> cbDay, cbMonth, cbYear;
     private JComboBox<String> cbStartDay, cbStartMonth, cbStartYear;
     private JButton btnAdd, btnSave, btnDelete;
     private JButton btnSort;
 
-    // --- 2. BIẾN TRẠNG THÁI ---
+    // --- 2. STATE VARIABLES ---
     private int currentSortIndex = 0;
     private final String[] sortModes = {"A-Z", "Z-A", "NEW", "OLD"};
-    private int selectedStaffID = -1;      // -1: Chế độ thêm mới
+    private int selectedStaffID = -1;      // -1: Create mode
     private boolean isDataLoading = false;
 
+    /**
+     * Constructor to initialize the Staff Manager Panel.
+     */
     public StaffManagerPanel() {
         initUI();
         initComboBoxData();
@@ -37,13 +44,17 @@ public class StaffManagerPanel extends JPanel {
         addChangeListeners();
     }
 
-    // --- 3. KHỞI TẠO GIAO DIỆN ---
+    // --- 3. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         this.setLayout(new BorderLayout(10, 10));
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         this.setBackground(Color.decode("#ecf0f1"));
 
-        // A. PANEL TRÁI
+        // A. LEFT PANEL
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
         leftPanel.setPreferredSize(new Dimension(250, 0));
         leftPanel.setOpaque(false);
@@ -60,9 +71,9 @@ public class StaffManagerPanel extends JPanel {
         listStaff.setFixedCellHeight(30);
         leftPanel.add(new JScrollPane(listStaff), BorderLayout.CENTER);
 
-        // B. PANEL PHẢI (FORM + FOOTER)
+        // B. RIGHT PANEL (FORM + FOOTER)
 
-        // B1. Form nhập liệu (Cuộn được)
+        // B1. Input Form (Scrollable)
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBackground(Color.WHITE);
@@ -75,17 +86,25 @@ public class StaffManagerPanel extends JPanel {
         formPanel.add(createTextFieldWithLabel(txtName, "Họ và Tên:"));
         formPanel.add(Box.createVerticalStrut(16));
 
-        // Ngày sinh & Quyền
-        cbDay = new JComboBox<>(); cbMonth = new JComboBox<>(); cbYear = new JComboBox<>();
+        // Date of Birth & Role
+        cbDay = new JComboBox<>();
+        cbMonth = new JComboBox<>();
+        cbYear = new JComboBox<>();
         JPanel datePanel = createDatePanel("Ngày sinh:", cbDay, cbMonth, cbYear);
-        chkIsAdmin = new JCheckBox();
-        JPanel pRoleWrapper = createCheckBoxWithLabel(chkIsAdmin, "Phân quyền:", "QUẢN TRỊ VIÊN");
+
+        cbRole = new JComboBox<>();
+        cbRole.addItem(new RoleItem("Admin", "Quản trị viên"));
+        cbRole.addItem(new RoleItem("Manager", "Quản lý"));
+        cbRole.addItem(new RoleItem("SaleStaff", "Nhân viên bán hàng"));
+        cbRole.addItem(new RoleItem("StorageStaff", "Nhân viên kho"));
+
+        JPanel pRoleWrapper = createComboBoxWithLabel(cbRole, "Vai trò:");
 
         JPanel rowDateAndRole = new JPanel(new GridLayout(1, 2, 15, 0));
         rowDateAndRole.setBackground(Color.WHITE);
         rowDateAndRole.add(datePanel);
         rowDateAndRole.add(pRoleWrapper);
-        rowDateAndRole.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        rowDateAndRole.setMaximumSize(new Dimension(Integer.MAX_VALUE, 65));
         formPanel.add(rowDateAndRole);
         formPanel.add(Box.createVerticalStrut(16));
 
@@ -97,7 +116,7 @@ public class StaffManagerPanel extends JPanel {
         formPanel.add(createTextFieldWithLabel(txtAddress, "Địa chỉ:"));
         formPanel.add(Box.createVerticalStrut(16));
 
-        // Lương & Ngày vào làm
+        // Salary & Start Date
         JPanel rowSalaryAndStart = new JPanel(new GridLayout(1, 2, 15, 0));
         rowSalaryAndStart.setBackground(Color.WHITE);
         rowSalaryAndStart.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
@@ -105,14 +124,16 @@ public class StaffManagerPanel extends JPanel {
         txtSalary = new JTextField();
         rowSalaryAndStart.add(createTextFieldWithLabel(txtSalary, "Lương cơ bản (VNĐ):"));
 
-        cbStartDay = new JComboBox<>(); cbStartMonth = new JComboBox<>(); cbStartYear = new JComboBox<>();
+        cbStartDay = new JComboBox<>();
+        cbStartMonth = new JComboBox<>();
+        cbStartYear = new JComboBox<>();
         JPanel pStartDate = createDatePanel("Ngày vào làm:", cbStartDay, cbStartMonth, cbStartYear);
         rowSalaryAndStart.add(pStartDate);
 
         formPanel.add(rowSalaryAndStart);
         formPanel.add(Box.createVerticalStrut(16));
 
-        // Tài khoản & Mật khẩu
+        // Username & Password
         txtUsername = new JTextField();
         formPanel.add(createTextFieldWithLabel(txtUsername, "Tài khoản (Có thể để trống):"));
         formPanel.add(Box.createVerticalStrut(16));
@@ -121,14 +142,14 @@ public class StaffManagerPanel extends JPanel {
         JCheckBox chkShowPass = new JCheckBox();
         formPanel.add(createPasswordFieldWithLabel(txtPassword, "Mật khẩu (Có thể để trống):", chkShowPass));
 
-        formPanel.add(Box.createVerticalGlue()); // Đẩy nội dung lên trên
+        formPanel.add(Box.createVerticalGlue()); // Push content up
 
         JScrollPane scrollForm = new JScrollPane(formPanel);
         scrollForm.setBorder(null);
         scrollForm.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollForm.getVerticalScrollBar().setUnitIncrement(16);
 
-        // B2. Footer chứa nút (Cố định)
+        // B2. Footer with Buttons (Fixed)
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         footerPanel.setBackground(Color.WHITE);
         footerPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -147,7 +168,7 @@ public class StaffManagerPanel extends JPanel {
         footerPanel.add(btnSave);
         footerPanel.add(btnDelete);
 
-        // B3. Ghép vào Panel phải
+        // B3. Combine into Right Panel
         JPanel rightContainer = new JPanel(new BorderLayout());
         rightContainer.add(scrollForm, BorderLayout.CENTER);
         rightContainer.add(footerPanel, BorderLayout.SOUTH);
@@ -158,7 +179,11 @@ public class StaffManagerPanel extends JPanel {
         enableForm(false);
     }
 
-    // --- 4. TẢI DỮ LIỆU ---
+    // --- 4. DATA LOADING ---
+
+    /**
+     * Loads the list of staff members from the database.
+     */
     private void loadListData() {
         DefaultListModel<ComboItem> model = new DefaultListModel<>();
         String keyword = txtSearch.getText().trim();
@@ -170,10 +195,17 @@ public class StaffManagerPanel extends JPanel {
             if (isSearching) sql.append(" WHERE sta_name LIKE ?");
 
             switch (currentSortIndex) {
-                case 1: sql.append(" ORDER BY sta_name DESC"); break;
-                case 2: sql.append(" ORDER BY sta_start_date DESC"); break;
-                case 3: sql.append(" ORDER BY sta_start_date ASC"); break;
-                default: sql.append(" ORDER BY sta_name ASC");
+                case 1:
+                    sql.append(" ORDER BY sta_name DESC");
+                    break;
+                case 2:
+                    sql.append(" ORDER BY sta_start_date DESC");
+                    break;
+                case 3:
+                    sql.append(" ORDER BY sta_start_date ASC");
+                    break;
+                default:
+                    sql.append(" ORDER BY sta_name ASC");
             }
 
             PreparedStatement ps = con.prepareStatement(sql.toString());
@@ -189,6 +221,11 @@ public class StaffManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Loads details of a specific staff member.
+     *
+     * @param id The staff ID.
+     */
     private void loadDetail(int id) {
         isDataLoading = true;
         try (Connection con = DBConnection.getConnection()) {
@@ -207,17 +244,26 @@ public class StaffManagerPanel extends JPanel {
                 txtUsername.setText(rs.getString("sta_username"));
                 txtPassword.setText(rs.getString("sta_password"));
 
-                String role = rs.getString("sta_role");
-                chkIsAdmin.setSelected(role != null && role.equalsIgnoreCase("Admin"));
+                String roleCode = rs.getString("sta_role");
+                if (roleCode == null) roleCode = "SaleStaff";
+
+                // Select correct item in ComboBox based on code
+                for (int i = 0; i < cbRole.getItemCount(); i++) {
+                    RoleItem item = cbRole.getItemAt(i);
+                    if (item.code.equalsIgnoreCase(roleCode)) {
+                        cbRole.setSelectedIndex(i);
+                        break;
+                    }
+                }
 
                 setComboBoxDate(rs.getString("sta_date_of_birth"), cbDay, cbMonth, cbYear);
                 setComboBoxDate(rs.getString("sta_start_date"), cbStartDay, cbStartMonth, cbStartYear);
 
                 enableForm(true);
-                btnAdd.setVisible(true);      // Hiện nút Thêm
-                btnDelete.setVisible(true);   // Hiện nút Xóa
+                btnAdd.setVisible(true);      // Show Add button
+                btnDelete.setVisible(true);   // Show Delete button
                 btnSave.setText("Lưu");
-                btnSave.setVisible(false);    // Ẩn nút Lưu (chờ sửa mới hiện)
+                btnSave.setVisible(false);    // Hide Save button (wait for edit)
             }
         } catch (Exception e) {
             showError(this, "Lỗi: " + e.getMessage());
@@ -226,7 +272,11 @@ public class StaffManagerPanel extends JPanel {
         }
     }
 
-    // --- 5. SỰ KIỆN ---
+    // --- 5. EVENTS ---
+
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
         listStaff.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -239,13 +289,23 @@ public class StaffManagerPanel extends JPanel {
         });
 
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { loadListData(); }
-            public void removeUpdate(DocumentEvent e) { loadListData(); }
-            public void changedUpdate(DocumentEvent e) { loadListData(); }
+            public void insertUpdate(DocumentEvent e) {
+                loadListData();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                loadListData();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                loadListData();
+            }
         });
 
         java.awt.event.KeyAdapter digitOnly = new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent e) { if (!Character.isDigit(e.getKeyChar())) e.consume(); }
+            public void keyTyped(java.awt.event.KeyEvent e) {
+                if (!Character.isDigit(e.getKeyChar())) e.consume();
+            }
         };
         txtPhone.addKeyListener(digitOnly);
         txtSalary.addKeyListener(digitOnly);
@@ -256,40 +316,62 @@ public class StaffManagerPanel extends JPanel {
             loadListData();
         });
 
-        // --- NÚT THÊM MỚI ---
+        // --- ADD BUTTON ---
         btnAdd.addActionListener(e -> prepareCreate());
 
-        // --- NÚT LƯU (Insert/Update) ---
+        // --- SAVE BUTTON (Insert/Update) ---
         btnSave.addActionListener(e -> saveStaff());
 
-        // --- NÚT XÓA ---
+        // --- DELETE BUTTON ---
         btnDelete.addActionListener(e -> deleteStaff());
     }
 
-    // --- CÁC HÀM LOGIC CHÍNH ---
+    // --- MAIN LOGIC METHODS ---
 
+    /**
+     * Prepares the form for creating a new staff member.
+     */
     private void prepareCreate() {
         listStaff.clearSelection();
-        selectedStaffID = -1; // Đánh dấu thêm mới
+        selectedStaffID = -1; // Mark as create mode
 
         isDataLoading = true;
-        txtName.setText(""); txtPhone.setText(""); txtAddress.setText("");
-        txtSalary.setText(""); txtUsername.setText(""); txtPassword.setText("");
-        chkIsAdmin.setSelected(false);
-        // Reset ngày về mặc định (hoặc ngày hiện tại nếu muốn)
-        cbDay.setSelectedIndex(0); cbMonth.setSelectedIndex(0); cbYear.setSelectedItem("2000");
-        cbStartDay.setSelectedIndex(0); cbStartMonth.setSelectedIndex(0); cbStartYear.setSelectedIndex(0);
+        txtName.setText("");
+        txtPhone.setText("");
+        txtAddress.setText("");
+        txtSalary.setText("");
+        txtUsername.setText("");
+        txtPassword.setText("");
+
+        // Default select SaleStaff
+        for (int i = 0; i < cbRole.getItemCount(); i++) {
+            if (cbRole.getItemAt(i).code.equals("SaleStaff")) {
+                cbRole.setSelectedIndex(i);
+                break;
+            }
+        }
+
+        // Reset date to default (or current date if desired)
+        cbDay.setSelectedIndex(0);
+        cbMonth.setSelectedIndex(0);
+        cbYear.setSelectedItem("2000");
+        cbStartDay.setSelectedIndex(0);
+        cbStartMonth.setSelectedIndex(0);
+        cbStartYear.setSelectedIndex(0);
         isDataLoading = false;
 
         enableForm(true);
         txtName.requestFocus();
 
-        btnAdd.setVisible(false);      // Ẩn nút Thêm
-        btnDelete.setVisible(false);   // Ẩn nút Xóa
+        btnAdd.setVisible(false);      // Hide Add button
+        btnDelete.setVisible(false);   // Hide Delete button
         btnSave.setText("Lưu");
-        btnSave.setVisible(true);      // Hiện nút Lưu
+        btnSave.setVisible(true);      // Show Save button
     }
 
+    /**
+     * Saves the staff member (Insert or Update).
+     */
     private void saveStaff() {
         // 1. Validate
         if (txtName.getText().trim().isEmpty() || txtPhone.getText().trim().isEmpty() ||
@@ -307,12 +389,12 @@ public class StaffManagerPanel extends JPanel {
         }
 
         try (Connection con = DBConnection.getConnection()) {
-            // Check trùng username
+            // Check duplicate username
             if (!user.isEmpty()) {
                 String checkSql = "SELECT COUNT(*) FROM Staffs WHERE sta_username = ? AND sta_id != ?";
                 PreparedStatement psCheck = con.prepareStatement(checkSql);
                 psCheck.setString(1, user);
-                psCheck.setInt(2, selectedStaffID); // Nếu thêm mới (-1) thì check toàn bộ
+                psCheck.setInt(2, selectedStaffID); // If create (-1), check all
                 ResultSet rsCheck = psCheck.executeQuery();
                 if (rsCheck.next() && rsCheck.getInt(1) > 0) {
                     showError(this, "Tài khoản '" + user + "' đã tồn tại!");
@@ -323,7 +405,9 @@ public class StaffManagerPanel extends JPanel {
             String dob = cbYear.getSelectedItem() + "-" + cbMonth.getSelectedItem() + "-" + cbDay.getSelectedItem();
             String startDate = cbStartYear.getSelectedItem() + "-" + cbStartMonth.getSelectedItem() + "-" + cbStartDay.getSelectedItem();
             double salary = Double.parseDouble(txtSalary.getText().trim());
-            String role = chkIsAdmin.isSelected() ? "Admin" : "Staff";
+
+            RoleItem selectedRole = (RoleItem) cbRole.getSelectedItem();
+            String roleCode = selectedRole != null ? selectedRole.code : "SaleStaff";
 
             if (selectedStaffID == -1) {
                 // INSERT
@@ -335,9 +419,11 @@ public class StaffManagerPanel extends JPanel {
                 ps.setString(4, txtAddress.getText().trim());
                 ps.setDouble(5, salary);
                 ps.setString(6, startDate);
-                if (user.isEmpty()) ps.setNull(7, Types.VARCHAR); else ps.setString(7, user);
-                if (pass.isEmpty()) ps.setNull(8, Types.VARCHAR); else ps.setString(8, pass);
-                ps.setString(9, role);
+                if (user.isEmpty()) ps.setNull(7, Types.VARCHAR);
+                else ps.setString(7, user);
+                if (pass.isEmpty()) ps.setNull(8, Types.VARCHAR);
+                else ps.setString(8, pass);
+                ps.setString(9, roleCode);
                 ps.executeUpdate();
 
                 ResultSet rs = ps.getGeneratedKeys();
@@ -356,9 +442,11 @@ public class StaffManagerPanel extends JPanel {
                 ps.setString(4, txtAddress.getText().trim());
                 ps.setDouble(5, salary);
                 ps.setString(6, startDate);
-                if (user.isEmpty()) ps.setNull(7, Types.VARCHAR); else ps.setString(7, user);
-                if (pass.isEmpty()) ps.setNull(8, Types.VARCHAR); else ps.setString(8, pass);
-                ps.setString(9, role);
+                if (user.isEmpty()) ps.setNull(7, Types.VARCHAR);
+                else ps.setString(7, user);
+                if (pass.isEmpty()) ps.setNull(8, Types.VARCHAR);
+                else ps.setString(8, pass);
+                ps.setString(9, roleCode);
                 ps.setInt(10, selectedStaffID);
 
                 if (ps.executeUpdate() > 0) {
@@ -372,9 +460,12 @@ public class StaffManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Deletes the selected staff member.
+     */
     private void deleteStaff() {
-        if(selectedStaffID == -1) return;
-        if(showConfirm(this, "Xóa nhân viên này?")){
+        if (selectedStaffID == -1) return;
+        if (showConfirm(this, "Xóa nhân viên này?")) {
             try (Connection con = DBConnection.getConnection()) {
                 PreparedStatement ps = con.prepareStatement("DELETE FROM Staffs WHERE sta_id=?");
                 ps.setInt(1, selectedStaffID);
@@ -384,19 +475,23 @@ public class StaffManagerPanel extends JPanel {
                     clearForm();
                 }
             } catch (Exception ex) {
-                if (ex.getMessage().contains("foreign key")) showError(this, "Không thể xóa: Nhân viên đã lập hóa đơn!");
+                if (ex.getMessage().contains("foreign key"))
+                    showError(this, "Không thể xóa: Nhân viên đã lập hóa đơn!");
                 else showError(this, "Lỗi: " + ex.getMessage());
             }
         }
     }
 
-    // --- CÁC HÀM TIỆN ÍCH ---
+    // --- UTILITY METHODS ---
 
+    /**
+     * Adds change listeners to form fields to enable the Save button.
+     */
     private void addChangeListeners() {
         SimpleDocumentListener docListener = new SimpleDocumentListener(e -> {
             if (!isDataLoading) {
                 btnSave.setVisible(true);
-                if(selectedStaffID != -1) btnSave.setText("Lưu");
+                if (selectedStaffID != -1) btnSave.setText("Lưu");
             }
         });
         txtName.getDocument().addDocumentListener(docListener);
@@ -405,17 +500,41 @@ public class StaffManagerPanel extends JPanel {
         txtSalary.getDocument().addDocumentListener(docListener);
         txtUsername.getDocument().addDocumentListener(docListener);
         txtPassword.getDocument().addDocumentListener(docListener);
-        chkIsAdmin.addActionListener(e -> { if (!isDataLoading) btnSave.setVisible(true); });
+        cbRole.addActionListener(e -> {
+            if (!isDataLoading) btnSave.setVisible(true);
+        });
 
-        java.awt.event.ActionListener dateListener = e -> { if (!isDataLoading) btnSave.setVisible(true); };
-        cbDay.addActionListener(dateListener); cbMonth.addActionListener(dateListener); cbYear.addActionListener(dateListener);
-        cbStartDay.addActionListener(dateListener); cbStartMonth.addActionListener(dateListener); cbStartYear.addActionListener(dateListener);
+        java.awt.event.ActionListener dateListener = e -> {
+            if (!isDataLoading) btnSave.setVisible(true);
+        };
+        cbDay.addActionListener(dateListener);
+        cbMonth.addActionListener(dateListener);
+        cbYear.addActionListener(dateListener);
+        cbStartDay.addActionListener(dateListener);
+        cbStartMonth.addActionListener(dateListener);
+        cbStartYear.addActionListener(dateListener);
     }
 
+    /**
+     * Clears the form fields.
+     */
     private void clearForm() {
         isDataLoading = true;
-        txtName.setText(""); txtPhone.setText(""); txtAddress.setText(""); txtSalary.setText("");
-        txtUsername.setText(""); txtPassword.setText(""); chkIsAdmin.setSelected(false);
+        txtName.setText("");
+        txtPhone.setText("");
+        txtAddress.setText("");
+        txtSalary.setText("");
+        txtUsername.setText("");
+        txtPassword.setText("");
+
+        // Default select SaleStaff
+        for (int i = 0; i < cbRole.getItemCount(); i++) {
+            if (cbRole.getItemAt(i).code.equals("SaleStaff")) {
+                cbRole.setSelectedIndex(i);
+                break;
+            }
+        }
+
         isDataLoading = false;
 
         enableForm(false);
@@ -426,20 +545,56 @@ public class StaffManagerPanel extends JPanel {
         btnDelete.setVisible(false);
     }
 
+    /**
+     * Enables or disables form fields.
+     *
+     * @param enable True to enable, false to disable.
+     */
     private void enableForm(boolean enable) {
-        txtName.setEnabled(enable); txtPhone.setEnabled(enable);
-        txtAddress.setEnabled(enable); txtSalary.setEnabled(enable);
-        cbStartDay.setEnabled(enable); cbStartMonth.setEnabled(enable); cbStartYear.setEnabled(enable);
-        cbDay.setEnabled(enable); cbMonth.setEnabled(enable); cbYear.setEnabled(enable);
-        txtUsername.setEnabled(enable); txtPassword.setEnabled(enable); chkIsAdmin.setEnabled(enable);
+        txtName.setEnabled(enable);
+        txtPhone.setEnabled(enable);
+        txtAddress.setEnabled(enable);
+        txtSalary.setEnabled(enable);
+        cbStartDay.setEnabled(enable);
+        cbStartMonth.setEnabled(enable);
+        cbStartYear.setEnabled(enable);
+        cbDay.setEnabled(enable);
+        cbMonth.setEnabled(enable);
+        cbYear.setEnabled(enable);
+        txtUsername.setEnabled(enable);
+        txtPassword.setEnabled(enable);
+        cbRole.setEnabled(enable);
     }
 
+    /**
+     * Initializes data for date combo boxes.
+     */
     private void initComboBoxData() {
-        for (int i=1; i<=31; i++) { String v = String.format("%02d", i); cbDay.addItem(v); cbStartDay.addItem(v); }
-        for (int i=1; i<=12; i++) { String v = String.format("%02d", i); cbMonth.addItem(v); cbStartMonth.addItem(v); }
-        for (int i=2025; i>=1960; i--) { String v = String.valueOf(i); cbYear.addItem(v); cbStartYear.addItem(v); }
+        for (int i = 1; i <= 31; i++) {
+            String v = String.format("%02d", i);
+            cbDay.addItem(v);
+            cbStartDay.addItem(v);
+        }
+        for (int i = 1; i <= 12; i++) {
+            String v = String.format("%02d", i);
+            cbMonth.addItem(v);
+            cbStartMonth.addItem(v);
+        }
+        for (int i = 2025; i >= 1960; i--) {
+            String v = String.valueOf(i);
+            cbYear.addItem(v);
+            cbStartYear.addItem(v);
+        }
     }
 
+    /**
+     * Sets the selected date in combo boxes.
+     *
+     * @param dateStr The date string (YYYY-MM-DD).
+     * @param d       Day ComboBox.
+     * @param m       Month ComboBox.
+     * @param y       Year ComboBox.
+     */
     private void setComboBoxDate(String dateStr, JComboBox<String> d, JComboBox<String> m, JComboBox<String> y) {
         if (dateStr != null && !dateStr.isEmpty()) {
             String[] parts = dateStr.split("-");
@@ -451,6 +606,11 @@ public class StaffManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Selects a staff member in the list by ID.
+     *
+     * @param id The staff ID.
+     */
     private void selectStaffByID(int id) {
         ListModel<ComboItem> model = listStaff.getModel();
         for (int i = 0; i < model.getSize(); i++) {
@@ -462,17 +622,52 @@ public class StaffManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Refreshes the data in the panel.
+     */
     public void refreshData() {
         loadListData();
         selectStaffByID(selectedStaffID);
     }
 
-    @FunctionalInterface interface DocumentUpdateListener { void update(DocumentEvent e); }
+    @FunctionalInterface
+    interface DocumentUpdateListener {
+        void update(DocumentEvent e);
+    }
+
     static class SimpleDocumentListener implements DocumentListener {
         private final DocumentUpdateListener listener;
-        public SimpleDocumentListener(DocumentUpdateListener listener) { this.listener = listener; }
-        public void insertUpdate(DocumentEvent e) { listener.update(e); }
-        public void removeUpdate(DocumentEvent e) { listener.update(e); }
-        public void changedUpdate(DocumentEvent e) { listener.update(e); }
+
+        public SimpleDocumentListener(DocumentUpdateListener listener) {
+            this.listener = listener;
+        }
+
+        public void insertUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
+
+        public void removeUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
+
+        public void changedUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
+    }
+
+    // --- INNER CLASS FOR ROLE ---
+    private static class RoleItem {
+        String code; // Stored in DB (Admin)
+        String name; // Displayed (Quản trị viên)
+
+        public RoleItem(String code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package Main.HomeManager.Charts;
 
 import Utils.DBConnection;
+import Utils.Session;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,6 +17,10 @@ import java.util.function.BiConsumer;
 
 import static Utils.Style.showError;
 
+/**
+ * Panel for displaying a Pie Chart.
+ * Used to show sales distribution by category.
+ */
 public class PieChartPanel extends JPanel {
     private final List<Slice> slices = new ArrayList<>();
     private final Color[] colors = {
@@ -29,6 +34,11 @@ public class PieChartPanel extends JPanel {
 
     private final BiConsumer<String, String> onSliceClick;
 
+    /**
+     * Constructor to initialize the Pie Chart Panel.
+     *
+     * @param onSliceClick Callback function to execute when a slice is clicked.
+     */
     public PieChartPanel(BiConsumer<String, String> onSliceClick) {
         this.onSliceClick = onSliceClick;
 
@@ -46,19 +56,38 @@ public class PieChartPanel extends JPanel {
         this.add(pLegend, BorderLayout.EAST);
     }
 
+    /**
+     * Generates SQL date filter condition based on the selected period.
+     *
+     * @param period The selected period string.
+     * @return SQL condition string.
+     */
     private String getSqlDateFilter(String period) {
         return switch (period) {
             case "Hôm nay" -> "DATE(i.inv_date) = DATE('now', 'localtime')";
             case "Tháng này" -> "strftime('%Y-%m', i.inv_date) = strftime('%Y-%m', 'now', 'localtime')";
-            case "Quý này" -> "(CAST(strftime('%m', i.inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
+            case "Quý này" ->
+                    "(CAST(strftime('%m', i.inv_date) AS INTEGER) + 2) / 3 = (CAST(strftime('%m', 'now', 'localtime') AS INTEGER) + 2) / 3 AND strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
             case "Năm nay" -> "strftime('%Y', i.inv_date) = strftime('%Y', 'now', 'localtime')";
             default -> "i.inv_date >= date('now', '-6 days', 'localtime')";
         };
     }
 
+    /**
+     * Loads pie chart data from the database based on the selected period.
+     *
+     * @param period The time period to filter by.
+     */
     public void loadPieData(String period) {
         this.currentPeriod = period;
         slices.clear();
+
+        if (!Session.canViewStats()) {
+            canvas.repaint();
+            buildLegend();
+            return;
+        }
+
         String dateFilter = getSqlDateFilter(period);
 
         String sql = "SELECT t.type_name, SUM(d.ind_count) as total " +
@@ -85,6 +114,9 @@ public class PieChartPanel extends JPanel {
         }
     }
 
+    /**
+     * Builds the legend for the pie chart.
+     */
     private void buildLegend() {
         pLegend.removeAll();
         addLegendItem(null, "Tất cả", Color.GRAY);
@@ -98,6 +130,13 @@ public class PieChartPanel extends JPanel {
         pLegend.repaint();
     }
 
+    /**
+     * Adds an item to the legend.
+     *
+     * @param s    The slice object.
+     * @param text The legend text.
+     * @param c    The legend color.
+     */
     private void addLegendItem(Slice s, String text, Color c) {
         JPanel pItem = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         pItem.setBackground(Color.WHITE);
@@ -124,6 +163,9 @@ public class PieChartPanel extends JPanel {
         pLegend.add(pItem);
     }
 
+    /**
+     * Inner class for the chart canvas.
+     */
     class ChartCanvas extends JPanel {
         public ChartCanvas() {
             this.setBackground(Color.WHITE);
@@ -150,7 +192,7 @@ public class PieChartPanel extends JPanel {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             if (slices.isEmpty()) {
-                g2.drawString("Không có dữ liệu", getWidth()/2 - 40, getHeight()/2);
+                g2.drawString("Không có dữ liệu", getWidth() / 2 - 40, getHeight() / 2);
                 return;
             }
 

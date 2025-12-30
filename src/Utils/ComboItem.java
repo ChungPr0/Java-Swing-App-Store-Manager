@@ -1,40 +1,49 @@
 package Utils;
 
 /**
- * Lớp đối tượng hỗ trợ cho JComboBox và JList.
+ * Helper object class for JComboBox and JList.
  * <br>
- * Nhiệm vụ: Lưu trữ một cặp dữ liệu gồm (Tên hiển thị - ID ẩn).
- * Giúp hiển thị tên trên giao diện nhưng khi lập trình viên lấy giá trị sẽ nhận được ID (để lưu vào CSDL).
+ * Responsibility: Stores a data pair consisting of (Display Name - Hidden ID).
+ * Helps display the name on the UI but allows the programmer to retrieve the ID (for DB storage).
  */
 public class ComboItem {
 
-    // --- 1. KHAI BÁO BIẾN ---
-    private final String key;   // Chuỗi văn bản hiển thị (Ví dụ: "Nhân viên A", "Laptop Dell")
-    private final int value;    // Giá trị ID ẩn tương ứng trong Database (Ví dụ: 1, 50, 102)
+    // --- 1. VARIABLES ---
+    private final String key;   // Display text string (e.g., "Employee A", "Laptop Dell")
+    private final int value;    // Corresponding hidden ID value in Database (e.g., 1, 50, 102)
 
-    // --- 2. HÀM KHỞI TẠO (CONSTRUCTOR) ---
+    // --- 2. CONSTRUCTOR ---
+
+    /**
+     * Constructs a ComboItem with a key and a value.
+     *
+     * @param key   The display text.
+     * @param value The hidden ID value.
+     */
     public ComboItem(String key, int value) {
         this.key = key;
         this.value = value;
     }
 
-    // --- 3. CÁC PHƯƠNG THỨC (METHODS) ---
+    // --- 3. METHODS ---
 
     /**
-     * Lấy giá trị ID ẩn của đối tượng.
-     * Dùng khi người dùng chọn một mục trên ComboBox và bạn cần lấy ID để lưu xuống DB.
-     * @return int ID
+     * Retrieves the hidden ID value of the object.
+     * Used when the user selects an item in the ComboBox and you need the ID to save to the DB.
+     *
+     * @return The ID as an integer.
      */
     public int getValue() {
         return value;
     }
 
     /**
-     * Ghi đè phương thức toString().
+     * Overrides the toString() method.
      * <br>
-     * <b>Quan trọng:</b> Các component như JComboBox, JList trong Java Swing sẽ gọi hàm này
-     * để quyết định xem nó sẽ hiển thị chữ gì lên màn hình.
-     * @return String tên hiển thị
+     * <b>Important:</b> Components like JComboBox, JList in Java Swing will call this method
+     * to decide what text to display on the screen.
+     *
+     * @return The display name string.
      */
     @Override
     public String toString() {

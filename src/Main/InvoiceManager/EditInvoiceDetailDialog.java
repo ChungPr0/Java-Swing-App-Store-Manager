@@ -7,50 +7,66 @@ import java.awt.*;
 import static Utils.Style.*;
 
 /**
- * Dialog dùng để chỉnh sửa số lượng sản phẩm trong hóa đơn.
+ * Dialog for editing the quantity of a product in an invoice.
  * <br>
- * Nhiệm vụ:
- * 1. Hiển thị tên sản phẩm và giới hạn số lượng tối đa (Tồn kho + Số lượng hiện tại).
- * 2. Cho phép nhập số lượng mới.
- * 3. Kiểm tra tính hợp lệ (phải > 0 và <= giới hạn) trước khi lưu.
+ * Responsibilities:
+ * 1. Display product name and maximum quantity limit (Stock + Current quantity).
+ * 2. Allow entering a new quantity.
+ * 3. Validate input (must be > 0 and <= limit) before saving.
  */
 public class EditInvoiceDetailDialog extends JDialog {
 
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN ---
+    // --- 1. UI VARIABLES ---
     private JTextField txtQuantity;
     private JButton btnSave, btnCancel;
 
-    // --- 2. BIẾN DỮ LIỆU ---
-    private boolean isConfirmed = false; // Cờ xác nhận người dùng đã bấm Lưu
-    private int newQuantity = 0;         // Giá trị số lượng mới sau khi sửa
-    private final int limit;             // Giới hạn tồn kho tối đa (Max stock)
+    // --- 2. DATA VARIABLES ---
+    private boolean isConfirmed = false; // Flag to confirm user clicked Save
+    private int newQuantity = 0;         // New quantity value after editing
+    private final int limit;             // Maximum stock limit
 
+    /**
+     * Constructor to initialize the Edit Invoice Detail Dialog.
+     *
+     * @param parent       The parent frame.
+     * @param productName  The name of the product.
+     * @param currentQty   The current quantity.
+     * @param limit        The maximum quantity limit.
+     */
     public EditInvoiceDetailDialog(Frame parent, String productName, int currentQty, int limit) {
-        super(parent, true); // Modal = true (Chặn cửa sổ cha)
+        super(parent, true); // Modal = true (Blocks parent window)
         setTitle("Chỉnh Sửa Số Lượng");
 
         this.limit = limit;
 
-        initUI(productName, currentQty, limit); // Dựng giao diện
-        addEvents();                            // Gán sự kiện
+        initUI(productName, currentQty, limit); // Build UI
+        addEvents();                            // Assign events
 
         pack();
-        setLocationRelativeTo(parent);          // Căn giữa màn hình
+        setLocationRelativeTo(parent);          // Center on screen
         setResizable(false);
     }
 
-    // --- 3. KHỞI TẠO GIAO DIỆN (INIT UI) ---
+    // --- 3. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     *
+     * @param productName The name of the product.
+     * @param currentQty  The current quantity.
+     * @param limit       The maximum quantity limit.
+     */
     private void initUI(String productName, int currentQty, int limit) {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
         mainPanel.setBackground(Color.WHITE);
 
-        // A. Tiêu đề form
+        // A. Form Title
         mainPanel.add(createHeaderLabel("SỬA SỐ LƯỢNG"));
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // B. Hiển thị Tên sản phẩm (Read-only)
+        // B. Display Product Name (Read-only)
         JTextField lblName = new JTextField();
         lblName.setText(productName);
         lblName.setEditable(false);
@@ -58,7 +74,7 @@ public class EditInvoiceDetailDialog extends JDialog {
         mainPanel.add(createTextFieldWithLabel(lblName, "Sản phẩm: "));
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // C. Hiển thị Giới hạn tối đa (Read-only)
+        // C. Display Maximum Limit (Read-only)
         JTextField pCount = new JTextField();
         pCount.setText(String.valueOf(limit));
         pCount.setEditable(false);
@@ -66,12 +82,12 @@ public class EditInvoiceDetailDialog extends JDialog {
         mainPanel.add(createTextFieldWithLabel(pCount, "Tối đa có thể nhập: "));
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // D. Ô nhập Số lượng mới (Editable)
+        // D. New Quantity Input (Editable)
         txtQuantity = new JTextField(String.valueOf(currentQty));
         mainPanel.add(createTextFieldWithLabel(txtQuantity, "Số Lượng Mới:"));
         mainPanel.add(Box.createVerticalStrut(25));
 
-        // E. Khu vực nút bấm
+        // E. Button Area
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonPanel.setBackground(Color.WHITE);
 
@@ -84,35 +100,39 @@ public class EditInvoiceDetailDialog extends JDialog {
         mainPanel.add(buttonPanel);
         setContentPane(mainPanel);
 
-        // Bấm Enter để Lưu luôn
+        // Press Enter to Save
         getRootPane().setDefaultButton(btnSave);
     }
 
-    // --- 4. XỬ LÝ SỰ KIỆN (EVENTS) ---
+    // --- 4. EVENT HANDLING ---
+
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
-        // --- CHẶN NHẬP CHỮ ---
+        // --- BLOCK NON-DIGIT INPUT ---
         txtQuantity.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent e) {
-                // Nếu ký tự gõ vào không phải số -> Hủy bỏ (không cho nhập)
+                // If typed character is not a digit -> Cancel (don't allow input)
                 if (!Character.isDigit(e.getKeyChar())) {
                     e.consume();
                 }
             }
         });
 
-        // Sự kiện nút Lưu
+        // Save button event
         btnSave.addActionListener(e -> {
             try {
-                // Parse số lượng từ ô nhập liệu
+                // Parse quantity from input field
                 int qty = Integer.parseInt(txtQuantity.getText().trim());
 
-                // Validate 1: Số lượng phải dương
+                // Validate 1: Quantity must be positive
                 if (qty <= 0) {
                     showError(this, "Số lượng phải lớn hơn 0!");
                     return;
                 }
 
-                // Validate 2: Số lượng không được vượt quá tồn kho
+                // Validate 2: Quantity must not exceed stock limit
                 if (qty > limit) {
                     showError(this,
                             "Kho không đủ hàng!\n" +
@@ -121,7 +141,7 @@ public class EditInvoiceDetailDialog extends JDialog {
                     return;
                 }
 
-                // Nếu hợp lệ -> Lưu dữ liệu và đóng form
+                // If valid -> Save data and close form
                 this.newQuantity = qty;
                 this.isConfirmed = true;
                 dispose();
@@ -131,11 +151,27 @@ public class EditInvoiceDetailDialog extends JDialog {
             }
         });
 
-        // Sự kiện nút Hủy
+        // Cancel button event
         btnCancel.addActionListener(e -> dispose());
     }
 
-    // --- 5. GETTER TRẢ VỀ KẾT QUẢ ---
-    public boolean isConfirmed() { return isConfirmed; }
-    public int getNewQuantity() { return newQuantity; }
+    // --- 5. GETTERS FOR RESULT ---
+
+    /**
+     * Checks if the dialog was confirmed.
+     *
+     * @return true if confirmed, false otherwise.
+     */
+    public boolean isConfirmed() {
+        return isConfirmed;
+    }
+
+    /**
+     * Gets the new quantity.
+     *
+     * @return The new quantity.
+     */
+    public int getNewQuantity() {
+        return newQuantity;
+    }
 }

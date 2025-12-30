@@ -16,6 +16,9 @@ import java.sql.ResultSet;
 
 import static Utils.Style.*;
 
+/**
+ * Dialog for searching customers.
+ */
 public class SearchCustomerDialog extends JDialog {
 
     private JTextField txtSearch;
@@ -24,6 +27,11 @@ public class SearchCustomerDialog extends JDialog {
 
     private ComboItem selectedCustomer = null;
 
+    /**
+     * Constructor to initialize the Search Customer Dialog.
+     *
+     * @param parent The parent frame.
+     */
     public SearchCustomerDialog(Frame parent) {
         super(parent, "Tìm Kiếm Khách Hàng", true);
         initUI();
@@ -33,6 +41,9 @@ public class SearchCustomerDialog extends JDialog {
         setResizable(false);
     }
 
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -73,12 +84,26 @@ public class SearchCustomerDialog extends JDialog {
         getRootPane().setDefaultButton(btnConfirm);
     }
 
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
         // Search as you type
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { search(); }
-            @Override public void removeUpdate(DocumentEvent e) { search(); }
-            @Override public void changedUpdate(DocumentEvent e) { search(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                search();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                search();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                search();
+            }
         });
 
         // Double-click to confirm
@@ -95,6 +120,9 @@ public class SearchCustomerDialog extends JDialog {
         btnCancel.addActionListener(e -> dispose());
     }
 
+    /**
+     * Performs the customer search.
+     */
     private void search() {
         String keyword = txtSearch.getText().trim();
         if (keyword.isEmpty() || keyword.equals("Nhập tên hoặc SĐT...")) {
@@ -127,6 +155,9 @@ public class SearchCustomerDialog extends JDialog {
         }
     }
 
+    /**
+     * Confirms the selected customer.
+     */
     private void confirmSelection() {
         selectedCustomer = listResults.getSelectedValue();
         if (selectedCustomer == null) {
@@ -136,6 +167,11 @@ public class SearchCustomerDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Gets the selected customer.
+     *
+     * @return The selected customer as a ComboItem.
+     */
     public ComboItem getSelectedCustomer() {
         return selectedCustomer;
     }

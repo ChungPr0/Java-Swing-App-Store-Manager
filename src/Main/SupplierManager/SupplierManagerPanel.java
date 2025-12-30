@@ -2,6 +2,7 @@ package Main.SupplierManager;
 
 import Utils.ComboItem;
 import Utils.DBConnection;
+import Utils.Session;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -17,8 +18,12 @@ import java.text.DecimalFormat;
 
 import static Utils.Style.*;
 
+/**
+ * Panel for managing suppliers.
+ * Allows adding, editing, deleting, and searching for suppliers.
+ */
 public class SupplierManagerPanel extends JPanel {
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN ---
+    // --- 1. UI VARIABLES ---
     private JList<ComboItem> listSupplier;
     private JTextField txtSearch, txtName, txtPhone, txtAddress;
     private JTextArea txtDescription;
@@ -26,16 +31,19 @@ public class SupplierManagerPanel extends JPanel {
     private JButton btnAdd, btnSave, btnDelete;
     private JButton btnSort;
 
-    // Bảng sản phẩm
+    // Product Table
     private JTable tableProducts;
     private DefaultTableModel modelProducts;
 
-    // --- 2. BIẾN TRẠNG THÁI ---
+    // --- 2. STATE VARIABLES ---
     private int currentSortIndex = 0;
     private final String[] sortModes = {"A-Z", "Z-A", "NEW", "OLD"};
-    private int selectedSupID = -1; // -1: Chế độ thêm mới
+    private int selectedSupID = -1; // -1: Create mode
     private boolean isDataLoading = false;
 
+    /**
+     * Constructor to initialize the Supplier Manager Panel.
+     */
     public SupplierManagerPanel() {
         initUI();
         initComboBoxData();
@@ -44,13 +52,17 @@ public class SupplierManagerPanel extends JPanel {
         addChangeListeners();
     }
 
-    // --- 3. KHỞI TẠO GIAO DIỆN ---
+    // --- 3. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
         this.setLayout(new BorderLayout(10, 10));
         this.setBorder(new EmptyBorder(10, 10, 10, 10));
         this.setBackground(Color.decode("#ecf0f1"));
 
-        // A. PANEL TRÁI (DANH SÁCH)
+        // A. LEFT PANEL (LIST)
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
         leftPanel.setPreferredSize(new Dimension(250, 0));
         leftPanel.setOpaque(false);
@@ -67,9 +79,9 @@ public class SupplierManagerPanel extends JPanel {
         listSupplier.setFixedCellHeight(30);
         leftPanel.add(new JScrollPane(listSupplier), BorderLayout.CENTER);
 
-        // B. PANEL PHẢI (FORM + TABLE + FOOTER)
+        // B. RIGHT PANEL (FORM + TABLE + FOOTER)
 
-        // B1. Form Panel (Cuộn được)
+        // B1. Form Panel (Scrollable)
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBackground(Color.WHITE);
@@ -82,7 +94,9 @@ public class SupplierManagerPanel extends JPanel {
         formPanel.add(createTextFieldWithLabel(txtName, "Tên Nhà Cung Cấp:"));
         formPanel.add(Box.createVerticalStrut(15));
 
-        cbDay = new JComboBox<>(); cbMonth = new JComboBox<>(); cbYear = new JComboBox<>();
+        cbDay = new JComboBox<>();
+        cbMonth = new JComboBox<>();
+        cbYear = new JComboBox<>();
         JPanel pDate = createDatePanel("Ngày bắt đầu hợp tác:", cbDay, cbMonth, cbYear);
         formPanel.add(pDate);
         formPanel.add(Box.createVerticalStrut(15));
@@ -100,31 +114,34 @@ public class SupplierManagerPanel extends JPanel {
         formPanel.add(pDescription);
         formPanel.add(Box.createVerticalStrut(15));
 
-        // Bảng sản phẩm cung cấp
+        // Supplied Products Table
         String[] cols = {"Mã SP", "Tên Sản Phẩm", "Giá Bán", "Tồn Kho", "Đã Bán"};
         modelProducts = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
         tableProducts = new JTable(modelProducts);
 
-        // Căn giữa cột Mã SP
+        // Center align Product ID column
         javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         tableProducts.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         tableProducts.getColumnModel().getColumn(0).setMaxWidth(50);
 
         JPanel pTable = createTableWithLabel(tableProducts, "CÁC SẢN PHẨM CUNG CẤP");
-        pTable.setPreferredSize(new Dimension(0, 180)); // Chiều cao cố định cho bảng
+        pTable.setPreferredSize(new Dimension(0, 180)); // Fixed height for table
         formPanel.add(pTable);
 
-        formPanel.add(Box.createVerticalGlue()); // Đẩy nội dung lên trên
+        formPanel.add(Box.createVerticalGlue()); // Push content up
 
         JScrollPane scrollForm = new JScrollPane(formPanel);
         scrollForm.setBorder(null);
         scrollForm.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollForm.getVerticalScrollBar().setUnitIncrement(16);
 
-        // B2. Footer Panel (Cố định)
+        // B2. Footer Panel (Fixed)
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         footerPanel.setBackground(Color.WHITE);
         footerPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -139,8 +156,8 @@ public class SupplierManagerPanel extends JPanel {
         btnSave.setVisible(false);
         btnDelete.setVisible(false);
 
-        // Chỉ Admin mới thấy nút Thêm
-        if (!Utils.Session.isAdmin()) {
+        // Only Admin or StorageStaff can see Add button
+        if (!Session.canManageSuppliers()) {
             btnAdd.setVisible(false);
         }
 
@@ -148,7 +165,7 @@ public class SupplierManagerPanel extends JPanel {
         footerPanel.add(btnSave);
         footerPanel.add(btnDelete);
 
-        // B3. Ghép vào Panel Phải
+        // B3. Combine into Right Panel
         JPanel rightContainer = new JPanel(new BorderLayout());
         rightContainer.add(scrollForm, BorderLayout.CENTER);
         rightContainer.add(footerPanel, BorderLayout.SOUTH);
@@ -159,7 +176,11 @@ public class SupplierManagerPanel extends JPanel {
         enableForm(false);
     }
 
-    // --- 4. TẢI DỮ LIỆU ---
+    // --- 4. DATA LOADING ---
+
+    /**
+     * Loads the list of suppliers from the database.
+     */
     private void loadListData() {
         DefaultListModel<ComboItem> model = new DefaultListModel<>();
         String keyword = txtSearch.getText().trim();
@@ -170,10 +191,17 @@ public class SupplierManagerPanel extends JPanel {
             if (isSearching) sql.append(" WHERE sup_name LIKE ?");
 
             switch (currentSortIndex) {
-                case 1: sql.append(" ORDER BY sup_name DESC"); break;
-                case 2: sql.append(" ORDER BY sup_start_date DESC"); break;
-                case 3: sql.append(" ORDER BY sup_start_date ASC"); break;
-                default: sql.append(" ORDER BY sup_name ASC");
+                case 1:
+                    sql.append(" ORDER BY sup_name DESC");
+                    break;
+                case 2:
+                    sql.append(" ORDER BY sup_start_date DESC");
+                    break;
+                case 3:
+                    sql.append(" ORDER BY sup_start_date ASC");
+                    break;
+                default:
+                    sql.append(" ORDER BY sup_name ASC");
             }
 
             PreparedStatement ps = con.prepareStatement(sql.toString());
@@ -189,20 +217,25 @@ public class SupplierManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Loads products supplied by a specific supplier.
+     *
+     * @param supID The supplier ID.
+     */
     private void loadSupplierProducts(int supID) {
         modelProducts.setRowCount(0);
         DecimalFormat df = new DecimalFormat("#,###");
 
         try (Connection con = DBConnection.getConnection()) {
-            // Lấy SP + tổng số lượng đã bán (từ chi tiết hóa đơn)
+            // Get products + total sold quantity (from invoice details)
             String sql = """
-                SELECT p.pro_id, p.pro_name, p.pro_price, p.pro_count,
-                       COALESCE(SUM(d.ind_count), 0) as sold_count
-                FROM Products p
-                LEFT JOIN Invoice_details d ON p.pro_id = d.pro_id
-                WHERE p.sup_id = ?
-                GROUP BY p.pro_id, p.pro_name, p.pro_price, p.pro_count
-            """;
+                        SELECT p.pro_id, p.pro_name, p.pro_price, p.pro_count,
+                               COALESCE(SUM(d.ind_count), 0) as sold_count
+                        FROM Products p
+                        LEFT JOIN Invoice_details d ON p.pro_id = d.pro_id
+                        WHERE p.sup_id = ?
+                        GROUP BY p.pro_id, p.pro_name, p.pro_price, p.pro_count
+                    """;
 
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, supID);
@@ -217,9 +250,15 @@ public class SupplierManagerPanel extends JPanel {
                         rs.getInt("sold_count")
                 });
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
+    /**
+     * Loads details of a specific supplier.
+     *
+     * @param id The supplier ID.
+     */
     private void loadDetail(int id) {
         isDataLoading = true;
         try (Connection con = DBConnection.getConnection()) {
@@ -237,12 +276,12 @@ public class SupplierManagerPanel extends JPanel {
 
                 setComboBoxDate(rs.getString("sup_start_date"), cbDay, cbMonth, cbYear);
 
-                if (Utils.Session.isAdmin()) {
+                if (Session.canManageSuppliers()) {
                     enableForm(true);
                     btnAdd.setVisible(true);
                     btnDelete.setVisible(true);
                     btnSave.setText("Lưu");
-                    btnSave.setVisible(false); // Chờ sửa
+                    btnSave.setVisible(false); // Wait for edit
                 } else {
                     enableForm(false);
                     btnAdd.setVisible(false);
@@ -258,7 +297,11 @@ public class SupplierManagerPanel extends JPanel {
         }
     }
 
-    // --- 5. SỰ KIỆN ---
+    // --- 5. EVENTS ---
+
+    /**
+     * Adds event listeners to components.
+     */
     private void addEvents() {
         listSupplier.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -270,7 +313,7 @@ public class SupplierManagerPanel extends JPanel {
             }
         });
 
-        // Double click vào bảng sản phẩm -> Mở chi tiết sản phẩm
+        // Double click on product table -> Open product details
         tableProducts.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -288,13 +331,23 @@ public class SupplierManagerPanel extends JPanel {
         });
 
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { loadListData(); }
-            public void removeUpdate(DocumentEvent e) { loadListData(); }
-            public void changedUpdate(DocumentEvent e) { loadListData(); }
+            public void insertUpdate(DocumentEvent e) {
+                loadListData();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                loadListData();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                loadListData();
+            }
         });
 
         txtPhone.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent e) { if (!Character.isDigit(e.getKeyChar())) e.consume(); }
+            public void keyTyped(java.awt.event.KeyEvent e) {
+                if (!Character.isDigit(e.getKeyChar())) e.consume();
+            }
         });
 
         btnSort.addActionListener(e -> {
@@ -303,26 +356,34 @@ public class SupplierManagerPanel extends JPanel {
             loadListData();
         });
 
-        // --- NÚT THÊM MỚI ---
+        // --- ADD BUTTON ---
         btnAdd.addActionListener(e -> prepareCreate());
 
-        // --- NÚT LƯU (Insert/Update) ---
+        // --- SAVE BUTTON (Insert/Update) ---
         btnSave.addActionListener(e -> saveSupplier());
 
-        // --- NÚT XÓA ---
+        // --- DELETE BUTTON ---
         btnDelete.addActionListener(e -> deleteSupplier());
     }
 
-    // --- CÁC HÀM LOGIC CHÍNH ---
+    // --- MAIN LOGIC METHODS ---
 
+    /**
+     * Prepares the form for creating a new supplier.
+     */
     private void prepareCreate() {
         listSupplier.clearSelection();
-        selectedSupID = -1; // Mode thêm mới
+        selectedSupID = -1; // Create mode
 
         isDataLoading = true;
-        txtName.setText(""); txtPhone.setText(""); txtAddress.setText(""); txtDescription.setText("");
-        cbDay.setSelectedIndex(0); cbMonth.setSelectedIndex(0); cbYear.setSelectedItem(String.valueOf(java.time.Year.now().getValue()));
-        modelProducts.setRowCount(0); // NCC mới chưa có SP
+        txtName.setText("");
+        txtPhone.setText("");
+        txtAddress.setText("");
+        txtDescription.setText("");
+        cbDay.setSelectedIndex(0);
+        cbMonth.setSelectedIndex(0);
+        cbYear.setSelectedItem(String.valueOf(java.time.Year.now().getValue()));
+        modelProducts.setRowCount(0); // New supplier has no products
         isDataLoading = false;
 
         enableForm(true);
@@ -334,6 +395,9 @@ public class SupplierManagerPanel extends JPanel {
         btnSave.setVisible(true);
     }
 
+    /**
+     * Saves the supplier (Insert or Update).
+     */
     private void saveSupplier() {
         if (txtName.getText().trim().isEmpty() || txtPhone.getText().trim().isEmpty()) {
             showError(this, "Tên và SĐT là bắt buộc!");
@@ -351,8 +415,11 @@ public class SupplierManagerPanel extends JPanel {
                 // INSERT
                 String sql = "INSERT INTO Suppliers (sup_name, sup_phone, sup_address, sup_start_date, sup_description) VALUES (?,?,?,?,?)";
                 PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                ps.setString(1, name); ps.setString(2, phone); ps.setString(3, addr);
-                ps.setString(4, date); ps.setString(5, desc);
+                ps.setString(1, name);
+                ps.setString(2, phone);
+                ps.setString(3, addr);
+                ps.setString(4, date);
+                ps.setString(5, desc);
                 ps.executeUpdate();
 
                 ResultSet rs = ps.getGeneratedKeys();
@@ -365,8 +432,11 @@ public class SupplierManagerPanel extends JPanel {
                 // UPDATE
                 String sql = "UPDATE Suppliers SET sup_name=?, sup_phone=?, sup_address=?, sup_start_date=?, sup_description=? WHERE sup_id=?";
                 PreparedStatement ps = con.prepareStatement(sql);
-                ps.setString(1, name); ps.setString(2, phone); ps.setString(3, addr);
-                ps.setString(4, date); ps.setString(5, desc);
+                ps.setString(1, name);
+                ps.setString(2, phone);
+                ps.setString(3, addr);
+                ps.setString(4, date);
+                ps.setString(5, desc);
                 ps.setInt(6, selectedSupID);
 
                 if (ps.executeUpdate() > 0) {
@@ -380,9 +450,12 @@ public class SupplierManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Deletes the selected supplier.
+     */
     private void deleteSupplier() {
-        if(selectedSupID == -1) return;
-        if(showConfirm(this, "Xóa nhà cung cấp này?")){
+        if (selectedSupID == -1) return;
+        if (showConfirm(this, "Xóa nhà cung cấp này?")) {
             try (Connection con = DBConnection.getConnection()) {
                 PreparedStatement ps = con.prepareStatement("DELETE FROM Suppliers WHERE sup_id=?");
                 ps.setInt(1, selectedSupID);
@@ -392,17 +465,21 @@ public class SupplierManagerPanel extends JPanel {
                     clearForm();
                 }
             } catch (Exception ex) {
-                if (ex.getMessage().contains("foreign key")) showError(this, "Không thể xóa: NCC đang cung cấp sản phẩm!");
+                if (ex.getMessage().contains("foreign key"))
+                    showError(this, "Không thể xóa: NCC đang cung cấp sản phẩm!");
                 else showError(this, "Lỗi: " + ex.getMessage());
             }
         }
     }
 
-    // --- CÁC HÀM TIỆN ÍCH ---
+    // --- UTILITY METHODS ---
 
+    /**
+     * Adds change listeners to form fields to enable the Save button.
+     */
     private void addChangeListeners() {
         SimpleDocumentListener docListener = new SimpleDocumentListener(e -> {
-            if (!isDataLoading && Utils.Session.isAdmin()) {
+            if (!isDataLoading && Session.canManageSuppliers()) {
                 btnSave.setVisible(true);
                 if (selectedSupID != -1) btnSave.setText("Lưu");
             }
@@ -412,36 +489,66 @@ public class SupplierManagerPanel extends JPanel {
         txtAddress.getDocument().addDocumentListener(docListener);
         txtDescription.getDocument().addDocumentListener(docListener);
 
-        ActionListener dateListener = e -> { if (!isDataLoading && Utils.Session.isAdmin()) btnSave.setVisible(true); };
-        cbDay.addActionListener(dateListener); cbMonth.addActionListener(dateListener); cbYear.addActionListener(dateListener);
+        ActionListener dateListener = e -> {
+            if (!isDataLoading && Session.canManageSuppliers()) btnSave.setVisible(true);
+        };
+        cbDay.addActionListener(dateListener);
+        cbMonth.addActionListener(dateListener);
+        cbYear.addActionListener(dateListener);
     }
 
+    /**
+     * Clears the form fields.
+     */
     private void clearForm() {
         isDataLoading = true;
-        txtName.setText(""); txtPhone.setText(""); txtAddress.setText(""); txtDescription.setText("");
+        txtName.setText("");
+        txtPhone.setText("");
+        txtAddress.setText("");
+        txtDescription.setText("");
         modelProducts.setRowCount(0);
         isDataLoading = false;
 
         enableForm(false);
         selectedSupID = -1;
 
-        if (Utils.Session.isAdmin()) btnAdd.setVisible(true);
+        if (Session.canManageSuppliers()) btnAdd.setVisible(true);
         btnSave.setVisible(false);
         btnDelete.setVisible(false);
     }
 
+    /**
+     * Enables or disables form fields.
+     *
+     * @param enable True to enable, false to disable.
+     */
     private void enableForm(boolean enable) {
-        txtName.setEnabled(enable); txtPhone.setEnabled(enable);
-        txtAddress.setEnabled(enable); txtDescription.setEnabled(enable);
-        cbDay.setEnabled(enable); cbMonth.setEnabled(enable); cbYear.setEnabled(enable);
+        txtName.setEnabled(enable);
+        txtPhone.setEnabled(enable);
+        txtAddress.setEnabled(enable);
+        txtDescription.setEnabled(enable);
+        cbDay.setEnabled(enable);
+        cbMonth.setEnabled(enable);
+        cbYear.setEnabled(enable);
     }
 
+    /**
+     * Initializes data for date combo boxes.
+     */
     private void initComboBoxData() {
-        for (int i=1; i<=31; i++) cbDay.addItem(String.format("%02d", i));
-        for (int i=1; i<=12; i++) cbMonth.addItem(String.format("%02d", i));
-        for (int i=java.time.Year.now().getValue(); i>=1990; i--) cbYear.addItem(String.valueOf(i));
+        for (int i = 1; i <= 31; i++) cbDay.addItem(String.format("%02d", i));
+        for (int i = 1; i <= 12; i++) cbMonth.addItem(String.format("%02d", i));
+        for (int i = java.time.Year.now().getValue(); i >= 1990; i--) cbYear.addItem(String.valueOf(i));
     }
 
+    /**
+     * Sets the selected date in combo boxes.
+     *
+     * @param dateStr The date string (YYYY-MM-DD).
+     * @param d       Day ComboBox.
+     * @param m       Month ComboBox.
+     * @param y       Year ComboBox.
+     */
     private void setComboBoxDate(String dateStr, JComboBox<String> d, JComboBox<String> m, JComboBox<String> y) {
         if (dateStr != null && !dateStr.isEmpty()) {
             String[] parts = dateStr.split("-");
@@ -453,6 +560,11 @@ public class SupplierManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Selects a supplier in the list by ID.
+     *
+     * @param id The supplier ID.
+     */
     private void selectSupplierByID(int id) {
         ListModel<ComboItem> model = listSupplier.getModel();
         for (int i = 0; i < model.getSize(); i++) {
@@ -464,17 +576,36 @@ public class SupplierManagerPanel extends JPanel {
         }
     }
 
+    /**
+     * Refreshes the data in the panel.
+     */
     public void refreshData() {
         loadListData();
         selectSupplierByID(selectedSupID);
     }
 
-    @FunctionalInterface interface DocumentUpdateListener { void update(DocumentEvent e); }
+    @FunctionalInterface
+    interface DocumentUpdateListener {
+        void update(DocumentEvent e);
+    }
+
     static class SimpleDocumentListener implements DocumentListener {
         private final DocumentUpdateListener listener;
-        public SimpleDocumentListener(DocumentUpdateListener listener) { this.listener = listener; }
-        public void insertUpdate(DocumentEvent e) { listener.update(e); }
-        public void removeUpdate(DocumentEvent e) { listener.update(e); }
-        public void changedUpdate(DocumentEvent e) { listener.update(e); }
+
+        public SimpleDocumentListener(DocumentUpdateListener listener) {
+            this.listener = listener;
+        }
+
+        public void insertUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
+
+        public void removeUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
+
+        public void changedUpdate(DocumentEvent e) {
+            listener.update(e);
+        }
     }
 }

@@ -11,7 +11,17 @@ import java.nio.charset.StandardCharsets;
 import static Utils.Style.showError;
 import static Utils.Style.showSuccess;
 
+/**
+ * Utility class for exporting data.
+ */
 public class Export {
+
+    /**
+     * Exports JTable data to an Excel file (HTML format).
+     *
+     * @param table           The JTable containing data to export.
+     * @param defaultFileName The default file name suggested in the save dialog.
+     */
     public static void exportToExcel(JTable table, String defaultFileName) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
@@ -48,7 +58,7 @@ public class Export {
                         Object value = table.getValueAt(i, j);
                         String valStr = (value != null) ? value.toString() : "";
 
-                        // Xử lý các ký tự đặc biệt của HTML để tránh lỗi
+                        // Handle HTML special characters to avoid errors
                         valStr = valStr.replace("&", "&amp;")
                                 .replace("<", "&lt;")
                                 .replace(">", "&gt;");

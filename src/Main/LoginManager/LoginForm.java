@@ -13,50 +13,61 @@ import java.sql.ResultSet;
 
 import static Utils.Style.*;
 
+/**
+ * Login Form class.
+ * Handles user authentication.
+ */
 public class LoginForm extends JFrame {
-    // --- 1. KHAI BÁO BIẾN GIAO DIỆN ---
+    // --- 1. UI VARIABLES ---
     private JTextField txtUsername;
     private JPasswordField txtPassword;
 
+    /**
+     * Constructor to initialize the Login Form.
+     */
     public LoginForm() {
-        // Cấu hình cơ bản cho cửa sổ Đăng nhập
+        // Basic configuration for Login window
         setTitle("Đăng Nhập Hệ Thống");
         setSize(400, 373);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Căn giữa màn hình
+        setLocationRelativeTo(null); // Center on screen
 
-        initUI(); // Khởi tạo giao diện
+        initUI(); // Initialize UI
     }
 
-    // --- 2. KHỞI TẠO GIAO DIỆN (INIT UI) ---
+    // --- 2. UI INITIALIZATION ---
+
+    /**
+     * Initializes the User Interface components.
+     */
     private void initUI() {
-        // Setup Panel chính
+        // Setup Main Panel
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(30, 40, 30, 40));
         mainPanel.setBackground(Color.WHITE);
 
-        // A. Tiêu đề
+        // A. Title
         JLabel lblTitle = createHeaderLabel("ĐĂNG NHẬP");
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         mainPanel.add(lblTitle);
         mainPanel.add(Box.createVerticalStrut(30));
 
-        // B. Ô nhập Tài khoản
+        // B. Username Field
         txtUsername = new JTextField();
         JPanel pUser = createTextFieldWithLabel(txtUsername, "Tài khoản:");
         mainPanel.add(pUser);
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // C. Ô nhập Mật khẩu
+        // C. Password Field
         txtPassword = new JPasswordField();
         JCheckBox chkShowPass = new JCheckBox();
         JPanel pPass = createPasswordFieldWithLabel(txtPassword, "Mật khẩu:", chkShowPass);
         mainPanel.add(pPass);
         mainPanel.add(Box.createVerticalStrut(15));
 
-        // D. Khu vực nút bấm (Đăng nhập / Thoát)
+        // D. Button Area (Login / Exit)
         JPanel pBtn = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         pBtn.setBackground(Color.WHITE);
 
@@ -67,23 +78,27 @@ public class LoginForm extends JFrame {
         pBtn.add(btnExit);
         mainPanel.add(pBtn);
 
-        // Thêm mainPanel vào Frame
+        // Add mainPanel to Frame
         add(mainPanel);
 
-        // E. Gán sự kiện (Events)
-        btnExit.addActionListener(e -> System.exit(0)); // Nút thoát
-        btnLogin.addActionListener(e -> checkLogin());  // Nút đăng nhập
+        // E. Assign Events
+        btnExit.addActionListener(e -> System.exit(0)); // Exit button
+        btnLogin.addActionListener(e -> checkLogin());  // Login button
 
-        // Bấm Enter để Đăng nhập luôn
+        // Press Enter to Login
         getRootPane().setDefaultButton(btnLogin);
     }
 
-    // --- 3. XỬ LÝ LOGIC ĐĂNG NHẬP ---
+    // --- 3. LOGIN LOGIC ---
+
+    /**
+     * Validates user credentials and logs in.
+     */
     private void checkLogin() {
         String user = txtUsername.getText().trim();
-        char[] pass = txtPassword.getPassword(); // 1. Lấy mảng ký tự
+        char[] pass = txtPassword.getPassword(); // 1. Get character array
 
-        // 2. Kiểm tra độ dài mảng
+        // 2. Check length
         if (user.isEmpty() || pass.length == 0) {
             showError(this, "Vui lòng nhập đầy đủ thông tin!");
             return;
@@ -94,7 +109,7 @@ public class LoginForm extends JFrame {
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, user);
 
-            // 3. Chỉ chuyển sang String ngay lúc gửi đi (tạo String tạm thời)
+            // 3. Convert to String only when sending (create temporary String)
             ps.setString(2, new String(pass));
 
             ResultSet rs = ps.executeQuery();
@@ -114,7 +129,7 @@ public class LoginForm extends JFrame {
         } catch (Exception ex) {
             showError(this, "Lỗi kết nối: " + ex.getMessage());
         } finally {
-            // 4. QUAN TRỌNG: Xóa trắng mảng ký tự trong bộ nhớ sau khi dùng xong
+            // 4. IMPORTANT: Clear character array in memory after use
             java.util.Arrays.fill(pass, '0');
         }
     }
