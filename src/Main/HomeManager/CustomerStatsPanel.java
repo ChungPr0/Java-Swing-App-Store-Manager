@@ -79,7 +79,7 @@ public class CustomerStatsPanel extends JPanel {
                 "JOIN Customers c ON i.cus_ID = c.cus_ID " +
                 "WHERE " + dateFilter + " " +
                 "GROUP BY c.cus_ID, c.cus_name, c.cus_phone " +
-                "ORDER BY total DESC"; // Đã bỏ LIMIT 20
+                "ORDER BY total DESC";
 
         try (Connection con = DBConnection.getConnection()) {
             ResultSet rs = con.createStatement().executeQuery(sql);

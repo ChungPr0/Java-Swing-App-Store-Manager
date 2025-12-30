@@ -129,7 +129,7 @@ public class DashBoard extends JFrame {
         btnSupplier.addActionListener(e -> switchTab("SUPPLIER", supplierPanel, btnSupplier));
         btnCustomer.addActionListener(e -> switchTab("CUSTOMER", customerPanel, btnCustomer));
         btnProduct.addActionListener(e -> switchTab("PRODUCT", productPanel, btnProduct));
-        btnDiscount.addActionListener(e -> switchTab("DISCOUNT", discountPanel, btnDiscount)); // [MỚI]
+        btnDiscount.addActionListener(e -> switchTab("DISCOUNT", discountPanel, btnDiscount));
         btnInvoice.addActionListener(e -> switchTab("INVOICE", invoicePanel, btnInvoice));
 
         // Mặc định chọn Trang chủ
@@ -148,7 +148,7 @@ public class DashBoard extends JFrame {
         else if (panel instanceof SupplierManagerPanel) ((SupplierManagerPanel) panel).refreshData();
         else if (panel instanceof CustomerManagerPanel) ((CustomerManagerPanel) panel).refreshData();
         else if (panel instanceof ProductManagerPanel) ((ProductManagerPanel) panel).refreshData();
-        else if (panel instanceof DiscountManagerPanel) ((DiscountManagerPanel) panel).refreshData(); // [MỚI]
+        else if (panel instanceof DiscountManagerPanel) ((DiscountManagerPanel) panel).refreshData();
         else if (panel instanceof InvoiceManagerPanel) ((InvoiceManagerPanel) panel).refreshData();
 
         updateActiveButton(btn);
